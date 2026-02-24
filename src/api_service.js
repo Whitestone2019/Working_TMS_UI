@@ -278,7 +278,15 @@ export const fetchAllTraineeSummary = async () => {
   }
 };
 
-
+export const fetchAllTraineeSummaryAdmin = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/users/all-trainee/summary`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching trainee summary:", error);
+    throw error;
+  }
+}
 
 
 // export const getAllTrainers = async () => {
@@ -783,3 +791,252 @@ export const updateTraineeDepartments = (traineeId, deptIds) => {
     deptIds
   );
 };
+
+export const fetchCompletedSubTopicsByManager = async (managerId) => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/syllabus/syllabus-progress/${managerId}`
+    );
+    return response;
+  } catch (error) {
+    console.error("Error fetching syllabus progress:", error);
+    throw error;
+  }
+};
+
+
+// ================= TRAINING FEEDBACK APIs =================
+
+// export const submitTraineeFeedback = async (syllabusId, userId, feedback) => {
+//   const response = await fetch(
+//     `${process.env.REACT_APP_API_URL}/training/trainee-feedback?syllabusId=${syllabusId}&userId=${userId}&feedback=${encodeURIComponent(feedback)}`,
+//     {
+//       method: "POST",
+//     }
+//   );
+
+//   if (!response.ok) {
+//     throw new Error("Failed to submit feedback");
+//   }
+
+//   return response.text();
+// };
+
+// export const submitTrainerRemark = async (syllabusId, userId, remark) => {
+//   const response = await fetch(
+//     `${process.env.REACT_APP_API_URL}/training/trainer-remark?syllabusId=${syllabusId}&userId=${userId}&remark=${encodeURIComponent(remark)}`,
+//     {
+//       method: "POST",
+//     }
+//   );
+
+//   if (!response.ok) {
+//     throw new Error("Failed to submit trainer remark");
+//   }
+
+//   return response.text();
+// };
+
+// export const submitManagerAssessment = async (syllabusId, userId, assessment) => {
+//   const response = await fetch(
+//     `${process.env.REACT_APP_API_URL}/training/manager-assessment?syllabusId=${syllabusId}&userId=${userId}&assessment=${encodeURIComponent(assessment)}`,
+//     {
+//       method: "POST",
+//     }
+//   );
+
+//   if (!response.ok) {
+//     throw new Error("Failed to submit manager assessment");
+//   }
+
+//   return response.text();
+// };
+
+
+
+export const fetchSyllabusByTrainer = async (trainerId) => {
+  try {
+    const response = await axios.get(`${API_URL}/syllabus/trainer/${trainerId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching syllabus for trainer ${trainerId}:`, error);
+    return [];
+  }
+};
+
+
+// // ================= TRAINER SUBMIT =================
+// export const submitTrainerFeedbackAPI = async (
+//   trngid,
+//   syllabusId,
+//   feedback
+// ) => {
+//   try {
+//     const response = await axios.post(
+//       `${API_URL}/feedback/trainer`,
+//       null,
+//       {
+//         params: {
+//           trngid,
+//           syllabusId,
+//           feedback,
+//         },
+//       }
+//     );
+
+//     return response.data;
+//   } catch (error) {
+//     console.error("Trainer feedback submit error:", error);
+//     throw error;
+//   }
+// };
+
+// ================= TRAINEE SUBMIT =================
+export const submitTraineeFeedbackAPI = async (
+  traineeId,
+  trainerId,
+  syllabusId,
+  feedback
+) => {
+  try {
+    console.log("Trainee Submit:", traineeId, trainerId, syllabusId, feedback);
+
+    const response = await axios.post(
+      `${API_URL}/feedback/trainee`,
+      null,
+      {
+        params: {
+          traineeId,
+          trainerId,
+          syllabusId,
+          feedback,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Trainee feedback submit error:", error.response?.data);
+    console.error("Status:", error.response?.status);
+    console.error("Full Error:", error);
+    throw error;
+  }
+};
+
+// ================= TRAINER SUBMIT =================
+export const submitTrainerFeedbackAPI = async (
+  traineeId,
+  trainerId,
+  syllabusId,
+  feedback
+) => {
+  try {
+    console.log("Trainer Submit:", traineeId, trainerId, syllabusId, feedback);
+
+    const response = await axios.post(
+      `${API_URL}/feedback/trainer`,
+      null,
+      {
+        params: {
+          traineeId,
+          trainerId,
+          syllabusId,
+          feedback,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Trainer feedback submit error:", error.response?.data);
+    console.error("Status:", error.response?.status);
+    console.error("Full Error:", error);
+    throw error;
+  }
+};
+
+
+// ================= GET FEEDBACK =================
+export const getSyllabusFeedbackAPI = async (
+  traineeId,
+  trainerId,
+  syllabusId
+) => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/feedback/data`,
+      {
+        params: {
+          traineeId,
+          trainerId,
+          syllabusId,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Get feedback error:", error.response?.data);
+    console.error("Status:", error.response?.status);
+    throw error;
+  }
+};
+
+
+export const fetchAssignedSyllabusWithFeedbackForAdmin = async (
+  traineeId,
+  managerId
+) => {
+  try {
+    const response = await axios.get(`${API_URL}/feedback/assigned`, {
+      params: {
+        traineeId,
+        managerId,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching syllabus feedback:", error);
+    throw error;
+  }
+};
+
+
+export const fetchAssignedSyllabus = async (traineeId) => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/feedback/assigned-syllabus`,
+      {
+        params: { traineeId },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching assigned syllabus:", error);
+    throw error;
+  }
+};
+
+export const fetchFeedbackBySyllabusForManager = async (traineeId, syllabusId) => {
+  const response = await axios.get(
+    `${API_URL}/feedback/trainee-feedback-by-syllabus`,
+    {
+      params: {
+        traineeId: traineeId,
+        syllabusId: syllabusId
+      }
+    }
+  );
+
+  return response.data;
+};
+
+
+
+export const fetchAllDelays = () => axios.get(`${API_URL}/dashboard/delays`);
+export const fetchTraineeDelays = (traineeId) =>
+  axios.get(`${API_URL}/dashboard/delays/${traineeId}`);
+
+export const fetchManagerDelays = (managerId) =>
+  axios.get(`${API_URL}/dashboard/manager-delays/${managerId}`);

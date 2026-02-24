@@ -960,3 +960,3217 @@ export default AssessmentEntry;
               >
                 View Progress Reports
               </Button> */}
+
+
+
+// import React, { useState, useEffect } from 'react';
+// import { useNavigate } from 'react-router-dom';
+// import Header from '../../components/ui/Header';
+// import NavigationBreadcrumb from '../../components/ui/NavigationBreadcrumb';
+// import TraineeMetricsPanel from './components/TraineeMetricsPanel';
+// import FilterToolbar from './components/FilterToolbar';
+// import TraineeDataTable from './components/TraineeDataTable';
+// import AssessmentEntryModal from './components/AssessmentEntryModal';
+// import { fetchAllTraineeSummary, fetchCompletedSubTopics, fetchTraineeSummaryByManager } from '../../api_service';
+// const ManagerDashboard = () => {
+//   const navigate = useNavigate();
+//   const [selectedTrainees, setSelectedTrainees] = useState([]);
+//   const [showAssessmentModal, setShowAssessmentModal] = useState(false);
+//   const [selectedTraineeForAssessment, setSelectedTraineeForAssessment] = useState(null);
+//   const [traineeInfo, setTraineeInfo] = useState(null);
+
+
+//   const [syllabusOptions, setSyllabusOptions] = useState([
+//     { value: 'all', label: 'All Syllabus' }
+//   ]);
+
+
+//   const [filters, setFilters] = useState({
+//     searchName: '',
+//     syllabusId: 'all',
+//     syllabusStep: 'all',
+//     completionStatus: 'all',
+//     dateFrom: '',
+//     dateTo: ''
+//   });
+
+//   const [trainees, setTrainees] = useState([]);
+//   const [filteredTrainees, setFilteredTrainees] = useState([]);
+
+//   useEffect(() => {
+//     fetchTrainees();
+//     fetchAllSyllabus();
+//   }, []);
+
+
+//   const fetchTrainees = async () => {
+//     try {
+//       const managerUserId = sessionStorage.getItem("userId");
+
+//       if (!managerUserId) {
+//         console.warn("Manager UserId not found");
+//         return;
+//       }
+
+//       const response = await fetchTraineeSummaryByManager(managerUserId);
+
+//       const traineeList = Array.isArray(response?.data) ? response.data : [];
+
+
+//       const transformedList = traineeList.map((trainee) => {
+//         const subtopics = []; // collect all subtopic names
+//         let lastSubTopicName = "Not Started";
+//         let lastStepNumber = -1;
+
+//         trainee?.syllabusProgress?.forEach((syllabus) => {
+//           syllabus?.subTopics?.forEach((sub) => {
+//             subtopics.push(sub.name); // collect name in array
+//             const isCompleted = sub?.stepProgress?.some(sp => sp?.complete === true);
+
+//             if (isCompleted && sub.stepNumber > lastStepNumber) {
+//               lastStepNumber = sub.stepNumber;
+//               lastSubTopicName = sub.name;
+//             }
+//           });
+//         });
+
+//         return {
+//           ...trainee,
+//           subtopics,
+//           currentStep: lastSubTopicName,
+//         };
+//       });
+
+//       console.log("Transformed trainee summary:", transformedList);
+
+//       setTrainees(transformedList);
+//       setFilteredTrainees(transformedList);
+
+//     } catch (err) {
+//       console.error("Error fetching trainee summary:", err);
+//       setTrainees([]);
+//       setFilteredTrainees([]);
+//     }
+//   };
+
+
+
+//   const fetchAllSyllabus = async () => {
+//     try {
+//       const res = await fetchCompletedSubTopics();
+//       const list = res?.data || [];
+
+//       const options = [
+//         { value: 'all', label: 'All Steps', stepNo: 0 }
+//       ];
+
+//       list.forEach((item, index) => {
+//         options.push({
+//           value: item.syllabusId,           // backend value
+//           stepNo: index + 1,                 // static step
+//           label: `Step ${index + 1} : ${item.title}`
+//         });
+//       });
+
+//       // sort by stepNo
+//       options.sort((a, b) => a.stepNo - b.stepNo);
+
+//       setSyllabusOptions(options);
+//     } catch (e) {
+//       console.error('Error fetching syllabus', e);
+//     }
+//   };
+
+
+//   const metrics = {
+//     totalTrainees: trainees?.length,
+//     avgCompletion: Math.round(trainees?.reduce((sum, t) => sum + t?.completionPercentage, 0) / trainees?.length),
+//     pendingAssessments: trainees?.filter(t => {
+//       const lastAssessment = new Date(t.lastAssessmentDate);
+//       const weekAgo = new Date();
+//       weekAgo?.setDate(weekAgo?.getDate() - 7);
+//       return lastAssessment < weekAgo;
+//     })?.length,
+//     upcomingInterviews: trainees?.filter(t => t?.interviewStatus === 'scheduled')?.length
+//   };
+
+//   // Filter trainees based on current filters
+//   useEffect(() => {
+//     let filtered = [...trainees];
+
+//     if (filters?.searchName) {
+//       filtered = filtered?.filter(trainee =>
+//         trainee?.name?.toLowerCase()?.includes(filters?.searchName?.toLowerCase()) ||
+//         trainee?.email?.toLowerCase()?.includes(filters?.searchName?.toLowerCase())
+//       );
+//     }
+//     const getStepNumber = (currentStep) => {
+//       if (!currentStep || currentStep === 'No Assessment Yet') return null;
+//       const match = currentStep.match(/\d+/);
+//       return match ? Number(match[0]) : null;
+//     };
+
+
+//     if (filters?.syllabusStep !== 'all') {
+//       filtered = filtered?.filter(trainee => {
+//         const stepNumber = getStepNumber(trainee?.currentStep);
+
+
+//         return stepNumber === Number(filters?.syllabusStep);
+//       });
+//     }
+
+//     const getStatus = (p) => {
+//       if (p >= 85) return "completed";
+//       if (p > 0) return "in-progress";
+//       return "not-started";
+//     };
+
+
+//     if (filters?.completionStatus !== 'all') {
+//       filtered = filtered?.filter(
+//         trainee => getStatus(trainee?.completionPercentage) === filters?.completionStatus
+//       );
+//     }
+
+
+//     if (filters?.dateFrom) {
+//       filtered = filtered?.filter(trainee => {
+//         const assessmentDate = new Date(trainee.lastAssessmentDate);
+//         const fromDate = new Date(filters.dateFrom);
+//         return assessmentDate >= fromDate;
+//       });
+//     }
+
+//     if (filters?.dateTo) {
+//       filtered = filtered?.filter(trainee => {
+//         const assessmentDate = new Date(trainee.lastAssessmentDate);
+//         const toDate = new Date(filters.dateTo);
+//         return assessmentDate <= toDate;
+//       });
+//     }
+
+//     setFilteredTrainees(filtered);
+//   }, [filters, trainees]);
+
+//   const handleSelectTrainee = (traineeId, isSelected) => {
+//     if (isSelected) {
+//       setSelectedTrainees(prev => [...prev, traineeId]);
+//     } else {
+//       setSelectedTrainees(prev => prev?.filter(id => id !== traineeId));
+//     }
+//   };
+
+//   const handleSelectAll = (isSelected) => {
+//     if (isSelected) {
+//       setSelectedTrainees(filteredTrainees?.map(t => t?.id));
+//     } else {
+//       setSelectedTrainees([]);
+//     }
+//   };
+
+//   const handleSort = (key, direction) => {
+//     const sorted = [...filteredTrainees]?.sort((a, b) => {
+//       let aValue = a?.[key];
+//       let bValue = b?.[key];
+
+//       if (key === 'lastAssessmentDate') {
+//         aValue = new Date(aValue);
+//         bValue = new Date(bValue);
+//       } else if (key === 'completion') {
+//         aValue = a?.completionPercentage;
+//         bValue = b?.completionPercentage;
+//       } else if (typeof aValue === 'string') {
+//         aValue = aValue?.toLowerCase();
+//         bValue = bValue?.toLowerCase();
+//       }
+
+//       if (direction === 'asc') {
+//         return aValue > bValue ? 1 : -1;
+//       } else {
+//         return aValue < bValue ? 1 : -1;
+//       }
+//     });
+
+//     setFilteredTrainees(sorted);
+//   };
+
+
+//   const handleViewProfile = (traineeId) => {
+//     navigate(`/progress-reports?trainee=${traineeId}`);
+//   };
+
+//   const handleAddAssessment = (traineeId) => {
+//     console.log("traineesHHHHH:", traineeId);
+//     const trainee = trainees?.find(t => t?.traineeId === traineeId);
+//     console.log("Selected Trainee for Assessment:", trainee);
+//     setSelectedTraineeForAssessment(trainee);
+//     setShowAssessmentModal(true);
+//   };
+
+//   const handleScheduleInterview = (traineeId) => {
+//     navigate(`/interview-scheduling?trainee=${traineeId}`);
+//   };
+
+
+//   const handleExportReports = () => {
+//     // Mock export functionality
+//     const exportData = {
+//       trainees: filteredTrainees,
+//       exportDate: new Date()?.toISOString(),
+//       filters: filters
+//     };
+
+//     console.log('Exporting reports:', exportData);
+
+//     // Create mock CSV content
+//     const csvContent = [
+//       ['Name', 'Email', 'Current Step', 'Completion %', 'Last Assessment', 'Score', 'Interview Status']?.join(','),
+//       ...filteredTrainees?.map(t => [
+//         t?.name,
+//         t?.email,
+//         t?.currentStep,
+//         t?.completionPercentage,
+//         t?.lastAssessmentDate,
+//         t?.lastAssessmentScore,
+//         t?.interviewStatus
+//       ]?.join(','))
+//     ]?.join('\n');
+
+//     // Create and download file
+//     const blob = new Blob([csvContent], { type: 'text/csv' });
+//     const url = window.URL?.createObjectURL(blob);
+//     const a = document.createElement('a');
+//     a.href = url;
+//     a.download = `trainee-reports-${new Date()?.toISOString()?.split('T')?.[0]}.csv`;
+//     a?.click();
+//     window.URL?.revokeObjectURL(url);
+//   };
+
+//   const handleBulkScheduleInterview = () => {
+//     if (selectedTrainees?.length === 0) {
+
+//       alert('Please select trainees to schedule interviews');
+//       return;
+//     }
+//     navigate(`/interview-scheduling?trainees=${selectedTrainees?.join(',')}`);
+//   };
+
+//   const handleBulkAddAssessment = () => {
+//     navigate('/assessment-entry');
+//   };
+
+//   const handleSubmitAssessment = async (assessmentData) => {
+//     // Mock API call
+//     console.log('Submitting assessment:', assessmentData);
+
+//     // Update trainee's last assessment data
+//     setTrainees(prev => prev?.map(trainee => {
+//       if (trainee?.id === assessmentData?.traineeId) {
+//         return {
+//           ...trainee,
+//           lastAssessmentDate: assessmentData?.assessmentDate,
+//           lastAssessmentScore: assessmentData?.marks,
+//           // Update completion percentage based on assessment
+//           completionPercentage: Math.min(100, trainee?.completionPercentage + 5)
+//         };
+//       }
+//       return trainee;
+//     }));
+
+//     // Simulate API delay
+//     await new Promise(resolve => setTimeout(resolve, 1000));
+//   };
+
+//   const handleLogout = () => {
+//     navigate('/');
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-background">
+//       <Header
+
+//         userName={sessionStorage.getItem("userName") || "User"}
+//         userRole="manager"
+//         onLogout={handleLogout}
+//       />
+//       <main className="pt-16">
+//         <div className="max-w-7xl mx-auto px-6 py-8">
+//           {/* Breadcrumb Navigation */}
+//           <NavigationBreadcrumb userRole="manager" className="mb-6" />
+
+//           {/* Page Header */}
+//           <div className="mb-8">
+//             <h1 className="text-3xl font-bold text-foreground mb-2">Manager Dashboard</h1>
+//             <p className="text-muted-foreground">
+//               Comprehensive oversight of trainee progress with advanced filtering and reporting capabilities
+//             </p>
+//           </div>
+
+//           {/* Metrics Panel */}
+//           <TraineeMetricsPanel metrics={metrics} />
+
+//           {/* Filter Toolbar */}
+//           <FilterToolbar
+//             filters={filters}
+//             syllabusOptions={syllabusOptions}
+//             onFilterChange={setFilters}
+//             onExportReports={handleExportReports}
+//             onScheduleInterview={handleBulkScheduleInterview}
+//             onAddAssessment={handleBulkAddAssessment}
+//             resultsCount={filteredTrainees?.length}
+//           />
+
+//           {/* Trainee Data Table */}
+//           <TraineeDataTable
+//             trainees={filteredTrainees}
+//             selectedTrainees={selectedTrainees}
+//             onSelectTrainee={handleSelectTrainee}
+//             onSelectAll={handleSelectAll}
+//             onViewProfile={handleViewProfile}
+//             onAddAssessment={handleAddAssessment}
+//             onScheduleInterview={handleScheduleInterview}
+//             onSort={handleSort}
+//           />
+
+//           {/* Assessment Entry Modal */}
+//           <AssessmentEntryModal
+//             isOpen={showAssessmentModal}
+//             onClose={() => {
+//               setShowAssessmentModal(false);
+//               setSelectedTraineeForAssessment(null);
+//             }}
+//             trainee={selectedTraineeForAssessment}
+//             onSubmitAssessment={handleSubmitAssessment}
+//           />
+//         </div>
+//       </main>
+//     </div>
+//   );
+// };
+
+// export default ManagerDashboard;
+
+
+
+// import React, { useState, useEffect, useCallback } from "react";
+// import Header from "../../../components/ui/Header";
+// import Button from "../../../components/ui/Button";
+// import { useNavigate } from "react-router-dom";
+// import NavigationBreadcrumb from "../../../components/ui/NavigationBreadcrumb";
+// import Icon from "../../../components/AppIcon";
+// import {
+//   fetchCompletedSubTopics,
+//   fetchSyllabusByTrainer,
+//   approveSubTopicAPI,
+//   rejectSubTopicAPI,
+//   getSyllabusFeedbackAPI,
+//   submitTrainerFeedbackAPI
+// } from "../../../api_service";
+
+// export default function TraineeStepsPage() {
+//   const navigate = useNavigate();
+
+//   const [trainees, setTrainees] = useState([]);
+//   const [selectedTrainee, setSelectedTrainee] = useState(null);
+//   const [expandedSyllabus, setExpandedSyllabus] = useState({});
+//   const [reviewInput, setReviewInput] = useState({});
+//   const [refreshKey, setRefreshKey] = useState(0);
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [shownFeedback, setShownFeedback] = useState({});
+
+//   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+//   const [feedbackText, setFeedbackText] = useState("");
+//   const [feedbackSubtopic, setFeedbackSubtopic] = useState(null);
+
+//   // ---------------- Helper Functions ----------------
+//   const formatCombinedDT = (dt) => {
+//     if (!dt) return "-";
+//     const d = new Date(dt);
+//     return `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+//   };
+
+//   const toggleSyllabus = (key) => {
+//     setExpandedSyllabus((p) => ({ ...p, [key]: !p[key] }));
+//   };
+
+//   const handleDecision = async (subKey, value, progressId) => {
+//     const review = reviewInput[subKey] || "";
+//     if (value === "REJECT" && !review.trim()) {
+//       alert("Review is mandatory for rejection");
+//       return;
+//     }
+
+//     try {
+//       if (value === "ACCEPT") {
+//         await approveSubTopicAPI(progressId, review);
+//         alert("Approved successfully");
+//       } else {
+//         await rejectSubTopicAPI(progressId, review);
+//         alert("Rejected successfully");
+//       }
+//       setRefreshKey((p) => p + 1);
+//       setReviewInput((prev) => {
+//         const next = { ...prev };
+//         delete next[subKey];
+//         return next;
+//       });
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+
+//   const handleLogout = () => navigate("/");
+
+//   // ---------------- Build Trainee Structure ----------------
+//   const buildTraineeStructure = (data = []) => {
+//     const traineeMap = {};
+
+//     data.forEach((syllabus) => {
+//       syllabus.subTopics?.forEach((sub) => {
+//         sub.stepProgress?.forEach((progress) => {
+//           const user = progress.user;
+//           if (!user) return;
+
+//           if (!traineeMap[user.trngid]) {
+//             traineeMap[user.trngid] = {
+//               id: user.trngid,
+//               name: `${user.firstname} ${user.lastname}`,
+//               syllabi: {},
+//             };
+//           }
+
+//           if (!traineeMap[user.trngid].syllabi[syllabus.title]) {
+//             traineeMap[user.trngid].syllabi[syllabus.title] = {
+//               title: syllabus.title,
+//               syllabusId: syllabus.syllabusId,
+//               subTopics: [],
+//             };
+//           }
+
+//           traineeMap[user.trngid].syllabi[syllabus.title].subTopics.push({
+//             id: sub.subTopicId,
+//             progressId: progress.stepProgressId,
+//             name: sub.name,
+//             status: progress.complete ? "COMPLETED" : "PENDING",
+//             managerDecision: progress.checker,
+//             review: progress.review || "",
+//             startDateTime: progress.startDateTime,
+//             endDateTime: progress.endDateTime,
+//           });
+//         });
+//       });
+//     });
+
+//     return Object.values(traineeMap).map((t) => ({
+//       ...t,
+//       syllabi: Object.values(t.syllabi),
+//     }));
+//   };
+
+//   // ---------------- Load Trainees & Syllabus ----------------
+//   const loadData = useCallback(async () => {
+//     setIsLoading(true);
+//     try {
+//       const managerId = sessionStorage.getItem("empid");
+//       const roleName = sessionStorage.getItem("roleName");
+//       let list = [];
+
+//       if (roleName === "CEO") {
+//         const res = await fetchCompletedSubTopics();
+//         list = Array.isArray(res?.data) ? res.data : [];
+//       } else {
+//         const res = await fetchSyllabusByTrainer(managerId);
+//         list = Array.isArray(res) ? res : [];
+//       }
+
+//       const structured = buildTraineeStructure(list);
+//       setTrainees(structured);
+
+//       // Keep previous selection or default first trainee
+//       if (selectedTrainee) {
+//         const updated = structured.find((t) => t.id === selectedTrainee.id);
+//         setSelectedTrainee(updated || structured[0] || null);
+//       } else {
+//         setSelectedTrainee(structured[0] || null);
+//       }
+//     } catch (err) {
+//       console.error("API ERROR:", err);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   }, [selectedTrainee?.id]);
+
+//   useEffect(() => {
+//   const showFeedbackForTrainees = async () => {
+//     if (!trainees || trainees.length === 0) return;
+
+//     for (const trainee of trainees) {
+//       for (const syllabus of trainee.syllabi) {
+//         const lastSub = syllabus.subTopics?.[syllabus.subTopics.length - 1];
+//         if (!lastSub) continue;
+
+//         // ✅ status = "COMPLETED" & checker = true
+//         if (lastSub.status === "COMPLETED" && lastSub.managerDecision === true) {
+//           const key = `${trainee.id}-${syllabus.syllabusId}`;
+//           if (shownFeedback[key]) continue;
+
+//           let feedbackRes = null;
+//           try {
+//             feedbackRes = await getSyllabusFeedbackAPI(trainee.id, syllabus.syllabusId);
+//           } catch (err) {
+//             if (err?.response?.status !== 404) console.error(err);
+//           }
+
+//           if (!feedbackRes || feedbackRes.feedbackGivenTrainer === false) {
+//             setFeedbackSubtopic({ ...lastSub, syllabusTitle: syllabus.title, syllabusId: syllabus.syllabusId });
+//             setFeedbackText(feedbackRes?.feedback || "");
+//             setShowFeedbackModal(true);
+//             setShownFeedback((prev) => ({ ...prev, [key]: true }));
+
+//             // Stop after showing first eligible feedback
+//             return;
+//           }
+//         }
+//       }
+//     }
+//   };
+
+//   showFeedbackForTrainees();
+// }, [trainees]);
+
+
+//   // ---------------- Check & Show Feedback Modal ----------------
+//   const checkFeedbackModal = async (trainee) => {
+//     if (!trainee) return;
+
+//     for (let syllabus of trainee.syllabi) {
+//       const lastSub = syllabus.subTopics?.[syllabus.subTopics.length - 1];
+//       if (!lastSub) continue;
+
+//       if (lastSub.status === true && lastSub.managerDecision === true) {
+//         const key = `${trainee.id}-${syllabus.syllabusId}`;
+//         if (shownFeedback[key]) continue;
+
+//         let feedbackRes = null;
+//         try {
+//           feedbackRes = await getSyllabusFeedbackAPI(trainee.id, syllabus.syllabusId);
+//         } catch (err) {
+//           if (err?.response?.status !== 404) console.error(err);
+//         }
+
+//         if (!feedbackRes || feedbackRes.feedbackGivenTrainer === false) {
+//           setFeedbackSubtopic({ ...lastSub, syllabusTitle: syllabus.title, syllabusId: syllabus.syllabusId });
+//           setFeedbackText(feedbackRes?.feedback || "");
+//           setShowFeedbackModal(true);
+//           setShownFeedback((prev) => ({ ...prev, [key]: true }));
+//         }
+//       }
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (trainees && trainees.length > 0) {
+//       trainees.forEach((t) => checkFeedbackModal(t));
+//     }
+//   }, [trainees, refreshKey]);
+
+//   // ---------------- Render ----------------
+//   return (
+//     <div className="min-h-screen bg-blue-50">
+//       <Header
+//         userName={sessionStorage.getItem("userName") || "User"}
+//         userRole="manager"
+//         onLogout={handleLogout}
+//       />
+
+//       <main className="pt-20 max-w-7xl mx-auto px-2">
+//         <NavigationBreadcrumb userRole="manager" />
+
+//         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mt-6">
+//           {/* LEFT PANEL */}
+//           <div className="bg-white border border-blue-200 rounded-2xl shadow">
+//             <div className="p-3 bg-blue-100 rounded-t-2xl font-bold text-blue-800 flex justify-between items-center">
+//               <span className="flex gap-2"><Icon name="Users" size={18} /> Trainees</span>
+//               {isLoading && <Icon name="RotateCw" size={14} className="animate-spin" />}
+//             </div>
+
+//             <div className="max-h-[300px] overflow-y-auto">
+//               {trainees.map((t) => (
+//                 <div
+//                   key={t.id}
+//                   onClick={() => setSelectedTrainee(t)}
+//                   className={`p-3 cursor-pointer text-sm hover:bg-blue-50 ${selectedTrainee?.id === t.id ? "bg-blue-100 font-semibold" : ""}`}
+//                 >
+//                   {t.name}
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
+
+//           {/* RIGHT PANEL */}
+//           <div className="lg:col-span-4 bg-white border border-blue-200 rounded-2xl shadow">
+//             <div className="p-4 bg-blue-100 rounded-t-2xl font-bold text-blue-800 flex justify-between">
+//               <span>Syllabus – {selectedTrainee?.name || "Select Trainee"}</span>
+//               {isLoading && <span className="text-xs font-normal">Updating...</span>}
+//             </div>
+
+//             <div className="p-2 overflow-x-auto">
+//               <table className="w-full min-w-[1000px] table-fixed text-sm">
+//                 <thead>
+//                   <tr className="bg-blue-100">
+//                     <th className="p-3 text-left w-[100px]">Topic</th>
+//                     <th className="p-3 text-center w-[100px]">Status</th>
+//                     <th className="p-3 text-center w-[200px]">Start Time</th>
+//                     <th className="p-3 text-center w-[200px]">End Time</th>
+//                     <th className="p-3 text-left w-[180px]">Review</th>
+//                     <th className="p-3 text-center w-[100px]">Accept</th>
+//                     <th className="p-3 text-center w-[100px]">Reject</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody>
+//                   {selectedTrainee?.syllabi?.map((syllabus) => {
+//                     const syllabusKey = `syllabus-${syllabus.title}`;
+//                     return (
+//                       <React.Fragment key={syllabusKey}>
+//                         <tr onClick={() => toggleSyllabus(syllabusKey)} className="bg-blue-50 cursor-pointer">
+//                           <td className="p-3 font-semibold flex gap-2">
+//                             <Icon name={expandedSyllabus[syllabusKey] ? "ChevronDown" : "ChevronRight"} size={16} />
+//                             {syllabus.title}
+//                           </td>
+//                           <td colSpan="6"></td>
+//                         </tr>
+//                         {expandedSyllabus[syllabusKey] && syllabus.subTopics.map((st) => {
+//                           const subKey = `${syllabusKey}-${st.id}`;
+//                           return (
+//                             <tr key={subKey} className="border-b">
+//                               <td className="p-3 pl-6">{st.name}</td>
+//                               <td className="p-3 text-center">
+//                                 {st.managerDecision === true && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Accepted</span>}
+//                                 {st.managerDecision === false && <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs">Rejected</span>}
+//                                 {st.managerDecision === null && <span className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs">{st.status}</span>}
+//                               </td>
+//                               <td className="p-3 text-center">{formatCombinedDT(st.startDateTime)}</td>
+//                               <td className="p-3 text-center">{formatCombinedDT(st.endDateTime)}</td>
+//                               <td className="p-3">
+//                                 <input
+//                                   className="w-full border rounded px-2 py-1"
+//                                   placeholder="Review"
+//                                   value={reviewInput[subKey] ?? st.review ?? ""}
+//                                   onChange={(e) => setReviewInput((p) => ({ ...p, [subKey]: e.target.value }))}
+//                                 />
+//                               </td>
+//                               <td className="p-3 text-center">
+//                                 <input type="radio" name={`decision-${subKey}`} checked={st.managerDecision === true} onChange={() => handleDecision(subKey, "ACCEPT", st.progressId)} />
+//                               </td>
+//                               <td className="p-3 text-center">
+//                                 <input type="radio" name={`decision-${subKey}`} checked={st.managerDecision === false} onChange={() => handleDecision(subKey, "REJECT", st.progressId)} />
+//                               </td>
+//                             </tr>
+//                           );
+//                         })}
+//                       </React.Fragment>
+//                     );
+//                   })}
+//                 </tbody>
+//               </table>
+//             </div>
+//           </div>
+//         </div>
+//       </main>
+
+//       {/* ---------------- Feedback Modal ---------------- */}
+//       {showFeedbackModal && feedbackSubtopic && (
+//         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+//           <div className="bg-card p-6 rounded-lg max-w-md w-full mx-4">
+//             <div className="text-center">
+//               <Icon name="CheckCircle" size={48} className="text-success mx-auto mb-4" />
+//               <h3 className="text-lg font-semibold text-foreground mb-2">Feedback</h3>
+
+//               <textarea
+//                 className="w-full border p-2 rounded mb-4"
+//                 placeholder="Enter your feedback..."
+//                 value={feedbackText}
+//                 onChange={(e) => setFeedbackText(e.target.value)}
+//                 rows={4}
+//               />
+
+//               <div className="flex space-x-3">
+//                 <Button
+//                   variant="outline"
+//                   onClick={() => { setShowFeedbackModal(false); setFeedbackText(""); }}
+//                   className="flex-1"
+//                 >
+//                   Cancel
+//                 </Button>
+
+//                 <Button
+//                   variant="success"
+//                   disabled={feedbackText.trim() === ""}
+//                   className="flex-1"
+//                   onClick={async () => {
+//                     try {
+//                       const trainerId = sessionStorage.getItem("empid");
+//                       await submitTrainerFeedbackAPI(
+//                         selectedTrainee.id,
+//                         trainerId,
+//                         feedbackSubtopic.syllabusId,
+//                         feedbackText
+//                       );
+//                       setShowFeedbackModal(false);
+//                       setFeedbackText("");
+//                       setRefreshKey((p) => p + 1);
+//                       alert("Feedback submitted successfully!");
+//                     } catch (err) {
+//                       console.error(err);
+//                       alert("Failed to submit feedback");
+//                     }
+//                   }}
+//                 >
+//                   Submit
+//                 </Button>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+
+//Working Deadline Service
+
+
+// package whitestone.trainee_management.service;
+
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.boot.context.event.ApplicationReadyEvent;
+// import org.springframework.context.event.EventListener;
+// import org.springframework.mail.SimpleMailMessage;
+// import org.springframework.mail.javamail.JavaMailSender;
+// import org.springframework.scheduling.annotation.Scheduled;
+// import org.springframework.stereotype.Service;
+// import org.springframework.transaction.annotation.Transactional;
+// import whitestone.trainee_management.models.*;
+// import whitestone.trainee_management.repository.*;
+
+// import java.time.LocalDateTime;
+// import java.time.temporal.ChronoUnit;
+// import java.util.List;
+
+// @Service
+// public class DeadlineService {
+
+//     @Autowired
+//     private UserRepository userRepository;
+
+//     @Autowired
+//     private SyllabusRepository syllabusRepository;
+
+//     @Autowired
+//     private StepProgressRepository stepProgressRepository;
+
+//     @Autowired
+//     private JavaMailSender mailSender;
+
+//     // Trigger check as soon as the backend starts
+//     @EventListener(ApplicationReadyEvent.class)
+//     public void runOnStartup() {
+//         System.out.println("🚀 Backend Started: Initializing Deadline Check...");
+//         checkSyllabusDeadlines();
+//     }
+
+//     /**
+//      * Checks continuously every 1 hour (3600000ms).
+//      * @Transactional prevents LazyInitializationException for syllabus.getSubTopics()
+//      */
+//     @Scheduled(fixedDelay = 60000) 
+//     @Transactional
+//     public void checkSyllabusDeadlines() {
+//         List<User> trainees = userRepository.findByRole_IsManagerFalse();
+//         List<Syllabus> syllabusList = syllabusRepository.findAll();
+
+//         for (User trainee : trainees) {
+//             String userId = trainee.getUserid();
+//             LocalDateTime stepStartDate = trainee.getCreatedAt();
+
+//             for (Syllabus syllabus : syllabusList) {
+//                 Long syllabusId = syllabus.getId();
+//                 long duration = syllabus.getDurationInDays();
+//                 LocalDateTime stepEndDate = stepStartDate.plusDays(duration);
+                
+//                 // If daysLeft < 0, deadline is missed
+//                 long daysLeft = ChronoUnit.DAYS.between(LocalDateTime.now(), stepEndDate);
+
+//                 boolean completed = stepProgressRepository
+//                         .existsByUser_UseridAndSubTopic_Syllabus_IdAndCompleteTrue(userId, syllabusId);
+
+//                 boolean mailAlreadySent = stepProgressRepository
+//                         .existsByUser_UseridAndSubTopic_Syllabus_IdAndDeadlineMailSentTrue(userId, syllabusId);
+
+//                 // TRIGGER: Missed deadline + Not Completed + Mail Not Sent Yet
+//                 if (!completed && daysLeft < 0 && !mailAlreadySent) {
+                    
+//                     sendDeadlineMail(trainee, syllabus, daysLeft);
+                    
+//                     // Update DB so this trigger only fires ONCE
+//                     updateMailFlagInDatabase(trainee, syllabus, daysLeft);
+//                 }
+
+//                 // Sequential calculation: Next syllabus starts after current ends
+//                 stepStartDate = stepEndDate.plusDays(1);
+//             }
+//         }
+//     }
+
+//     private void updateMailFlagInDatabase(User trainee, Syllabus syllabus, long daysLeft) {
+//         List<StepProgress> progressRecords = stepProgressRepository
+//                 .findByUser_UseridAndSubTopic_Syllabus_Id(trainee.getUserid(), syllabus.getId());
+
+//         if (!progressRecords.isEmpty()) {
+//             // If records exist, update all rows for that syllabus
+//             for (StepProgress sp : progressRecords) {
+//                 sp.setDeadlineMailSent(true);
+//                 sp.setDelayDays(Math.abs(daysLeft));
+//                 stepProgressRepository.save(sp);
+//             }
+//             System.out.println("✅ Database updated: Mail flag set for " + trainee.getFirstname());
+//         } else {
+//             // If no record exists, create a placeholder for the first subtopic
+//             if (syllabus.getSubTopics() != null && !syllabus.getSubTopics().isEmpty()) {
+//                 StepProgress placeholder = new StepProgress();
+//                 placeholder.setUser(trainee);
+//                 placeholder.setSubTopic(syllabus.getSubTopics().get(0)); 
+//                 placeholder.setDeadlineMailSent(true);
+//                 placeholder.setComplete(false);
+//                 placeholder.setDelayDays(Math.abs(daysLeft));
+                
+//                 stepProgressRepository.save(placeholder);
+//                 System.out.println("💾 Created placeholder record to store Mail Flag for " + trainee.getFirstname());
+//             }
+//         }
+//     }
+
+//     private void sendDeadlineMail(User trainee, Syllabus syllabus, long delayDays) {
+//         User manager = trainee.getManagerData();
+//         String managerEmail = (manager != null) ? manager.getEmailid() : null;
+//         String traineeEmail = trainee.getEmailid();
+
+//         String subject = "Deadline Missed - " + syllabus.getTitle();
+//         String message = String.format(
+//             "Trainee: %s %s\nSyllabus: %s\nStatus: OVERDUE\nDelayed By: %d days",
+//             trainee.getFirstname(), trainee.getLastname(), syllabus.getTitle(), Math.abs(delayDays)
+//         );
+
+//         try {
+//             if (managerEmail != null) sendMail(managerEmail, subject, message);
+//             if (traineeEmail != null) sendMail(traineeEmail, subject, message);
+//         } catch (Exception e) {
+//             System.out.println("❌ Email Error: " + e.getMessage());
+//         }
+//     }
+
+//     private void sendMail(String to, String subject, String text) {
+//         SimpleMailMessage mail = new SimpleMailMessage();
+//         mail.setTo(to);
+//         mail.setSubject(subject);
+//         mail.setText(text);
+//         mailSender.send(mail);
+//     }
+// }
+
+
+<div className="bg-card rounded-lg border border-border p-6">
+  <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+    <Icon name="AlertCircle" size={20} className="mr-2 text-red-500" />
+    Overdue Syllabus
+  </h3>
+  {delays.length === 0 ? (
+    <p className="text-sm text-muted-foreground">No overdue syllabus.</p>
+  ) : (
+    <ul className="space-y-2 max-h-64 overflow-y-auto">
+      {delays.map(d => (
+        <li key={d.syllabusId} className="flex justify-between text-sm">
+          <span>{d.syllabusId}</span>
+          <span className="text-red-500 font-medium">{d.delayDays} days overdue</span>
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
+
+// Changes-24/2/26
+// import React, { useState, useEffect } from 'react';
+// import Button from '../../../components/ui/Button';
+// import Input from '../../../components/ui/Input';
+// import Select from '../../../components/ui/Select';
+// import {
+//   fetchAssessmentsByTrainee,
+//   createAssessment,
+//   updateAssessment, fetchCompletedSubTopics
+// } from "../../../api_service";
+
+// const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
+
+//   /* ---------------- STATES ---------------- */
+//   const [assessmentList, setAssessmentList] = useState([]);
+//   const [existingAssessmentId, setExistingAssessmentId] = useState(null);
+//   const [apiError, setApiError] = useState('');
+//   const [completedSubTopics, setCompletedSubTopics] = useState([]);
+//   const [showUpdateAlert, setShowUpdateAlert] = useState(false);
+
+
+//   const [assessmentData, setAssessmentData] = useState({
+//     traineeId: '',
+//     assessmentType: '',
+//     marks: '',
+//     maxMarks: '100',
+//     remarks: '',
+//     assessmentDate: new Date().toISOString().split('T')[0],
+//     subTopicId: ''
+//   });
+
+//   const [errors, setErrors] = useState({});
+//   const [isSubmitting, setIsSubmitting] = useState(false);
+
+//   /* ---------------- OPTIONS ---------------- */
+//   const assessmentTypeOptions = [
+//     { value: 'weekly', label: 'Weekly Assessment' },
+//     { value: 'monthly', label: 'Monthly Assessment' },
+//     { value: 'module', label: 'Module Assessment' },
+//     { value: 'practical', label: 'Practical Assessment' },
+//     { value: 'project', label: 'Project Assessment' }
+//   ];
+
+//   useEffect(() => {
+//     if (!isOpen) return;
+
+//     setAssessmentList([]);
+//     setExistingAssessmentId(null);
+//     setApiError('');
+//     setErrors({});
+
+//     setAssessmentData({
+//       traineeId: trainee?.traineeId || '',
+//       assessmentType: '',
+//       marks: '',
+//       maxMarks: '100',
+//       remarks: '',
+//       assessmentDate: new Date().toISOString().split('T')[0]
+//     });
+
+//   }, [isOpen, trainee?.traineeId]);
+
+
+
+
+//   /* ---------------- LOAD DATA ---------------- */
+//   useEffect(() => {
+//     if (!isOpen || !trainee?.traineeId) return;
+
+//     const loadAssessments = async () => {
+//     };
+
+//     loadAssessments();
+//   }, [isOpen, trainee?.traineeId]);
+
+
+//   /* ---------------- POPULATE FORM ---------------- */
+//   const populateForm = (a) => {
+//     if (!a?.assessmentId) return;
+
+//     setExistingAssessmentId(a.assessmentId);
+
+//     const subTopicId =
+//       a.subTopic && typeof a.subTopic === 'object' ? a.subTopic.id :
+//         typeof a.subTopic === 'number' ? a.subTopic :
+//           '';
+
+//     setAssessmentData({
+//       traineeId: trainee.traineeId,
+//       assessmentType: a.assessmentType?.toLowerCase() || '',
+//       marks: String(a.marks || ''),
+//       maxMarks: String(a.maxMarks || '100'),
+//       remarks: a.remarks || '',
+//       assessmentDate: a.assessmentDate
+//         ? new Date(a.assessmentDate).toISOString().split('T')[0]
+//         : new Date().toISOString().split('T')[0],
+//       subTopicId
+//     });
+//   };
+
+
+//   /* ---------------- HANDLERS ---------------- */
+//   const handleInputChange = (field, value) => {
+//     setAssessmentData(prev => ({ ...prev, [field]: value }));
+//     if (errors[field]) {
+//       setErrors(prev => ({ ...prev, [field]: '' }));
+//     }
+//   };
+
+//   const validateForm = () => {
+//     const newErrors = {};
+
+//     if (!assessmentData.assessmentType)
+//       newErrors.assessmentType = 'Required';
+
+//     if (!assessmentData.marks)
+//       newErrors.marks = 'Required';
+
+//     if (!assessmentData.remarks || assessmentData.remarks.length < 10)
+//       newErrors.remarks = 'Minimum 10 characters';
+
+//     if (!assessmentData.subTopicId) newErrors.subTopicId = 'Required';
+
+//     setErrors(newErrors);
+//     return Object.keys(newErrors).length === 0;
+//   };
+
+//   /* ---------------- SUBMIT ---------------- */
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!validateForm()) return;
+
+//     setIsSubmitting(true);
+
+//     const payload = {
+//       ...assessmentData,
+//       marks: parseInt(assessmentData.marks),
+//       maxMarks: parseInt(assessmentData.maxMarks),
+//       percentage: Math.round(
+//         (assessmentData.marks / assessmentData.maxMarks) * 100
+//       )
+//     };
+
+//     try {
+//       if (existingAssessmentId) {
+//         await updateAssessment(existingAssessmentId, payload);
+
+//         // ✅ UPDATE SUCCESS ALERT
+//         setShowUpdateAlert(true);
+
+//         // 2 sec baad modal close
+//         setTimeout(() => {
+//           setShowUpdateAlert(false);
+//           onClose();
+//         }, 2000);
+
+//       } else {
+//         await createAssessment(trainee.traineeId, payload);
+//         onClose();
+//       }
+
+//     } catch (err) {
+//       console.error(err);
+//     } finally {
+//       setIsSubmitting(false);
+//     }
+//   };
+
+//   if (!isOpen) return null;
+
+//   /* ---------------- UI ---------------- */
+//   return (
+//     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+//       <div className="bg-card rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+
+//         {/* HEADER (X preserved) */}
+//         <div className="flex items-center justify-between p-6 border-b">
+//           <div>
+//             <h2 className="text-xl font-semibold">
+//               {existingAssessmentId ? "Update Assessment" : "Add Assessment"}
+//             </h2>
+//             <p className="text-sm text-muted-foreground">
+//               {trainee?.name}
+//             </p>
+//           </div>
+//           <Button variant="ghost" size="icon" onClick={onClose} iconName="X" />
+//         </div>
+
+//         <div className="grid grid-cols-3 gap-6 p-6">
+
+//           {/* LEFT LIST (ONLY IF DATA EXISTS) */}
+//           {assessmentList.length > 0 && (
+//             <div className="col-span-1 border rounded-lg p-3 space-y-2">
+//               {assessmentList.map(a => (
+//                 <div
+//                   key={a.assessmentId}
+//                   onClick={() => populateForm(a)}
+//                   className={`p-3 rounded cursor-pointer border
+//                     ${existingAssessmentId === a.assessmentId
+//                       ? 'bg-primary/10 border-primary'
+//                       : 'hover:bg-muted'}`}
+//                 >
+//                   <div className="flex justify-between text-sm font-medium">
+//                     <span>{a.assessmentType}</span>
+//                     <span>{a.marks}/{a.maxMarks}</span>
+//                   </div>
+//                   <p className="text-xs text-muted-foreground">
+//                     {a.assessmentDate}
+//                   </p>
+//                 </div>
+//               ))}
+//             </div>
+//           )}
+
+//           {/* FORM (UNCHANGED UI) */}
+//           <div className={assessmentList.length > 0 ? "col-span-2" : "col-span-3"}>
+//             {showUpdateAlert && (
+//               <div className="mb-4 bg-green-50 text-green-700 border border-green-200 p-3 rounded text-sm">
+//                 ✅ Assessment updated successfully
+//               </div>
+//             )}
+
+//             <form onSubmit={handleSubmit} className="space-y-6">
+
+//               {trainee && (
+//                 <div className="bg-muted/30 rounded-lg p-4">
+//                   <div className="flex items-center space-x-3">
+//                     <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+//                       <span className="text-sm font-medium text-primary">
+//                         {trainee?.name?.split(' ')?.map(n => n?.[0])?.join('')}
+//                       </span>
+//                     </div>
+//                     <div>
+//                       <p className="font-medium text-foreground">{trainee?.name}</p>
+//                       <p className="text-sm text-muted-foreground">{trainee?.email}</p>
+//                       <p className="text-sm text-muted-foreground">
+//                         Current Progress: {trainee?.completionPercentage}% - {trainee?.currentStep}
+//                       </p>
+//                     </div>
+//                   </div>
+//                 </div>
+//               )}
+
+//               <div className="grid grid-cols-2 gap-6">
+//                 <Select
+//                   label="Assessment Type"
+//                   options={assessmentTypeOptions}
+//                   value={assessmentData.assessmentType}
+//                   onChange={(v) => handleInputChange('assessmentType', v)}
+//                   error={errors.assessmentType}
+//                 />
+
+//                 <Input
+//                   label="Assessment Date"
+//                   type="date"
+//                   value={assessmentData.assessmentDate}
+//                   onChange={(e) => handleInputChange('assessmentDate', e.target.value)}
+//                 />
+
+//                 <Input
+//                   label="Marks Obtained"
+//                   type="number"
+//                   value={assessmentData.marks}
+//                   onChange={(e) => handleInputChange('marks', e.target.value)}
+//                   error={errors.marks}
+//                 />
+
+//                 <Input
+//                   label="Maximum Marks"
+//                   type="number"
+//                   value={assessmentData.maxMarks}
+//                   onChange={(e) => handleInputChange('maxMarks', e.target.value)}
+//                 />
+//                 <Select
+//                   label="Select Sub Topic"
+//                   required
+//                   options={completedSubTopics.map(st => ({ value: st.id, label: st.name }))}
+//                   value={assessmentData.subTopicId}
+//                   onChange={(v) => handleInputChange('subTopicId', v)}
+//                   error={errors.subTopicId}
+//                   searchable
+//                 />
+
+
+//               </div>
+
+//               {assessmentData?.marks && assessmentData?.maxMarks && (
+//                 <div className="bg-muted/30 rounded-lg p-4">
+//                   <div className="flex items-center justify-between">
+//                     <span className="text-sm font-medium text-foreground">Percentage:</span>
+//                     <span className="text-lg font-bold text-primary">
+//                       {Math.round((parseInt(assessmentData?.marks) / parseInt(assessmentData?.maxMarks)) * 100)}%
+//                     </span>
+//                   </div>
+//                   <div className="mt-2 bg-muted rounded-full h-2">
+//                     <div
+//                       className="bg-primary h-2 rounded-full transition-all duration-300"
+//                       style={{
+//                         width: `${Math.round((parseInt(assessmentData?.marks) / parseInt(assessmentData?.maxMarks)) * 100)}%`
+//                       }}
+//                     />
+//                   </div>
+//                 </div>
+//               )}
+
+
+
+//               <textarea
+//                 rows={4}
+//                 className="w-full border rounded-lg p-2"
+//                 placeholder="Remarks"
+//                 value={assessmentData.remarks}
+//                 onChange={(e) => handleInputChange('remarks', e.target.value)}
+//               />
+//               {errors.remarks && <p className="text-error text-sm">{errors.remarks}</p>}
+
+//               <div className="flex justify-end gap-3">
+//                 <Button variant="outline" onClick={onClose}>Cancel</Button>
+//                 <Button type="submit" loading={isSubmitting}>
+//                   Save Assessment
+//                 </Button>
+//               </div>
+
+//             </form>
+//           </div>
+
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default AssessmentEntryModal;
+
+// import { useState } from "react";
+// import Header from "../../../components/ui/Header";
+// import { useNavigate } from "react-router-dom";
+// import NavigationBreadcrumb from "../../../components/ui/NavigationBreadcrumb";
+// import Button from "../../../components/ui/Button";
+// import Icon from "../../../components/AppIcon";
+// import "../../../App.css";
+
+// export default function DepartmentPage() {
+//   const navigate = useNavigate();
+
+//   const [departments, setDepartments] = useState([]);
+//   const [name, setName] = useState("");
+//   const [editId, setEditId] = useState(null);
+
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+//     if (!name.trim()) return;
+
+//     if (editId) {
+//       setDepartments(
+//         departments.map((dept) =>
+//           dept.id === editId ? { ...dept, name } : dept
+//         )
+//       );
+//       setEditId(null);
+//     } else {
+//       setDepartments([...departments, { id: Date.now(), name }]);
+//     }
+//     setName("");
+//   };
+
+//   const handleEdit = (dept) => {
+//     setName(dept.name);
+//     setEditId(dept.id);
+//   };
+
+//   const handleDelete = (id) => {
+//     setDepartments(departments.filter((dept) => dept.id !== id));
+//   };
+//   const handleLogout = () => {
+//         navigate('/');
+//     };
+
+
+//   return (
+//     <div className="min-h-screen bg-background">
+//       {/* HEADER */}
+//       <Header
+//        userName={sessionStorage.getItem("userName") || "User"}
+//                 userRole="manager"
+//                 onLogout={handleLogout}
+//       />
+
+//       <main className="pt-16">
+//         <div className="max-w-7xl mx-auto px-6 py-8">
+//           {/* Breadcrumb */}
+//           <NavigationBreadcrumb className="mb-6" />
+
+//           {/* Page Title */}
+//           <div className="flex justify-between items-center mb-8">
+//             <h1 className="text-2xl font-bold text-foreground">
+//               Department Management
+//             </h1>
+
+//             <Button
+//               variant="outline"
+//               iconName="ArrowLeft"
+//               iconPosition="left"
+//               onClick={() => navigate(-1)}
+//             >
+//               Back
+//             </Button>
+//           </div>
+
+//           {/* Add / Edit Department */}
+//           <div className="bg-card border border-border p-6 rounded-xl mb-10">
+//             <h2 className="text-lg font-semibold mb-4">
+//               {editId ? "Edit Department" : "Add Department"}
+//             </h2>
+
+//             <form onSubmit={handleSubmit} className="flex gap-4">
+//               <input
+//                 type="text"
+//                 placeholder="Department Name"
+//                 value={name}
+//                 onChange={(e) => setName(e.target.value)}
+//                 className="flex-1 border rounded-lg px-4 py-2"
+//               />
+
+//               <Button type="submit" iconName="Plus">
+//                 {editId ? "Update" : "Add"}
+//               </Button>
+//             </form>
+//           </div>
+
+//           {/* Department Widgets */}
+//           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+//             {departments.map((dept) => (
+//               <div
+//                 key={dept.id}
+//                 className="bg-card border border-border rounded-xl p-5 shadow-sm hover:shadow-md transition"
+//               >
+//                 <div className="flex items-center gap-3 mb-4">
+//                   <Icon name="Building2" size={22} className="text-primary" />
+//                   <h3 className="font-semibold text-foreground">
+//                     {dept.name}
+//                   </h3>
+//                 </div>
+
+//                 <div className="flex gap-3">
+//                   <Button
+//                     size="sm"
+//                     variant="outline"
+//                     onClick={() => handleEdit(dept)}
+//                   >
+//                     Edit
+//                   </Button>
+
+//                   <Button
+//                     size="sm"
+//                     variant="destructive"
+//                     onClick={() => handleDelete(dept.id)}
+//                   >
+//                     Delete
+//                   </Button>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+
+//           {departments.length === 0 && (
+//             <p className="text-center text-muted-foreground mt-10">
+//               No departments added yet.
+//             </p>
+//           )}
+//         </div>
+//       </main>
+//     </div>
+//   );
+// }
+
+
+
+
+// import React, { useState, useEffect, useCallback } from "react";
+// import Header from "../../../components/ui/Header";
+// import { useNavigate } from "react-router-dom";
+// import NavigationBreadcrumb from "../../../components/ui/NavigationBreadcrumb";
+// import Icon from "../../../components/AppIcon";
+// import {
+//     fetchCompletedSubTopics,
+//     approveSubTopicAPI,
+//     rejectSubTopicAPI,fetchSyllabusByTrainer,
+//     submitTrainerFeedbackAPI, getSyllabusFeedbackAPI,
+// } from "../../../api_service";
+
+// export default function TraineeStepsPage() {
+//     const navigate = useNavigate();
+
+//     const [trainees, setTrainees] = useState([]);
+//     const [selectedTrainee, setSelectedTrainee] = useState(null);
+//     const [expandedSyllabus, setExpandedSyllabus] = useState({});
+//     const [reviewInput, setReviewInput] = useState({});
+//     const [refreshKey, setRefreshKey] = useState(0);
+//     const [isLoading, setIsLoading] = useState(false); // Added loading state
+
+//  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+//     const [currentFeedbackSyllabus, setCurrentFeedbackSyllabus] = useState(null);
+//     const [feedbackText, setFeedbackText] = useState("");
+
+
+//     // const buildTraineeStructure = (data = []) => {
+//     //     const traineeMap = {};
+
+//     //     data.forEach((syllabus) => {
+//     //         syllabus.subTopics?.forEach((sub) => {
+//     //             sub.stepProgress?.forEach((progress) => {
+//     //                 const user = progress.user;
+//     //                 if (!user) return;
+
+//     //                 if (!traineeMap[user.trngid]) {
+//     //                     traineeMap[user.trngid] = {
+//     //                         id: user.trngid,
+//     //                         name: `${user.firstname} ${user.lastname}`,
+//     //                         syllabi: {},
+//     //                     };
+//     //                 }
+
+//     //                 if (!traineeMap[user.trngid].syllabi[syllabus.title]) {
+//     //                     traineeMap[user.trngid].syllabi[syllabus.title] = {
+//     //                         title: syllabus.title,
+//     //                         subTopics: [],
+//     //                     };
+//     //                 }
+
+//     //                 let managerDecision = null;
+//     //                 if (progress.checker === true) managerDecision = true;
+//     //                 if (progress.checker === false) managerDecision = false;
+
+//     //                 traineeMap[user.trngid].syllabi[syllabus.title].subTopics.push({
+//     //                     id: sub.subTopicId,
+//     //                     progressId: progress.stepProgressId,
+//     //                     name: sub.name,
+//     //                     status: progress.complete ? "COMPLETED" : "PENDING",
+//     //                     managerDecision,
+//     //                     review: progress.review || "",
+//     //                     startDateTime: progress.startDateTime,
+//     //                     endDateTime: progress.endDateTime,
+//     //                 });
+//     //             });
+//     //         });
+//     //     });
+
+//     //     return Object.values(traineeMap).map((t) => ({
+//     //         ...t,
+//     //         syllabi: Object.values(t.syllabi),
+//     //     }));
+//     // };
+
+// const buildTraineeStructure = (data = [], traineeFilterId) => {
+//   const traineeMap = {};
+
+//   data.forEach((syllabus) => {
+//     syllabus.subTopics?.forEach((sub) => {
+//       sub.stepProgress?.forEach((progress) => {
+//         const user = progress.user;
+//         if (!user) return;
+
+//         // ✅ IMPORTANT FILTER (selected trainee only)
+//         if (traineeFilterId && user.trngid !== traineeFilterId) return;
+
+//         if (!traineeMap[user.trngid]) {
+//           traineeMap[user.trngid] = {
+//             id: user.trngid,
+//             name: `${user.firstname} ${user.lastname}`,
+//             syllabi: {},
+//           };
+//         }
+
+//         if (!traineeMap[user.trngid].syllabi[syllabus.title]) {
+//           traineeMap[user.trngid].syllabi[syllabus.title] = {
+//             title: syllabus.title,
+//              syllabusId: syllabus.syllabusId,
+//             subTopics: [],
+//           };
+//         }
+
+//         traineeMap[user.trngid].syllabi[syllabus.title].subTopics.push({
+//           id: sub.subTopicId,
+//           progressId: progress.stepProgressId,
+//           name: sub.name,
+//           status: progress.complete ? "COMPLETED" : "PENDING",
+//           managerDecision: progress.checker,
+//           review: progress.review || "",
+//           startDateTime: progress.startDateTime,
+//           endDateTime: progress.endDateTime,
+//         });
+//       });
+//     });
+//   });
+
+//   return Object.values(traineeMap).map((t) => ({
+//     ...t,
+//     syllabi: Object.values(t.syllabi),
+//   }));
+// };
+
+
+//     // const loadData = useCallback(async () => {
+//     //     setIsLoading(true);
+//     //     try {
+//     //         // const res = await fetchCompletedSubTopics();
+//     //         //const list = Array.isArray(res?.data) ? res.data : [];
+//     //               const managerId = sessionStorage.getItem("empid");
+//     //   const roleName = sessionStorage.getItem("roleName");
+//     //   let list = [];
+
+//     //   if (roleName === "CEO") {
+//     //     const res = await fetchCompletedSubTopics();
+//     //     list = Array.isArray(res?.data) ? res.data : [];
+//     //   } else {
+//     //     const res = await fetchSyllabusByTrainer(managerId);
+//     //     list = Array.isArray(res) ? res : [];
+//     //   }
+//     //         const structured = buildTraineeStructure(list);
+
+//     //         setTrainees(structured);
+
+//     //         // Logic to maintain the selected trainee after reload
+//     //         if (selectedTrainee) {
+//     //             const updatedSelection = structured.find(t => t.id === selectedTrainee.id);
+//     //             setSelectedTrainee(updatedSelection || structured[0] || null);
+//     //         } else {
+//     //             setSelectedTrainee(structured[0] || null);
+//     //         }
+//     //     } catch (err) {
+//     //         console.error("API ERROR:", err);
+//     //     } finally {
+//     //         setIsLoading(false);
+//     //     }
+//     // }, [selectedTrainee?.id]); // Depend on ID to maintain selection context
+
+//     //  Consolidated Reload Logic
+//     // This triggers on mount AND whenever refreshKey changes
+   
+//      const loadData = useCallback(async () => {
+//         setIsLoading(true);
+//         try {
+//             const managerId = sessionStorage.getItem("empid");
+//             const roleName = sessionStorage.getItem("roleName");
+//             let list = [];
+
+//             if (roleName === "CEO") {
+//                 const res = await fetchCompletedSubTopics();
+//                 list = Array.isArray(res?.data) ? res.data : [];
+//             } else {
+//                 const res = await fetchSyllabusByTrainer(managerId);
+//                 list = Array.isArray(res) ? res : [];
+//             }
+
+//             const structured = buildTraineeStructure(list);
+//             setTrainees(structured);
+
+//             // Maintain selection
+//             const selTrainee = selectedTrainee
+//                 ? structured.find(t => t.id === selectedTrainee.id)
+//                 : structured[0] || null;
+//             setSelectedTrainee(selTrainee);
+
+//             // ----- CHECK FOR FEEDBACK -----
+//             if (selTrainee) {
+//                 for (let syllabus of selTrainee.syllabi) {
+//                     const allCompleted = syllabus.subTopics.every(st => st.status === "COMPLETED" && st.managerDecision === true);
+//                     if (allCompleted) {
+//                         // Check if feedback already exists
+//                         const existingFeedback = await getSyllabusFeedbackAPI(
+//                             selTrainee.id,
+//                             managerId,
+//                             syllabus.syllabusId
+//                         );
+
+//                         if (!existingFeedback?.feedback) {
+//                             // Open feedback modal
+//                             setCurrentFeedbackSyllabus(syllabus);
+//                             setFeedbackModalOpen(true);
+//                             break; // only one modal at a time
+//                         }
+//                     }
+//                 }
+//             }
+
+//         } catch (err) {
+//             console.error("API ERROR:", err);
+//         } finally {
+//             setIsLoading(false);
+//         }
+//     }, [selectedTrainee?.id]);
+
+
+//     const handleFeedbackSubmit = async () => {
+//         if (!feedbackText.trim()) {
+//             alert("Feedback cannot be empty");
+//             return;
+//         }
+
+//         try {
+//             const trainerId = sessionStorage.getItem("empid");
+//             await submitTrainerFeedbackAPI(
+//                 selectedTrainee.id,
+//                 trainerId,
+//                 currentFeedbackSyllabus.syllabusId,
+//                 feedbackText
+//             );
+
+//             alert("Feedback submitted successfully");
+//             setFeedbackModalOpen(false);
+//             setFeedbackText("");
+//             setCurrentFeedbackSyllabus(null);
+//             setRefreshKey((p) => p + 1); // reload data
+//         } catch (err) {
+//             console.error(err);
+//             alert("Failed to submit feedback");
+//         }
+//       };
+   
+//     useEffect(() => {
+//         loadData();
+//     }, [refreshKey]);
+
+//     const handleDecision = async (subKey, value, progressId) => {
+//         const review = reviewInput[subKey] || "";
+
+//         if (value === "REJECT" && !review.trim()) {
+//             alert("Review is mandatory for rejection");
+//             return;
+//         }
+
+//         try {
+//             if (value === "ACCEPT") {
+//                 await approveSubTopicAPI(progressId, review);
+//                 alert("Approved successfully");
+//             } else {
+//                 await rejectSubTopicAPI(progressId, review);
+//                 alert("Rejected successfully");
+//             }
+
+//             //  Trigger the reload logic by incrementing key
+//             setRefreshKey((p) => p + 1);
+
+//             // Clear specific review input after success
+//             setReviewInput(prev => {
+//                 const next = { ...prev };
+//                 delete next[subKey];
+//                 return next;
+//             });
+//         } catch (err) {
+//             console.error(err);
+//         }
+//     };
+
+//     const handleLogout = () => navigate("/");
+
+//     const formatCombinedDT = (dt) => {
+//         if (!dt) return "-";
+//         const d = new Date(dt);
+//         return `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+//     };
+
+//     const toggleSyllabus = (key) => {
+//         setExpandedSyllabus((p) => ({ ...p, [key]: !p[key] }));
+//     };
+
+//     return (
+//         <div className="min-h-screen bg-blue-50">
+//             <Header
+//                 userName={sessionStorage.getItem("userName") || "User"}
+//                 userRole="manager"
+//                 onLogout={handleLogout}
+//             />
+
+//             <main className="pt-20 max-w-7xl mx-auto px-2">
+//                 <NavigationBreadcrumb userRole="manager" />
+
+//                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mt-6">
+//                     {/* LEFT PANEL */}
+//                     <div className="bg-white border border-blue-200 rounded-2xl shadow">
+//                         <div className="p-3 bg-blue-100 rounded-t-2xl font-bold text-blue-800 flex justify-between items-center">
+//                             <span className="flex gap-2"><Icon name="Users" size={18} /> Trainees</span>
+//                             {isLoading && <Icon name="RotateCw" size={14} className="animate-spin" />}
+//                         </div>
+
+//                         <div className="max-h-[300px] overflow-y-auto">
+//                             {trainees.map((t) => (
+//                                 <div
+//                                     key={t.id}
+//                                     onClick={() => setSelectedTrainee(t)}
+//                                     className={`p-3 cursor-pointer text-sm hover:bg-blue-50 ${selectedTrainee?.id === t.id &&
+//                                         "bg-blue-100 font-semibold"
+//                                         }`}
+//                                 >
+//                                     {t.name}
+//                                 </div>
+//                             ))}
+//                         </div>
+//                     </div>
+
+//                     {/* RIGHT PANEL */}
+//                     <div className="lg:col-span-4 bg-white border border-blue-200 rounded-2xl shadow">
+//                         <div className="p-4 bg-blue-100 rounded-t-2xl font-bold text-blue-800 flex justify-between">
+//                             <span>Syllabus – {selectedTrainee?.name || "Select Trainee"}</span>
+//                             {isLoading && <span className="text-xs font-normal">Updating...</span>}
+//                         </div>
+
+//                         <div className="p-2 overflow-x-auto">
+//                             {/* ... Table UI Remains the same ... */}
+//                             <table className="w-full min-w-[1000px] table-fixed text-sm">
+//                                 {/* ... table content from original snippet ... */}
+//                                 <thead>
+//                                     <tr className="bg-blue-100">
+//                                         <th className="p-3 text-left w-[100px]">Topic</th>
+//                                         <th className="p-3 text-center w-[100px]">Status</th>
+//                                         <th className="p-3 text-center w-[200px]">Start Time</th>
+//                                         <th className="p-3 text-center w-[200px]">End Time</th>
+//                                         <th className="p-3 text-left w-[180px]">Review</th>
+//                                         <th className="p-3 text-center w-[100px]">Accept</th>
+//                                         <th className="p-3 text-center w-[100px]">Reject</th>
+//                                     </tr>
+//                                 </thead>
+//                                 <tbody>
+//                                     {selectedTrainee?.syllabi.map((syllabus) => {
+//                                         const syllabusKey = `syllabus-${syllabus.title}`;
+//                                         return (
+//                                             <React.Fragment key={syllabusKey}>
+//                                                 <tr onClick={() => toggleSyllabus(syllabusKey)} className="bg-blue-50 cursor-pointer">
+//                                                     <td className="p-3 font-semibold flex gap-2">
+//                                                         <Icon name={expandedSyllabus[syllabusKey] ? "ChevronDown" : "ChevronRight"} size={16} />
+//                                                         {syllabus.title}
+//                                                     </td>
+//                                                     <td colSpan="6"></td>
+//                                                 </tr>
+//                                                 {expandedSyllabus[syllabusKey] && syllabus.subTopics.map((st) => {
+//                                                     const subKey = `${syllabusKey}-${st.id}`;
+//                                                     return (
+//                                                         <tr key={subKey} className="border-b">
+//                                                             <td className="p-3 pl-6">{st.name}</td>
+//                                                             <td className="p-3 text-center">
+//                                                                 {st.managerDecision === true && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Accepted</span>}
+//                                                                 {st.managerDecision === false && <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs">Rejected</span>}
+//                                                                 {st.managerDecision === null && <span className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs">{st.status}</span>}
+//                                                             </td>
+//                                                             <td className="p-3 text-center">{formatCombinedDT(st.startDateTime)}</td>
+//                                                             <td className="p-3 text-center">{formatCombinedDT(st.endDateTime)}</td>
+//                                                             <td className="p-3">
+//                                                                 <input
+//                                                                     className="w-full border rounded px-2 py-1"
+//                                                                     placeholder="Review"
+//                                                                     value={reviewInput[subKey] ?? st.review ?? ""}
+//                                                                     onChange={(e) => setReviewInput((p) => ({ ...p, [subKey]: e.target.value }))}
+//                                                                 />
+//                                                             </td>
+//                                                             <td className="p-3 text-center">
+//                                                                 <input type="radio" name={`decision-${subKey}`} checked={st.managerDecision === true} onChange={() => handleDecision(subKey, "ACCEPT", st.progressId)} />
+//                                                             </td>
+//                                                             <td className="p-3 text-center">
+//                                                                 <input type="radio" name={`decision-${subKey}`} checked={st.managerDecision === false} onChange={() => handleDecision(subKey, "REJECT", st.progressId)} />
+//                                                             </td>
+//                                                         </tr>
+//                                                     );
+//                                                 })}
+//                                             </React.Fragment>
+//                                         );
+//                                     })}
+//                                 </tbody>
+//                             </table>
+//                         </div>
+//                     </div>
+//                 </div>
+//             </main>
+//            {feedbackModalOpen && (
+//   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+//     <div className="bg-white rounded-lg p-6 w-96 relative">
+//       <h2 className="text-lg font-bold mb-3">Submit Feedback</h2>
+//       <p>Syllabus: <b>{currentFeedbackSyllabus.title}</b></p>
+//       <textarea
+//         className="border rounded p-2 w-full mt-2"
+//         rows={5}
+//         placeholder="Enter feedback"
+//         value={feedbackText}
+//         onChange={(e) => setFeedbackText(e.target.value)}
+//       />
+//       <div className="flex justify-end gap-2 mt-4">
+//         <button
+//           className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+//           onClick={() => setFeedbackModalOpen(false)}
+//         >
+//           Cancel
+//         </button>
+//         <button
+//           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+//           onClick={handleFeedbackSubmit}
+//         >
+//           Submit
+//         </button>
+//       </div>
+//     </div>
+//   </div>
+// )}
+
+//         </div>
+//     );
+// }
+
+// import React, { useState, useEffect, useRef } from "react";
+// import Icon from "../../../components/AppIcon";
+// import Button from "../../../components/ui/Button";
+// import PdfViewer from "./PdfViewer";
+// import { startSubTopic, completeSubTopic,submitTraineeFeedbackAPI } from "../../../api_service";
+
+// const ContentDisplay = ({ currentStep, traineeInfo, onStepComplete, onNextStep, onPreviousStep, canGoNext, canGoPrevious, canComplete, onRefresh }) => {
+//   const [timeSpent, setTimeSpent] = useState(0);
+//   const [startTime] = useState(Date.now());
+//   const [currentSubIndex, setCurrentSubIndex] = useState(0);
+//   const [showCompletionModal, setShowCompletionModal] = useState(false);
+//   const [fileData, setFileData] = useState(null);
+
+//   const topic = currentStep?.topics?.[0] ?? { subTopics: [] };
+//   const subTopics = Array.isArray(topic.subTopics) ? topic.subTopics : [];
+//   const totalSubs = subTopics.length;
+//   //const completedSubs = subTopics.filter((s) => s?.completed).length;
+//   // Isse progress hamesha sahi dikhegi chahe data refresh ho kar aaye
+
+//    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+// const [feedbackText, setFeedbackText] = useState("");
+
+// const completedSubs = subTopics.filter((s) => 
+//   s?.completed === true || (s?.stepProgress && s.stepProgress[0]?.complete === true)
+// ).length;
+//   const calcProgress = totalSubs > 0 ? Math.round((completedSubs / totalSubs) * 100) : 0;
+//   const sub = subTopics[currentSubIndex] ?? null;
+//   const isLastSub = currentSubIndex === subTopics.length - 1;
+//   const allSteps = traineeInfo?.steps || [];
+//   const currentIndex = allSteps.findIndex(s => s.id === currentStep.id);
+//   const isLastStep = currentIndex === allSteps.length - 1;
+//   const isLastSubOfLastStep = isLastStep && isLastSub;
+// const syllabusId = currentStep?.id;
+
+//   const startedSubRef = useRef(null);
+//   const empid = sessionStorage.getItem("empid");
+
+//   useEffect(() => setCurrentSubIndex(0), [currentStep?.id]);
+
+//   useEffect(() => {
+//     const interval = setInterval(() => { setTimeSpent(Math.floor((Date.now() - startTime) / 1000)); }, 1000);
+//     return () => clearInterval(interval);
+//   }, [startTime]);
+
+//   const formatTime = (seconds) => {
+//     const hours = Math.floor(seconds / 3600);
+//     const minutes = Math.floor((seconds % 3600) / 60);
+//     const secs = seconds % 60;
+//     return hours > 0 ? `${hours}h ${minutes}m ${secs}s` : `${minutes}m ${secs}s`;
+//   };
+
+//   const getPreviewUrl = () => {
+//     if (!fileData || !fileData.url || !fileData.mime) return null;
+//     const isOffice = fileData.mime.includes("word") || fileData.mime.includes("presentation") || fileData.mime.includes("excel") || fileData.name.endsWith(".doc") || fileData.name.endsWith(".docx") || fileData.name.endsWith(".pptx") || fileData.name.endsWith(".xlsx");
+//     if (isOffice) return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileData.url)}`;
+//     return fileData.url;
+//   };
+
+//   useEffect(() => {
+//     if (!sub?.filePath) { setFileData(null); return; }
+//     const cleanFileName = sub.filePath.replace(/\\/g, "/").split("/").pop();
+//     const relativePath = sub.filePath.replace(/\\/g, "/");
+//     //fetch(`http://localhost:8080/api/syllabus/preview?path=${cleanFileName}`)
+//     fetch(`${process.env.REACT_APP_API_URL}/syllabus/preview?path=${cleanFileName}`)
+//       .then(res => res.ok ? res.blob() : Promise.reject(res.status))
+//       .then(blob => setFileData({ url: URL.createObjectURL(blob), mime: blob.type, name: cleanFileName }))
+//       .catch(err => setFileData({ error: true, message: "Unable to load this file." }));
+//   }, [sub]);
+
+//   useEffect(() => {
+//     if (!currentStep || !empid) return;
+//     const currentSub = subTopics[currentSubIndex];
+//     if (!currentSub?.id) return;
+//     if (startedSubRef.current === currentSub.id) return;
+//     startedSubRef.current = currentSub.id;
+//     const payload = { empid, subtopicId: currentSub.id, starttimeSeconds: Date.now(), complete: false, checker: false };
+//     startSubTopic(payload).catch(err => console.error("Start subtopic failed:", err));
+//   }, [currentSubIndex, currentStep?.id, subTopics, empid]);
+
+
+
+//   // const markSubtopicCompleted = async () => {
+//   //   if (!sub) return;
+
+//   //   //  checker true → kuch mat karo
+//   //   if (sub.managerDecision === true) return;
+
+//   //   // UI update (only completed)
+//   //   const updated = subTopics.map((s, i) =>
+//   //     i === currentSubIndex ? { ...s, completed: true } : s
+//   //   );
+//   //   currentStep.topics[0].subTopics = updated;
+
+//   //   try {
+//   //     await completeSubTopic({
+//   //       empid,
+//   //       subtopicId: sub.id,
+//   //       endtimeSeconds: Math.floor(Date.now() / 1000),
+//   //       complete: true,
+//   //       checker: false, //  important
+//   //     });
+//   //     onRefresh?.();
+//   //   } catch (err) {
+//   //     console.error("Complete subtopic failed:", err);
+//   //   }
+//   // };
+
+// const markSubtopicCompleted = async () => {
+//   if (!sub) return;
+
+//   // Agar manager ne accept kar liya hai toh dobara update ki zarurat nahi
+//   if (sub.managerDecision === true) return;
+
+//   try {
+//     await completeSubTopic({
+//       empid,
+//       subtopicId: sub.id,
+//       endtimeSeconds: Math.floor(Date.now() / 1000),
+//       complete: true,
+//       checker: false, 
+//     });
+
+//     // ✅ Refresh data from Parent
+//     if (onRefresh) {
+//       await onRefresh(); 
+    
+//     }
+//   } catch (err) {
+//     console.error("Complete subtopic failed:", err);
+//   }
+// };
+
+// const confirmCompletion = async () => {
+//   // Last subtopic mark karein
+//   await markSubtopicCompleted();
+  
+//   setShowCompletionModal(false);
+  
+//   // Step completion trigger karein
+//   if (onStepComplete) {
+//     onStepComplete(currentStep?.id);
+//   }
+
+//    setShowFeedbackModal(true);
+// };
+
+
+
+//   const nextSub = () => { if (sub && !sub.completed) markSubtopicCompleted(); if (currentSubIndex < subTopics.length - 1) setCurrentSubIndex(currentSubIndex + 1); else onNextStep(); };
+
+
+
+//   const prevSub = () => currentSubIndex > 0 ? setCurrentSubIndex(currentSubIndex - 1) : onPreviousStep();
+//   const handleCompleteStep = () => { if (completedSubs === totalSubs) onStepComplete(currentStep?.id); else setShowCompletionModal(true); };
+
+
+//   // const confirmCompletion = async () => {
+//   //   // last subtopic complete karo
+//   //   if (!sub?.completed) {
+//   //     await markSubtopicCompleted();
+//   //   }
+
+//   //   setShowCompletionModal(false);
+//   //   onStepComplete(currentStep?.id);
+
+//   //   onRefresh?.();
+//   // };
+
+
+//   if (!currentStep) return (
+//     <div className="flex items-center justify-center h-full text-center text-muted-foreground">
+//       <Icon name="BookOpen" size={48} className="mx-auto mb-4" />
+//       <h3 className="text-lg font-semibold mb-2">No Content Selected</h3>
+//       <p>Select a step from the sidebar to begin learning.</p>
+//     </div>
+//   );
+
+//   return (
+//     <div className="flex flex-col h-full">
+//       <div className="flex-shrink-0 bg-surface border-b border-border p-6">
+//         <div className="flex items-center justify-between">
+//           <div>
+//             <h1 className="text-2xl font-bold mb-2"> Step {currentStep?.stepNumber}: {currentStep?.title} </h1>
+//             <p className="text-muted-foreground">{currentStep?.description}</p>
+//           </div>
+//           <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+//             <div className="flex items-center space-x-2">
+//               <Icon name="Clock" size={16} />
+//               <span>Time: {formatTime(timeSpent)}</span>
+//             </div>
+//           </div>
+//         </div>
+//         <div className="mt-4 px-6">
+//           <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
+//             <span>Step Progress</span>
+//             <span>{calcProgress}%</span>
+//           </div>
+//           <div className="w-full bg-muted rounded-full h-2">
+//             <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: `${calcProgress}%` }} />
+//           </div>
+//         </div>
+//       </div>
+//       <div className="flex-1 overflow-y-auto p-6">
+//         <div className="max-w-4xl mx-auto">
+//           {sub ? (
+//             <>
+//               <h2 className="text-xl font-bold">{sub.title ?? sub.name}</h2>
+//               <p className="text-gray-700 whitespace-pre-line mt-2">{sub.description}</p>
+//               {sub?.filePath && fileData && !fileData.error && (
+//                 <div className="bg-gray-50 mt-6 border rounded-xl shadow-lg p-4 max-h-[600px] ">
+//                   <div className="flex justify-between items-center mb-3">
+//                     <h3 className="text-sm font-semibold text-gray-800">{fileData.name}</h3>
+//                   </div>
+//                   <div className="rounded-xl overflow-hidden border bg-white">
+//                     {fileData.mime.startsWith("image/") ? (
+//                       <img src={fileData.url} alt="Preview" className="w-full max-h-[550px] object-contain" />
+//                     ) : fileData.mime === "application/pdf" ? (
+//                       <PdfViewer url={fileData.url} />
+//                     ) : (
+//                       <div className="text-sm text-gray-500 italic p-4 text-center">Preview not available</div>
+//                     )}
+//                   </div>
+//                 </div>
+//               )}
+//               {fileData?.error && <div className="text-red-500 mt-4">{fileData.message}</div>}
+//             </>
+//           ) : (
+//             <div className="text-center py-20 text-muted-foreground">No subtopics available for this step.</div>
+//           )}
+//         </div>
+//       </div>
+//       <div className="flex-shrink-0 bg-surface border-t border-border p-6 mb-10">
+//         <div className="flex items-end justify-between">
+//           <Button variant="outline" onClick={prevSub} iconName="ChevronLeft" iconPosition="left">
+//             {currentSubIndex === 0 ? "Previous Step" : "Previous Topic"}
+//           </Button>
+//           <div className="flex items-center space-x-3">
+
+
+//             <Button
+//               variant="success"
+//               iconName="CheckCircle"
+//               iconPosition="left"
+
+//               // checker true hua to disable
+//               disabled={sub?.managerDecision === true}
+
+//               onClick={async () => {
+//                 // already approved → kuch nahi
+//                 if (sub?.managerDecision === true) return;
+
+//                 // last subtopic → popup
+//                 if (isLastSub) {
+//                   setShowCompletionModal(true);
+//                   return;
+//                 }
+
+//                 // normal subtopic
+//                 if (!sub?.completed) {
+//                   await markSubtopicCompleted();
+//                 }
+//               }}
+//             >
+//               {sub?.managerDecision
+//                 ? "Approved"
+//                 : sub?.completed
+//                   ? "Completed"
+//                   : "Mark as Completed"}
+//             </Button>
+
+
+
+
+//             <Button
+//               variant="default"
+//               onClick={nextSub}
+//               iconName="ChevronRight"
+//               iconPosition="right"
+//               disabled={
+//                 !sub?.completed ||          //  not completed
+//                 !sub?.managerDecision ||    //  checker false
+//                 isLastSubOfLastStep
+//               }
+//             >
+//               {isLastSub ? "Next Step" : "Next Topic"}
+//             </Button>
+
+//           </div>
+//         </div>
+//       </div>
+//       {showCompletionModal && (
+//         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+//           <div className="bg-card p-6 rounded-lg elevation-3 max-w-md mx-4">
+//             <div className="text-center">
+//               <Icon name="CheckCircle" size={48} className="text-success mx-auto mb-4" />
+//               <h3 className="text-lg font-semibold text-foreground mb-2">Complete This Step?</h3>
+//               <p className="text-muted-foreground mb-6">Make sure you have reviewed all subtopics before completing this step.</p>
+//               <div className="flex space-x-3">
+//                 <Button variant="outline" onClick={() => setShowCompletionModal(false)} className="flex-1">Review More</Button>
+//                 <Button variant="success" onClick={confirmCompletion} className="flex-1">Complete Step</Button>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
+//     {showFeedbackModal && (
+//   <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+//     <div className="bg-card p-6 rounded-lg max-w-md w-full mx-4">
+//       <div className="text-center">
+//         <Icon name="CheckCircle" size={48} className="text-success mx-auto mb-4" />
+//         <h3 className="text-lg font-semibold text-foreground mb-2">Feedback</h3>
+//         <textarea
+//           className="w-full border p-2 rounded mb-4"
+//           placeholder="Enter your feedback..."
+//           value={feedbackText}
+//           onChange={(e) => setFeedbackText(e.target.value)}
+//           rows={4}
+//         />
+//         <div className="flex space-x-3">
+//           <Button
+//             variant="outline"
+//             onClick={() => setShowFeedbackModal(false)}
+//             className="flex-1"
+//             disabled={feedbackText.trim() === ""} // ❌ Cancel disabled if feedback is empty
+//           >
+//             Cancel
+//           </Button>
+// {/*         
+//           <Button
+//   variant="success"
+//   onClick={() => {
+//     console.log("Feedback submitted:", feedbackText);
+ 
+//     setShowFeedbackModal(false);
+// onStepComplete?.(currentStep?.id);
+//     // 👇 Yaha step complete hoga
+   
+
+//     setFeedbackText("");
+//   }}
+//   className="flex-1"
+//   disabled={feedbackText.trim() === ""} 
+// >
+//   Submit
+// </Button> */}
+// <Button
+//   variant="success"
+//   onClick={async () => {
+//     try {
+//       await submitTraineeFeedbackAPI(
+//         empid,          // trngid
+//         syllabusId,     // syllabusId
+//         feedbackText    // feedback text
+//       );
+
+//       setShowFeedbackModal(false);
+//       setFeedbackText("");
+
+//       // Step complete trigger
+//       onStepComplete?.(currentStep?.id);
+
+//     } catch (err) {
+//       console.error("Feedback submit failed:", err);
+//       alert("Failed to submit feedback");
+//     }
+//   }}
+//   className="flex-1"
+//   disabled={feedbackText.trim() === ""} 
+// >
+//   Submit
+// </Button>
+
+
+//         </div>
+//       </div>
+//     </div>
+//   </div>
+// )}
+
+//     </div>
+//   );
+// };
+
+// export default ContentDisplay;
+
+//Backend
+////package whitestone.trainee_management.models;
+////
+////import jakarta.persistence.*;
+////
+////@Entity
+////@Table(name = "approved_checking")
+////public class StepProgress extends AuditModel {
+////
+////    @Id
+////    @GeneratedValue(strategy = GenerationType.IDENTITY)
+////    private Long id;
+////
+////    
+////    @ManyToOne
+////    @JoinColumn(name = "subtopic_id", nullable = false)
+////    private SubTopic subTopic;
+////
+////    
+////    @ManyToOne
+////    @JoinColumn(name = "empid", nullable = false)
+////    private User user;
+////    
+////    private boolean complete;
+////    
+////    private boolean checker;
+////
+////    private String review;
+////
+////    // -------------------
+////    // Getters & Setters
+////    // -------------------
+////
+////    public Long getId() {
+////        return id;
+////    }
+////
+////    public void setId(Long id) {
+////        this.id = id;
+////    }
+////
+////    public SubTopic getSubTopic() {
+////        return subTopic;
+////    }
+////
+////    public void setSubTopic(SubTopic subTopic) {
+////        this.subTopic = subTopic;
+////    }
+////
+////    public User getUser() {
+////        return user;
+////    }
+////
+////    public void setUser(User user) {
+////        this.user = user;
+////    }
+////
+////    public boolean isComplete() {
+////        return complete;
+////    }
+////
+////    public void setComplete(boolean complete) {
+////        this.complete = complete;
+////    }
+////
+////    public boolean isChecker() {
+////        return checker;
+////    }
+////
+////    public void setChecker(boolean checker) {
+////        this.checker = checker;
+////    }
+////
+////    public String getReview() {
+////        return review;
+////    }
+////
+////    public void setReview(String review) {
+////        this.review = review;
+////    }
+////}
+//
+//
+//package whitestone.trainee_management.models;
+//
+//import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+//
+//import jakarta.persistence.*;
+//
+//@Entity 
+//
+//@Table(name = "approved_checking")
+////uniqueConstraints = {
+////    @UniqueConstraint(columnNames = {"empid", "subtopic_id"})
+////}
+////)
+//public class StepProgress  {
+//
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
+//
+//    
+//    @ManyToOne
+//    @JoinColumn(name = "subtopic_id", nullable = false)
+//    private SubTopic subTopic;
+//    
+//    
+//    @ManyToOne
+//    @JoinColumn(name = "empid", nullable = false)
+//    private User user;
+//    
+//    
+//    
+//    @Column(nullable = false)
+//    private boolean complete = false;
+//
+//    private boolean checker = false;
+//
+//    private String review;
+//    
+//    @Column(name = "start_time_seconds")
+//    private Long starttimeSeconds = 0L;
+//
+//    @Column(name = "end_time_seconds")
+//    private Long endtimeSeconds = 0L;
+//
+//    
+//    @Column(name = "time_spent_seconds")
+//    private Long timeSpentSeconds = 0L;
+//    
+////    
+////    
+////    private Long durationSeconds;
+//    // -------------------
+//    // Getters & Setters
+//    // -------------------
+//
+//    
+//    public Long getId() {
+//        return id;
+//    }
+//
+//    public Long getTimeSpentSeconds() {
+//		return timeSpentSeconds;
+//	}
+//
+//	public void setTimeSpentSeconds(Long timeSpentSeconds) {
+//		this.timeSpentSeconds = timeSpentSeconds;
+//	}
+//
+//	public Long getStarttimeSeconds() {
+//		return starttimeSeconds;
+//	}
+//
+//	public void setStarttimeSeconds(Long starttimeSeconds) {
+//		this.starttimeSeconds = starttimeSeconds;
+//	}
+//
+//	public Long getEndtimeSeconds() {
+//		return endtimeSeconds;
+//	}
+//
+//	public void setEndtimeSeconds(Long endtimeSeconds) {
+//		this.endtimeSeconds = endtimeSeconds;
+//	}
+//
+//	public void setId(Long id) {
+//        this.id = id;
+//    }
+//
+//    public SubTopic getSubTopic() {
+//        return subTopic;
+//    }
+//
+//    public void setSubTopic(SubTopic subTopic) {
+//        this.subTopic = subTopic;
+//    }
+//
+//    public User getUser() {
+//        return user;
+//    }
+//
+//    public void setUser(User user) {
+//        this.user = user;
+//    }
+//
+//    public boolean isComplete() {
+//        return complete;
+//    }
+//
+//    public void setComplete(boolean complete) {
+//        this.complete = complete;
+//    }
+//
+//    public boolean isChecker() {
+//        return checker;
+//    }
+//
+//    public void setChecker(boolean checker) {
+//        this.checker = checker;
+//    }
+//
+//    public String getReview() {
+//        return review;
+//    }
+//
+//    public void setReview(String review) {
+//        this.review = review;
+//    }
+//}
+
+
+
+//package whitestone.trainee_management.models;
+//
+//import jakarta.persistence.*;
+//
+//@Entity
+//@Table(name = "approved_checking")
+//public class StepProgress extends AuditModel {
+//
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
+//
+//    
+//    @ManyToOne
+//    @JoinColumn(name = "subtopic_id", nullable = false)
+//    private SubTopic subTopic;
+//
+//    
+//    @ManyToOne
+//    @JoinColumn(name = "empid", nullable = false)
+//    private User user;
+//    
+//    private boolean complete;
+//    
+//    private boolean checker;
+//
+//    private String review;
+//
+//    // -------------------
+//    // Getters & Setters
+//    // -------------------
+//
+//    public Long getId() {
+//        return id;
+//    }
+//
+//    public void setId(Long id) {
+//        this.id = id;
+//    }
+//
+//    public SubTopic getSubTopic() {
+//        return subTopic;
+//    }
+//
+//    public void setSubTopic(SubTopic subTopic) {
+//        this.subTopic = subTopic;
+//    }
+//
+//    public User getUser() {
+//        return user;
+//    }
+//
+//    public void setUser(User user) {
+//        this.user = user;
+//    }
+//
+//    public boolean isComplete() {
+//        return complete;
+//    }
+//
+//    public void setComplete(boolean complete) {
+//        this.complete = complete;
+//    }
+//
+//    public boolean isChecker() {
+//        return checker;
+//    }
+//
+//    public void setChecker(boolean checker) {
+//        this.checker = checker;
+//    }
+//
+//    public String getReview() {
+//        return review;
+//    }
+//
+//    public void setReview(String review) {
+//        this.review = review;
+//    }
+//}
+
+
+//package whitestone.trainee_management.service;
+//
+//import org.springframework.beans.factory.annotation.Value;
+//import org.springframework.stereotype.Service;
+//import org.springframework.web.multipart.MultipartFile;
+//
+//import jakarta.transaction.Transactional;
+//import whitestone.trainee_management.models.*;
+//import whitestone.trainee_management.repository.SyllabusRepository;
+//import whitestone.trainee_management.repository.*;
+//
+//
+//import java.io.File;
+//import java.util.*;
+//
+//@Service
+//public class SyllabusService {
+//
+//    private final SyllabusRepository syllabusRepository;
+//   
+//    private final SubTopicRepository subtopicRepository;
+//    private final  StepProgressRepository stepProgressRepository;
+//    private  final UserRepository userRepository;
+//    @Value("${file.upload-dir}")
+//    private String uploadDirConfig;
+//
+//    public SyllabusService(
+//            SyllabusRepository syllabusRepository,
+//           
+//            SubTopicRepository subtopicRepository,
+//            StepProgressRepository stepProgressRepository,
+//            UserRepository userRepository
+//    ) {
+//        this.syllabusRepository = syllabusRepository;
+//       
+//        this.subtopicRepository = subtopicRepository;
+//        this.stepProgressRepository = stepProgressRepository;
+//        this.userRepository = userRepository;
+//    }
+//
+//
+//    
+//    //  SAVE Syllabus
+//    
+//    public Syllabus saveSyllabus(Syllabus syllabus, MultipartFile[] files) throws Exception {
+//
+//        Syllabus s = new Syllabus();
+//        s.setTitle(syllabus.getTitle());
+//        s.setTopic(syllabus.getTopic());
+//        s.setDurationInDays(syllabus.getDurationInDays());
+//
+//        List<SubTopic> subTopicList = new ArrayList<>();
+//
+//        if (syllabus.getSubTopics() != null) {
+//
+//            if (files == null || files.length != syllabus.getSubTopics().size()) {
+//                throw new IllegalArgumentException("Files count must match subtopics count.");
+//            }
+//
+//            for (int i = 0; i < syllabus.getSubTopics().size(); i++) {
+//
+//                SubTopic inputSubTopic = syllabus.getSubTopics().get(i);
+//                MultipartFile file = files[i];
+//
+//                if (file == null || file.isEmpty()) {
+//                    throw new IllegalArgumentException("File missing for subtopic: " + inputSubTopic.getName());
+//                }
+//
+//                // Save file
+//                String savedPath = FileUploadUtil.saveFile(file, uploadDirConfig);
+//
+//                SubTopic st = new SubTopic();
+//                st.setName(inputSubTopic.getName());
+//                st.setDescription(inputSubTopic.getDescription());
+//                st.setStepNumber(i+1);
+//                st.setFilePath(savedPath);
+//                st.setSyllabus(s);
+// 
+//                if (inputSubTopic.getManager() != null) {
+//                    System.out.println(inputSubTopic.getManager().getTrngid());
+//                }
+//                if (inputSubTopic.getManager() != null && inputSubTopic.getManager().getTrngid() != null) {
+//                    User u = userRepository.findByTrngidAndDelFlag(inputSubTopic.getManager().getTrngid(),"N")
+//                            .orElseThrow(() -> new RuntimeException("Trainer not found"));
+//                    System.out.println(u);
+//                    st.setManager(u);
+//                }
+//
+//                subTopicList.add(st);
+//            }
+//        }
+//
+//        s.setSubTopics(subTopicList);
+//
+//        return syllabusRepository.save(s);
+//    }
+//
+//   
+//    //  GET All Syllabus
+//   
+//    public List<Syllabus> getAllSyllabus() {
+//        return syllabusRepository.findAll();
+//    }
+//    public List<SubTopic> getAllSubTopicsWithSyllabus() {
+//        return subtopicRepository.findAllWithSyllabusAndTrainer();
+//    }
+//
+//    
+//    
+//    
+//    // GET Syllabus By ID
+//    
+//    public Syllabus getSyllabusById(Long id) {
+//        return syllabusRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("Syllabus not found with id " + id));
+//    }
+//
+//    
+//    //  UPDATE Syllabus
+//   
+//
+//    public Syllabus updateSyllabus(Long id, Syllabus updated, MultipartFile[] files) throws Exception {
+//
+//        Syllabus existing = syllabusRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("Syllabus not found"));
+//
+//        existing.setTitle(updated.getTitle());
+//        existing.setTopic(updated.getTopic());
+//        existing.setDurationInDays(updated.getDurationInDays());
+//
+//        List<SubTopic> finalSubtopics = new ArrayList<>();
+//        int step = 1;
+//
+//        for (int i = 0; i < updated.getSubTopics().size(); i++) {
+//
+//            SubTopic incoming = updated.getSubTopics().get(i);
+//
+//            
+//            SubTopic sub = new SubTopic();
+//            sub.setId(incoming.getId());
+//            sub.setName(incoming.getName());
+//            sub.setDescription(incoming.getDescription());
+//            sub.setSyllabus(existing);
+//            sub.setStepNumber(step++);
+//
+//            if (incoming.getManager() != null) {
+//                System.out.println(incoming.getManager().getTrngid());
+//            }
+//            if (incoming.getManager() != null && incoming.getManager().getTrngid() != null) {
+//                User u = userRepository.findByTrngidAndDelFlag(incoming.getManager().getTrngid(),"N")
+//                        .orElseThrow(() -> new RuntimeException("Trainer not found"));
+//                System.out.println(u);
+//                sub.setManager(u);
+//            }
+//
+//            // ---------- SAFE FILE HANDLING --------------
+//            MultipartFile file = null;
+//
+//            if (files != null && i < files.length) {
+//                file = files[i];
+//            }
+//
+//            if (file != null && !file.isEmpty()) {
+//                // upload new file
+//                String newPath = FileUploadUtil.saveFile(file, uploadDirConfig);
+//                sub.setFilePath(newPath);
+//            } else {
+//                // keep previous file
+//                sub.setFilePath(incoming.getFilePath());
+//            }
+//            // ----------------------------------------------
+//
+//            finalSubtopics.add(sub);
+//        }
+//
+//        // Replace old subtopics
+//        existing.getSubTopics().clear();
+//        existing.getSubTopics().addAll(finalSubtopics);
+//
+//        return syllabusRepository.save(existing);
+//    }
+//    
+//    public List<Map<String, Object>> getAllSyllabusProgress() {
+//
+//        List<Syllabus> syllabusList = syllabusRepository.findAll();
+//
+//        List<Map<String, Object>> finalResponse = new ArrayList<>();
+//
+//        for (Syllabus syllabus : syllabusList) {
+//
+//            // Fetch all progress for this syllabus
+//            List<StepProgress> progressList =
+//                    stepProgressRepository.findBySubTopic_Syllabus_Id(syllabus.getId());
+//
+//            // Group progress by SubTopic
+//            Map<Long, List<StepProgress>> progressBySubTopic = new HashMap<>();
+//            for (StepProgress sp : progressList) {
+//                progressBySubTopic
+//                        .computeIfAbsent(sp.getSubTopic().getId(), k -> new ArrayList<>())
+//                        .add(sp);
+//            }
+//
+//            // -------- SUBTOPICS --------
+//            List<Map<String, Object>> subTopicResponseList = new ArrayList<>();
+//
+//            for (SubTopic st : syllabus.getSubTopics()) {
+//
+//                Map<String, Object> subTopicMap = new LinkedHashMap<>();
+//                subTopicMap.put("subTopicId", st.getId());
+//                subTopicMap.put("stepNumber", st.getStepNumber());
+//                subTopicMap.put("name", st.getName());
+//                subTopicMap.put("description", st.getDescription());
+//                subTopicMap.put("filePath", st.getFilePath());
+//
+//                // ---- Manager ----
+//                User tr = st.getManager();
+//                if (tr != null) {
+//                    Map<String, Object> trainerMap = new LinkedHashMap<>();
+//                    trainerMap.put("managerId",tr.getTrngid());
+//                    trainerMap.put("name", tr.getFirstname()+" "+tr.getLastname());
+//                    trainerMap.put("title", tr.getRole().getRoleName());
+//                    trainerMap.put("email", tr.getEmailid());
+//                    subTopicMap.put("trainer", trainerMap);
+//                }
+//
+//                // ---- STEP PROGRESS ----
+//                List<Map<String, Object>> progressResponseList = new ArrayList<>();
+//
+//                List<StepProgress> subTopicProgress =
+//                        progressBySubTopic.getOrDefault(st.getId(), Collections.emptyList());
+//
+//                for (StepProgress sp : subTopicProgress) {
+//
+//                    Map<String, Object> progressMap = new LinkedHashMap<>();
+//                    progressMap.put("stepProgressId", sp.getId());
+//                    progressMap.put("complete", sp.isComplete());
+//                    progressMap.put("checker", sp.isChecker());
+//                    progressMap.put("review", sp.getReview());
+//                    progressMap.put("starttimeSeconds", sp.getStarttimeSeconds());
+//                    progressMap.put("endtimeSeconds", sp.getEndtimeSeconds());
+//                    progressMap.put("timeSpentSeconds", sp.getTimeSpentSeconds());
+//                    progressMap.put("startDateTime", sp.getStartDateTime());
+//                    progressMap.put("endDateTime", sp.getEndDateTime());
+//
+//
+//                    // ---- USER ----
+//                    User u = sp.getUser();
+//                    Map<String, Object> userMap = new LinkedHashMap<>();
+//                    userMap.put("userid", u.getTrngid());
+//                    userMap.put("empid", u.getTrngid());
+//                    userMap.put("firstname", u.getFirstname());
+//                    userMap.put("lastname", u.getLastname());
+//                    userMap.put("email", u.getEmailid());
+//                    userMap.put("role", u.getRoleId());
+//                    userMap.put("designation", u.getDesignation());
+//
+//                    progressMap.put("user", userMap);
+//
+//                    progressResponseList.add(progressMap);
+//                }
+//
+//                subTopicMap.put("stepProgress", progressResponseList);
+//                subTopicResponseList.add(subTopicMap);
+//            }
+//
+//            // -------- SYLLABUS MAP --------
+//            Map<String, Object> syllabusMap = new LinkedHashMap<>();
+//            syllabusMap.put("syllabusId", syllabus.getId());
+//            syllabusMap.put("title", syllabus.getTitle());
+//            syllabusMap.put("topic", syllabus.getTopic());
+//            syllabusMap.put("durationInDays", syllabus.getDurationInDays());
+//            syllabusMap.put("subTopics", subTopicResponseList);
+//
+//            finalResponse.add(syllabusMap);
+//        }
+//
+//        return finalResponse;
+//    }
+//    
+//    public List<Map<String, Object>> getAllSyllabusProgressByEmpId(String empid) {
+//        List<Syllabus> syllabusList = syllabusRepository.findAll();
+//        List<Map<String, Object>> finalResponse = new ArrayList<>();
+//
+//        for (Syllabus syllabus : syllabusList) {
+//
+//            // Fetch all progress for this syllabus for this empid
+//            List<StepProgress> progressList =
+//                    stepProgressRepository
+//                            .findBySubTopic_Syllabus_IdAndUser_Trngid(syllabus.getId(), empid);
+//
+//            // Group by SubTopic
+//            Map<Long, List<StepProgress>> progressBySubTopic = new HashMap<>();
+//            for (StepProgress sp : progressList) {
+//                progressBySubTopic
+//                        .computeIfAbsent(sp.getSubTopic().getId(), k -> new ArrayList<>())
+//                        .add(sp);
+//            }
+//
+//            // -------- SUBTOPICS --------
+//            List<Map<String, Object>> subTopicResponseList = new ArrayList<>();
+//
+//            for (SubTopic st : syllabus.getSubTopics()) {
+//
+//                Map<String, Object> subTopicMap = new LinkedHashMap<>();
+//                subTopicMap.put("subTopicId", st.getId());
+//                subTopicMap.put("stepNumber", st.getStepNumber());
+//                subTopicMap.put("name", st.getName());
+//                subTopicMap.put("description", st.getDescription());
+//                subTopicMap.put("filePath", st.getFilePath());
+//
+//                // ---- Manager ----
+//                User tr = st.getManager();
+//                if (tr != null) {
+//                    Map<String, Object> trainerMap = new LinkedHashMap<>();
+//                    trainerMap.put("managerId",tr.getUserid());
+//                    trainerMap.put("name", tr.getFirstname()+" "+tr.getLastname());
+//                    trainerMap.put("title", tr.getRole().getRoleName());
+//                    trainerMap.put("email", tr.getEmailid());
+//                    subTopicMap.put("trainer", trainerMap);
+//                }
+//                // ---- STEP PROGRESS (optional) ----
+//                List<StepProgress> subTopicProgress =
+//                        progressBySubTopic.getOrDefault(st.getId(), Collections.emptyList());
+//
+//                List<Map<String, Object>> progressResponseList = new ArrayList<>();
+//                for (StepProgress sp : subTopicProgress) {
+//                    Map<String, Object> progressMap = new LinkedHashMap<>();
+//                    progressMap.put("stepProgressId", sp.getId());
+//                    progressMap.put("complete", sp.isComplete());
+//                    progressMap.put("checker", sp.isChecker());
+//                    progressMap.put("review", sp.getReview());
+//                    progressMap.put("starttimeSeconds", sp.getStarttimeSeconds());
+//                    progressMap.put("endtimeSeconds", sp.getEndtimeSeconds());
+//                    progressMap.put("timeSpentSeconds", sp.getTimeSpentSeconds());
+//                    progressMap.put("startDateTime", sp.getStartDateTime());
+//                    progressMap.put("endDateTime", sp.getEndDateTime());
+//
+//
+//                    // ---- USER ----
+//                    User u = sp.getUser();
+//                    Map<String, Object> userMap = new LinkedHashMap<>();
+//                    userMap.put("userid", u.getUserid());
+//                    userMap.put("trngid", u.getTrngid());
+//                    userMap.put("firstname", u.getFirstname());
+//                    userMap.put("lastname", u.getLastname());
+//                    userMap.put("email", u.getEmailid());
+//                    userMap.put("role", u.getRoleId());
+//                    userMap.put("designation", u.getDesignation());
+//
+//                    progressMap.put("user", userMap);
+//                    progressResponseList.add(progressMap);
+//                }
+//
+//                subTopicMap.put("stepProgress", progressResponseList);
+//                subTopicResponseList.add(subTopicMap);
+//            }
+//
+//            // -------- SYLLABUS --------
+//            Map<String, Object> syllabusMap = new LinkedHashMap<>();
+//            syllabusMap.put("syllabusId", syllabus.getId());
+//            syllabusMap.put("title", syllabus.getTitle());
+//            syllabusMap.put("topic", syllabus.getTopic());
+//            syllabusMap.put("durationInDays", syllabus.getDurationInDays());
+//            syllabusMap.put("subTopics", subTopicResponseList);
+//
+//            finalResponse.add(syllabusMap);
+//        }
+//
+//        return finalResponse;
+//    }
+//    
+//
+//    @Transactional
+//    public void deleteSubTopic(Long subTopicId) {
+//        SubTopic subTopic = subtopicRepository.findById(subTopicId)
+//                .orElseThrow(() -> new RuntimeException("SubTopic not found"));
+//
+//        // 1️ Delete all related StepProgress entries
+//        stepProgressRepository.deleteBySubTopic(subTopic);
+//
+//        // 2️ Delete the SubTopic
+//        subtopicRepository.delete(subTopic);
+//    }
+//
+//    
+//    @Transactional
+//    public void deleteSyllabusWithSubTopics(Long syllabusId) {
+//        Optional<Syllabus> syllabusOpt = syllabusRepository.findById(syllabusId);
+//        if (!syllabusOpt.isPresent()) {
+//            throw new RuntimeException("Syllabus not found with id: " + syllabusId);
+//        }
+//
+//        Syllabus syllabus = syllabusOpt.get();
+//
+//        // 1️ Fetch all subtopics for this syllabus
+//        List<SubTopic> subTopics = subtopicRepository.findBySyllabus(syllabus);
+//
+//        // 2️ Delete all StepProgress entries related to each subtopic
+//        for (SubTopic subTopic : subTopics) {
+//            stepProgressRepository.deleteBySubTopic(subTopic);
+//        }
+//
+//        // 3️ Delete all SubTopics
+//        subtopicRepository.deleteAll(subTopics);
+//
+//        // 4️ Delete the Syllabus itself
+//        syllabusRepository.delete(syllabus);
+//    }
+// 
+//    
+//
+//
+//}
+
+
+//package whitestone.trainee_management.service;
+//
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.mail.SimpleMailMessage;
+//import org.springframework.mail.javamail.JavaMailSender;
+//import org.springframework.scheduling.annotation.Scheduled;
+//import org.springframework.stereotype.Service;
+//import org.springframework.transaction.annotation.Transactional;
+//import whitestone.trainee_management.models.*;
+//import whitestone.trainee_management.repository.*;
+//
+//import java.time.LocalDateTime;
+//import java.time.temporal.ChronoUnit;
+//import java.util.List;
+//import java.util.Optional;
+//
+//@Service
+//public class DeadlineService {
+//
+//    @Autowired
+//    private UserRepository userRepository;
+//
+//    @Autowired
+//    private SyllabusRepository syllabusRepository;
+//
+//    @Autowired
+//    private SyllabusDeadlineStatusRepository deadlineRepository;
+//
+//    @Autowired
+//    private StepProgressRepository stepProgressRepository;
+//
+//    @Autowired
+//    private JavaMailSender mailSender;
+//
+//    // 🔁 Runs every 1 minute
+//    @Scheduled(fixedRate = 60000)
+//    @Transactional
+//    public void checkSyllabusDeadlines() {
+//
+//        List<User> trainees = userRepository.findByRole_IsManagerFalse();
+//
+//        for (User trainee : trainees) {
+//
+//            if (trainee.getCreatedAt() == null) continue;
+//
+//            List<Syllabus> syllabusList =
+//                    syllabusRepository.findSyllabusByTraineeDepartmentsNative(trainee.getTrngid());
+//
+//            LocalDateTime stepStartDate = trainee.getCreatedAt();
+//
+////            for (Syllabus syllabus : syllabusList) {
+////
+//////                // ✅ Check if syllabus completed
+//////                boolean completed = stepProgressRepository
+//////                        .existsByUser_TrngidAndSubTopic_Syllabus_IdAndCompleteTrue(
+//////                                trainee.getTrngid(),
+//////                                syllabus.getId()
+//////                        );
+////            	long incompleteCount = stepProgressRepository
+////            	        .countIncompleteSubtopics(
+////            	                trainee.getTrngid(),
+////            	                syllabus.getId()
+////            	        );
+////
+////            	boolean completed = incompleteCount == 0;
+////
+////                if (completed) {
+////                    stepStartDate = stepStartDate
+////                            .plusDays(syllabus.getDurationInDays())
+////                            .plusDays(1);
+////                    continue;
+////                }
+////
+////                LocalDateTime deadlineDate =
+////                        stepStartDate.plusDays(syllabus.getDurationInDays());
+////
+////                long daysLeft =
+////                        ChronoUnit.DAYS.between(LocalDateTime.now(), deadlineDate);
+////
+////                long delay = daysLeft < 0 ? Math.abs(daysLeft) : 0;
+////
+////                // ✅ Fetch existing record safely
+////                Optional<SyllabusDeadlineStatus> existing =
+////                        deadlineRepository.findByTraineeIdAndSyllabusId(
+////                                trainee.getTrngid(),
+////                                syllabus.getId()
+////                        );
+////
+////                SyllabusDeadlineStatus status;
+////
+////                if (existing.isPresent()) {
+////                    status = existing.get();
+////                } else {
+////                    status = new SyllabusDeadlineStatus();
+////                    status.setTraineeId(trainee.getTrngid());
+////                    status.setSyllabusId(syllabus.getId());
+////                    status.setMailSent(false);
+////                }
+////
+////                // ✅ Always update these
+////                status.setDeadlineDate(deadlineDate);
+////                status.setDelayDays(delay);
+////
+////                // ✅ Get trainer from syllabus (NOT trainee managerData)
+////                User trainer = syllabus.getManager();
+////
+////                if (trainer != null) {
+////                    status.setManagerId(trainer.getUserid());
+////                }
+////
+////                // 🔒 Strict Mail Control
+////                if (delay > 0) {
+////
+////                    boolean shouldSendMail = false;
+////
+////                    if (!status.isMailSent()) {
+////                        shouldSendMail = true;
+////                    } else if (status.getLastMailSentAt() != null &&
+////                            status.getLastMailSentAt()
+////                                    .isBefore(LocalDateTime.now().minusDays(1))) {
+////                        shouldSendMail = true;
+////                    }
+////
+////                    if (shouldSendMail) {
+////                        sendDeadlineMail(trainee, trainer, syllabus, delay);
+////                        status.setMailSent(true);
+////                        status.setLastMailSentAt(LocalDateTime.now());
+////                    }
+////                }
+////
+////                deadlineRepository.save(status);
+////                break;
+////
+////                stepStartDate = deadlineDate.plusDays(1);
+////            }
+//            
+//            for (Syllabus syllabus : syllabusList) {
+//
+//                long incompleteCount = stepProgressRepository
+//                        .countIncompleteSubtopics(
+//                                trainee.getTrngid(),
+//                                syllabus.getId()
+//                        );
+//
+//                boolean completed = incompleteCount == 0;
+//
+//                // ✅ If completed → move start date forward
+//                if (completed) {
+//                    stepStartDate = stepStartDate
+//                            .plusDays(syllabus.getDurationInDays())
+//                            .plusDays(1);
+//                    continue;
+//                }
+//
+//                // ❗ If NOT completed → calculate only THIS syllabus
+//                LocalDateTime deadlineDate =
+//                        stepStartDate.plusDays(syllabus.getDurationInDays());
+//
+//                long daysLeft =
+//                        ChronoUnit.DAYS.between(LocalDateTime.now(), deadlineDate);
+//
+//                long delay = daysLeft < 0 ? Math.abs(daysLeft) : 0;
+//
+//                Optional<SyllabusDeadlineStatus> existing =
+//                        deadlineRepository.findByTraineeIdAndSyllabusId(
+//                                trainee.getTrngid(),
+//                                syllabus.getId()
+//                        );
+//
+//                SyllabusDeadlineStatus status = existing.orElseGet(() -> {
+//                    SyllabusDeadlineStatus s = new SyllabusDeadlineStatus();
+//                    s.setTraineeId(trainee.getTrngid());
+//                    s.setSyllabusId(syllabus.getId());
+//                    s.setMailSent(false);
+//                    return s;
+//                });
+//
+//                status.setDeadlineDate(deadlineDate);
+//                status.setDelayDays(delay);
+//
+//                User trainer = syllabus.getManager();
+//                if (trainer != null) {
+//                    status.setManagerId(trainer.getUserid());
+//                }
+//
+//                // 📩 Send mail only if delayed
+//                if (delay < 0) {
+//
+//                    boolean shouldSendMail = false;
+//
+//                    if (!status.isMailSent()) {
+//                        shouldSendMail = true;
+//                    } else if (status.getLastMailSentAt() != null &&
+//                            status.getLastMailSentAt()
+//                                    .isBefore(LocalDateTime.now().minusDays(1))) {
+//                        shouldSendMail = true;
+//                    }
+//
+//                    if (shouldSendMail) {
+//                        sendDeadlineMail(trainee, trainer, syllabus, delay);
+//                        status.setMailSent(true);
+//                        status.setLastMailSentAt(LocalDateTime.now());
+//                    }
+//                }
+//
+//                deadlineRepository.save(status);
+//
+//                // 🔴 VERY IMPORTANT
+//                // Stop here. Do NOT calculate next syllabus.
+//                break;
+//            }
+//        }
+//    }
+//
+//    // 📩 Separate Mail Content for Trainer & Trainee
+//    private void sendDeadlineMail(User trainee,
+//                                  User trainer,
+//                                  Syllabus syllabus,
+//                                  long delayDays) {
+//
+//        try {
+//
+//            String subject = "Deadline Missed - " + syllabus.getTitle();
+//
+//            // 📌 Trainer Mail
+//            if (trainer != null && trainer.getEmailid() != null) {
+//
+//                String trainerMessage =
+//                        "Hello Trainer,\n\n" +
+//                        "Your trainee has missed a syllabus deadline.\n\n" +
+//                        "Trainee Name: " + trainee.getFirstname() + " " + trainee.getLastname() + "\n" +
+//                        "Trainee ID: " + trainee.getTrngid() + "\n" +
+//                        "Syllabus: " + syllabus.getTitle() + "\n" +
+//                        "Delayed By: " + delayDays + " days\n\n" +
+//                        "Please take necessary action.\n\n" +
+//                        "Regards,\nWhitestone TMS System";
+//
+//                sendMail(trainer.getEmailid(), subject, trainerMessage);
+//            }
+//
+//            // 📌 Trainee Mail
+//            if (trainee.getEmailid() != null) {
+//
+//                String traineeMessage =
+//                        "Hello " + trainee.getFirstname() + ",\n\n" +
+//                        "You have missed the deadline for the following syllabus.\n\n" +
+//                        "Syllabus: " + syllabus.getTitle() + "\n" +
+//                        "Delayed By: " + delayDays + " days\n\n" +
+//                        "Please complete it as soon as possible.\n\n" +
+//                        "Regards,\nWhitestone TMS System";
+//
+//                sendMail(trainee.getEmailid(), subject, traineeMessage);
+//            }
+//
+//        } catch (Exception e) {
+//            System.out.println("Mail Error: " + e.getMessage());
+//        }
+//    }
+//
+//    private void sendMail(String to, String subject, String text) {
+//
+//        SimpleMailMessage mail = new SimpleMailMessage();
+//        mail.setTo(to);
+//        mail.setSubject(subject);
+//        mail.setText(text);
+//
+//        mailSender.send(mail);
+//    }
+//}

@@ -13,7 +13,7 @@ import Button from '../../components/ui/Button';
 
 
 
-import { createSchedule, assignTrainees, fetchAllTrainees, fetchAllTraineeSummary, fetchAllSchedules, updateInterviewSchedule, deleteInterviewSchedule, fetchTraineesByManagerId, fetchTraineeSummaryByManager } from "../../api_service";
+import { createSchedule, fetchAllTraineeSummaryAdmin, assignTrainees, fetchAllTrainees, fetchAllTraineeSummary, fetchAllSchedules, updateInterviewSchedule, deleteInterviewSchedule, fetchTraineesByManagerId, fetchTraineeSummaryByManager } from "../../api_service";
 
 
 
@@ -29,6 +29,10 @@ const InterviewScheduling = () => {
   const [trainees, setTrainees] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [formdata, setFormdata] = useState();
+
+  const privilegedRoles = ["CEO", "CTO", "HR", "PM"];
+  const roleName = sessionStorage.getItem("roleName");
+  const isRestricted = privilegedRoles.includes(roleName);
 
   const mockTrainees = [
     {
@@ -223,15 +227,120 @@ const InterviewScheduling = () => {
     setConflicts(foundConflicts);
   };
 
+  // const handleSchedule = async (scheduleData) => {
+
+  //   console.log("Scheduling Data:", scheduleData);
+  //   if (scheduleData.scheduleId) {
+  //     console.log("Updating existing schedule with ID:", scheduleData);
+
+  //     const updateRes = await updateInterviewSchedule(scheduleData.scheduleId, {
+  //       interviewer: scheduleData.interviewer,
+  //       date: scheduleData.date,
+  //       time: scheduleData.time,
+  //       interviewType: scheduleData.interviewType,
+  //       location: scheduleData.location,
+  //       subTopicIds: scheduleData.subTopicIds,
+  //       duration: scheduleData.duration,
+  //       notes: scheduleData.notes,
+  //       trainees: scheduleData.trainees
+  //     })
+
+  //     console.log("Update Response:", updateRes);
+  //     alert(" Interview Updated Successfully!");
+
+  //     try {
+
+  //     } catch (error) {
+  //       console.error("Update Error:", error);
+  //       alert(" Failed to update interview");
+  //     }
+  //     return;
+  //   } else {
+  //     alert("Creating new schedule");
+
+
+  //     try {
+  //       //  Create Schedule
+  //       const scheduleRes = await createSchedule(scheduleData.interviewer, {
+  //         date: scheduleData.date,
+  //         time: scheduleData.time,
+  //         interviewType: scheduleData.interviewType,
+  //         location: scheduleData.location,
+  //         subTopicIds: scheduleData.subTopicIds,
+  //         duration: scheduleData.duration,
+  //         notes: scheduleData.notes
+  //       });
+
+  //       console.log("Schedule Response:", scheduleRes);
+
+  //       const scheduleId = scheduleRes?.data?.scheduleId;
+
+  //       if (!scheduleId) {
+  //         alert(" Schedule ID not received from backend!");
+  //         console.error("Response did not contain scheduleId:", scheduleRes);
+  //         return;
+  //       }
+
+
+  //       console.log("created Schedule ID:", scheduleData);
+  //       const emailIds = [...scheduleData.trainees, scheduleData.interviewerId];
+  //       console.log("Trainee Emails for Notification:", emailIds);
+  //       // assign Trainees
+  //       await assignTrainees(scheduleId, emailIds);
+
+  //       alert(" Interview Scheduled Successfully!");
+
+  //     } catch (error) {
+  //       console.error("Schedule Error:", error);
+  //       alert(" Failed to schedule interview");
+  //     }
+  //   }
+  // };
+
+
+  // Handle conflict resolution
+
+  const formatDateLocal = (date) => {
+    if (!date) return null;
+
+    // if already string, return as-is
+    if (typeof date === "string") return date;
+
+    const d = new Date(date);
+
+    return d.getFullYear() + "-" +
+      String(d.getMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getDate()).padStart(2, "0");
+  };
+
   const handleSchedule = async (scheduleData) => {
 
+    if (isRestricted) {
+      alert("You are not authorized to schedule interviews.");
+      return;
+    }
     console.log("Scheduling Data:", scheduleData);
+    console.log("fsf", formatDateLocal(scheduleData.date));
+
     if (scheduleData.scheduleId) {
       console.log("Updating existing schedule with ID:", scheduleData);
 
+      // const updateRes = await updateInterviewSchedule(scheduleData.scheduleId, {
+      //   interviewer: scheduleData.interviewer,
+      //   date: formatDateLocal(scheduleData.date),
+      //   date1: scheduleData.date,
+      //   time: scheduleData.time,
+      //   interviewType: scheduleData.interviewType,
+      //   location: scheduleData.location,
+      //   subTopicIds: scheduleData.subTopicIds,
+      //   duration: scheduleData.duration,
+      //   notes: scheduleData.notes,
+      //   trainees: scheduleData.trainees
+      // })
       const updateRes = await updateInterviewSchedule(scheduleData.scheduleId, {
-        interviewer: scheduleData.interviewer,
-        date: scheduleData.date,
+        interviewer: scheduleData.interviewerId,
+        date: formatDateLocal(scheduleData.date),
+        date1: scheduleData.date,
         time: scheduleData.time,
         interviewType: scheduleData.interviewType,
         location: scheduleData.location,
@@ -258,7 +367,8 @@ const InterviewScheduling = () => {
       try {
         //  Create Schedule
         const scheduleRes = await createSchedule(scheduleData.interviewer, {
-          date: scheduleData.date,
+          date: formatDateLocal(scheduleData.date),
+          date1: scheduleData.date,
           time: scheduleData.time,
           interviewType: scheduleData.interviewType,
           location: scheduleData.location,
@@ -292,9 +402,6 @@ const InterviewScheduling = () => {
       }
     }
   };
-
-
-  // Handle conflict resolution
   const handleResolveConflict = (conflictId, resolution) => {
     console.log('Resolving conflict:', conflictId, resolution);
 
@@ -312,6 +419,10 @@ const InterviewScheduling = () => {
   };
 
   const handleCancelInterview = async (interviewId) => {
+    if (isRestricted) {
+      alert("You are not authorized to cancel interviews.");
+      return;
+    }
     const confirmCancel = window.confirm("Are you sure you want to cancel this interview? " + interviewId);
     if (!confirmCancel) {
       return;
@@ -334,7 +445,10 @@ const InterviewScheduling = () => {
 
   // Reschedule interview
   const handleRescheduleInterview = (interview) => {
-
+    if (isRestricted) {
+      alert("You are not authorized to reschedule interviews.");
+      return;
+    }
     console.log('Rescheduling interview:', interview);
     if (!interview || !interview[0].interviewSchedule) return;
 
@@ -352,9 +466,16 @@ const InterviewScheduling = () => {
     setSelectedTime(interviewTime);
 
 
+    // const traineeIds = interview
+    //   .map(item => item?.user?.trngid)
+    //   .filter(Boolean);
+    // setSelectedTrainees(traineeIds);
     const traineeIds = interview
+      .filter(item => item?.roleRvsp?.toLowerCase() === "trainee")
       .map(item => item?.user?.trngid)
       .filter(Boolean);
+
+
     setSelectedTrainees(traineeIds);
 
     console.log(interview)
@@ -446,10 +567,58 @@ const InterviewScheduling = () => {
   };
 
 
+  // const loadAllTrainees = async () => {
+  //   try {
+  //     const managerId = sessionStorage.getItem("userId");
+  //     const result = await fetchTraineeSummaryByManager(managerId); // Use your API
+  //     console.log("Trainee API Result:", result);
+
+  //     if (!result?.data) {
+  //       setTrainees([]);
+  //       return;
+  //     }
+
+  //     // Map API response to format suitable for TraineeSelectionPanel
+  //     const formatted = result.data.map(t => ({
+  //       id: t.traineeId,
+  //       name: t.name,
+  //       email: t.email,
+  //       progressPercentage: t.completionPercentage || 0,
+  //       lastInterviewDate: t.lastAssessmentDate !== "N/A" ? t.lastAssessmentDate : null,
+  //       interviewStatus: t.interviewStatus === null ? "due" : (t.interviewStatus ? "completed" : "due"),
+  //       lastAssessmentScore: t.lastAssessmentScore || 0
+  //     }));
+
+  //     console.log("Formatted Trainees:", formatted);
+  //     setTrainees(formatted);
+
+  //   } catch (error) {
+  //     console.error("Failed to load trainees:", error);
+  //     setTrainees([]);
+  //   }
+  // };
+
   const loadAllTrainees = async () => {
     try {
-      const managerId = sessionStorage.getItem("userId");
-      const result = await fetchTraineeSummaryByManager(managerId); // Use your API
+      const roleName = sessionStorage.getItem("roleName");
+      const userId = sessionStorage.getItem("userId");
+
+      let result;
+
+      // 🔥 Role based API call
+      if (privilegedRoles.includes(roleName)) {
+        // CEO case
+        result = await fetchAllTraineeSummaryAdmin();
+      } else {
+        // Manager case
+        if (!userId) {
+          console.warn("UserId not found in session");
+          setTrainees([]);
+          return;
+        }
+        result = await fetchTraineeSummaryByManager(userId);
+      }
+
       console.log("Trainee API Result:", result);
 
       if (!result?.data) {
@@ -457,14 +626,22 @@ const InterviewScheduling = () => {
         return;
       }
 
-      // Map API response to format suitable for TraineeSelectionPanel
+      // ✅ Map API response
       const formatted = result.data.map(t => ({
         id: t.traineeId,
         name: t.name,
         email: t.email,
         progressPercentage: t.completionPercentage || 0,
-        lastInterviewDate: t.lastAssessmentDate !== "N/A" ? t.lastAssessmentDate : null,
-        interviewStatus: t.interviewStatus === null ? "due" : (t.interviewStatus ? "completed" : "due"),
+        lastInterviewDate:
+          t.lastAssessmentDate && t.lastAssessmentDate !== "N/A"
+            ? t.lastAssessmentDate
+            : null,
+        interviewStatus:
+          t.interviewStatus === null
+            ? "due"
+            : t.interviewStatus
+              ? "completed"
+              : "due",
         lastAssessmentScore: t.lastAssessmentScore || 0
       }));
 
@@ -476,7 +653,6 @@ const InterviewScheduling = () => {
       setTrainees([]);
     }
   };
-
 
   const loadAllSchedules = async () => {
     try {
@@ -577,32 +753,39 @@ const InterviewScheduling = () => {
                   conflicts={conflicts}
                 />
 
-                <SchedulingForm
-                  selectedDate={selectedDate}
-                  selectedTime={selectedTime}
-                  selectedTrainees={selectedTrainees}
-                  interviewers={trainers}
-                  Formdata={formdata}
-                  onSchedule={handleSchedule}
-                  onCancel={() => {
-                    setSelectedDate(null);
-                    setSelectedTime(null);
-                    setSelectedTrainees([]);
-                  }}
-                  conflicts={conflicts}
-                />
+                {!isRestricted && (
+                  <SchedulingForm
+                    selectedDate={selectedDate}
+                    selectedTime={selectedTime}
+                    selectedTrainees={selectedTrainees}
+                    interviewers={trainers}
+                    Formdata={formdata}
+                    onSchedule={handleSchedule}
+                    onCancel={() => {
+                      setSelectedDate(null);
+                      setSelectedTime(null);
+                      setSelectedTrainees([]);
+                    }}
+                    conflicts={conflicts}
+                  />
+                )}
               </div>
 
               {/* Trainee Selection Panel */}
               <div className="space-y-6">
-
+                {/* 
                 <TraineeSelectionPanel
                   trainees={trainees}
                   selectedTrainees={selectedTrainees}
                   onTraineeSelect={handleTraineeSelect}
                   onBulkSelect={handleBulkTraineeSelect}
+                /> */}
+                <TraineeSelectionPanel
+                  trainees={trainees}
+                  selectedTrainees={selectedTrainees}
+                  onTraineeSelect={!isRestricted ? handleTraineeSelect : () => { }}
+                  onBulkSelect={!isRestricted ? handleBulkTraineeSelect : () => { }}
                 />
-
                 {conflicts?.length > 0 && (
                   <ConflictDetection
                     conflicts={conflicts}

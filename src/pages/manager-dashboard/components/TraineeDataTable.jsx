@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 import Checkbox from '../../../components/ui/Checkbox';
@@ -11,7 +12,8 @@ const TraineeDataTable = ({
   onViewProfile,
   onAddAssessment,
   onScheduleInterview,
-  onSort
+  onSort,
+  onViewSyllabus
 }) => {
   console.log("trainees:", trainees);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -25,6 +27,25 @@ const TraineeDataTable = ({
     onSort(key, direction);
   };
 
+  const [selectedTraineeId, setSelectedTraineeId] = useState(null);
+
+  // const sortedTrainees = React.useMemo(() => {
+  //   if (!sortConfig.key) return trainees;
+  //   return [...trainees].sort((a, b) => {
+  //     let valA = a[sortConfig.key];
+  //     let valB = b[sortConfig.key];
+
+  //     // Agar string hai to lowercase karke compare karo
+  //     if (typeof valA === 'string') valA = valA.toLowerCase();
+  //     if (typeof valB === 'string') valB = valB.toLowerCase();
+
+  //     if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+  //     if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+  //     return 0;
+  //   });
+  // }, [trainees, sortConfig]);
+
+  const navigate = useNavigate();
 
   const sortedTrainees = React.useMemo(() => {
     if (!sortConfig.key) return trainees;
@@ -57,9 +78,10 @@ const TraineeDataTable = ({
       'completed': { bg: 'bg-green-100', text: 'text-green-700', label: 'Completed' }
     };
 
+    // const config = statusConfig?.[status] || statusConfig?.['not-started'];
 
     let config;
-
+    // console.log("percentage in badge", percentage);
     if (percentage >= 85) {
       config = statusConfig['completed'];
     } else if (percentage > 0 && percentage < 85) {
@@ -126,7 +148,7 @@ const TraineeDataTable = ({
                   onClick={() => handleSort('currentStep')}
                   className="flex items-center space-x-2 text-sm font-medium text-foreground hover:text-primary"
                 >
-                  <span>Current Subtopic</span>
+                  <span>Current Syllabus</span>
                   {getSortIcon('currentStep')}
                 </button>
               </th>
@@ -155,11 +177,11 @@ const TraineeDataTable = ({
           <tbody className="divide-y divide-border">
 
             {sortedTrainees.map((trainee) => (
-              <tr key={trainee?.id} className="hover:bg-muted/30 transition-colors">
+              <tr key={trainee?.traineeId} className="hover:bg-muted/30 transition-colors">
                 <td className="px-6 py-4">
                   <Checkbox
-                    checked={selectedTrainees?.includes(trainee?.id)}
-                    onChange={(e) => onSelectTrainee(trainee?.id, e?.target?.checked)}
+                    checked={selectedTrainees?.includes(trainee?.traineeId)}
+                    onChange={(e) => onSelectTrainee(trainee?.traineeId, e?.target?.checked)}
                   />
                 </td>
                 <td className="px-6 py-4">
@@ -177,15 +199,12 @@ const TraineeDataTable = ({
                 </td>
                 <td className="px-6 py-4">
                   <div>
-
-
-                    <p className="text-sm font-medium text-foreground">
+                    {/* <p className="text-sm font-medium text-foreground">
                       {trainee?.subtopics && trainee.subtopics.length > 0
-                        ? `Step: ${trainee.subtopics[trainee.subtopics.length - 1]}`
-                        : "No Assessment Yet"}
-                    </p>
+                        ? `Step ${trainee.subtopics.length} :${trainee.subtopics[trainee.subtopics.length - 1]} `
+                        : "No Assessment Yet"}</p> */}
 
-
+                    <p className="text-sm font-medium text-foreground">{trainee?.currentStep}</p>
                     <p className="text-xs text-muted-foreground">{trainee?.stepDescription}</p>
                   </div>
                 </td>
@@ -198,7 +217,7 @@ const TraineeDataTable = ({
                       />
                     </div>
                     <span className="text-sm font-medium text-foreground">
-                      {Math.round(trainee?.completionPercentage || 0)}%
+                      {trainee?.completionPercentage}%
                     </span>
                   </div>
                   {getStatusBadge(trainee?.completionPercentage)}
@@ -214,11 +233,18 @@ const TraineeDataTable = ({
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-center space-x-2">
-
+                    {/* <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onViewProfile(trainee?.id)}
+                      iconName="Eye"
+                      iconSize={16}
+                      title="View Profile"
+                    /> */}
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => onAddAssessment(trainee?.id)}
+                      onClick={() => onAddAssessment(trainee?.traineeId)}
                       iconName="ClipboardCheck"
                       iconSize={16}
                       title="Add Assessment"
@@ -231,6 +257,17 @@ const TraineeDataTable = ({
                       iconSize={16}
                       title="Schedule Interview"
                     />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onViewSyllabus(trainee?.traineeId)}
+
+                      //onClick={() => navigate(`/trainee-syllabus/${trainee?.traineeId}`)}
+                      iconName="BookOpen"
+                      iconSize={16}
+                      title="View Syllabus"
+                    />
+
                   </div>
                 </td>
               </tr>
@@ -263,13 +300,7 @@ const TraineeDataTable = ({
             <div className="space-y-3">
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Current Step</p>
-                <p className="text-sm font-medium text-foreground">
-                  {trainee?.subtopics && trainee.subtopics.length > 0
-                    ? `Step: ${trainee.subtopics[trainee.subtopics.length - 1]}`
-                    : "No Assessment Yet"}
-                </p>
-
-
+                <p className="text-sm font-medium text-foreground">{trainee?.currentStep}</p>
               </div>
 
               <div>
@@ -301,7 +332,7 @@ const TraineeDataTable = ({
               </div>
 
               <div className="flex space-x-2 pt-2 border-t border-border">
-                <Button
+                {/* <Button
                   variant="outline"
                   size="sm"
                   onClick={() => onViewProfile(trainee?.id)}
@@ -311,7 +342,7 @@ const TraineeDataTable = ({
                   className="flex-1"
                 >
                   View
-                </Button>
+                </Button> */}
                 <Button
                   variant="outline"
                   size="sm"
@@ -334,6 +365,17 @@ const TraineeDataTable = ({
                 >
                   Interview
                 </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onViewSyllabus(trainee?.traineeId)}
+
+
+                  iconName="BookOpen"
+                  iconSize={16}
+                  title="View Syllabus"
+                />
               </div>
             </div>
           </div>

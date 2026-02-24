@@ -10,7 +10,7 @@ import AssessmentHistory from './components/AssessmentHistory';
 import AssessmentDetailsModal from './components/AssessmentDetailsModal';
 import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
-import { fetchAllTrainees, fetchAssessmentsByTrainee, fetchTraineesByManagerId, fetchTraineeSummaryByManager } from '../../api_service';
+import { fetchAllTrainees,fetchAllTraineeSummaryAdmin, fetchAssessmentsByTrainee, fetchTraineesByManagerId, fetchTraineeSummaryByManager } from '../../api_service';
 
 const AssessmentEntry = () => {
   const navigate = useNavigate();
@@ -30,6 +30,10 @@ const AssessmentEntry = () => {
   const [assessments, setAssessments] = useState([]);
   const [loading, setLoading] = useState(false);
 
+const privilegedRoles = ["CEO", "CTO", "HR"];
+
+
+const roleName = sessionStorage.getItem("roleName")?.toLowerCase();
 
   const triggerReload = () => {
     setRefreshKey(prev => prev + 1);
@@ -37,35 +41,81 @@ const AssessmentEntry = () => {
 
 
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const managerId = sessionStorage.getItem("userId");
+  //       const res = await fetchTraineeSummaryByManager(managerId);
+
+  //       const normalizedTrainees = (res.data || []).map(t => ({
+  //         trngid: t.traineeId,
+  //         traineeId: t.traineeId,
+  //         name: t.name,
+  //         email: t.email,
+  //         completionPercentage: t.completionPercentage,
+  //         interviewStatus: t.interviewStatus,
+  //         lastAssessmentDate: t.lastAssessmentDate,
+  //         lastAssessmentScore: t.lastAssessmentScore,
+  //         syllabusProgress: t.syllabusProgress || []   // keep the full syllabus
+  //       }));
+
+
+  //       setTrainees(normalizedTrainees);
+  //       console.log("Normalized trainees:", normalizedTrainees);
+
+  //     } catch (error) {
+  //       console.error("Error fetching trainees:", error);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
+
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const managerId = sessionStorage.getItem("userId");
-        const res = await fetchTraineeSummaryByManager(managerId);
+  const fetchData = async () => {
+    try {
+      const roleName = sessionStorage.getItem("roleName");
+      const userId = sessionStorage.getItem("userId");
 
-        const normalizedTrainees = (res.data || []).map(t => ({
-          trngid: t.traineeId,
-          traineeId: t.traineeId,
-          name: t.name,
-          email: t.email,
-          completionPercentage: t.completionPercentage,
-          interviewStatus: t.interviewStatus,
-          lastAssessmentDate: t.lastAssessmentDate,
-          lastAssessmentScore: t.lastAssessmentScore,
-          syllabusProgress: t.syllabusProgress || []   // keep the full syllabus
-        }));
+      let res;
 
+      // 🔥 Role based API call
+     if (privilegedRoles.includes(roleName)) {
 
-        setTrainees(normalizedTrainees);
-        console.log("Normalized trainees:", normalizedTrainees);
-
-      } catch (error) {
-        console.error("Error fetching trainees:", error);
+        res = await fetchAllTraineeSummaryAdmin();
+      } else {
+        if (!userId) {
+          console.warn("UserId not found in session");
+          setTrainees([]);
+          return;
+        }
+        res = await fetchTraineeSummaryByManager(userId);
       }
-    };
 
-    fetchData();
-  }, []);
+      const normalizedTrainees = (res?.data || []).map(t => ({
+        trngid: t.traineeId,
+        traineeId: t.traineeId,
+        name: t.name,
+        email: t.email,
+        completionPercentage: t.completionPercentage,
+        interviewStatus: t.interviewStatus,
+        lastAssessmentDate: t.lastAssessmentDate,
+        lastAssessmentScore: t.lastAssessmentScore,
+        syllabusProgress: t.syllabusProgress || [] // keep full syllabus
+      }));
+
+      setTrainees(normalizedTrainees);
+      console.log("Normalized trainees:", normalizedTrainees);
+
+    } catch (error) {
+      console.error("Error fetching trainees:", error);
+      setTrainees([]);
+    }
+  };
+
+  fetchData();
+}, []);
 
 
   useEffect(() => {
@@ -174,7 +224,7 @@ const AssessmentEntry = () => {
       <Header
 
         userName={sessionStorage.getItem("userName") || "User"}
-        userRole="manager"
+    
         onLogout={handleLogout}
       />
       <SessionTimeoutHandler

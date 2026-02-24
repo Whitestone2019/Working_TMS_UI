@@ -15,7 +15,7 @@ const Checkbox = React.forwardRef(({
   value,
   ...props
 }, ref) => {
-  // Generate unique ID if not provided
+  
   const checkboxId = id || `checkbox-${Math.random()?.toString(36)?.substr(2, 9)}`;
 
   const handleChange = (e) => {

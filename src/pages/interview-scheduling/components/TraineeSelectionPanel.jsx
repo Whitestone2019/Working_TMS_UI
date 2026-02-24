@@ -26,7 +26,7 @@ const TraineeSelectionPanel = ({
   const priorityOptions = [
     { value: 'all', label: 'All Priorities' },
     { value: 'high', label: 'High Priority' },
-    { value: 'medium', label: 'Medium Priority' },
+    { value: 'medium', label: 'Medium Prioritya' },
     { value: 'low', label: 'Low Priority' }
   ];
 

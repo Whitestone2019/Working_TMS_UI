@@ -11,7 +11,7 @@ import {
   fetchCompletedSubTopics
 } from "../../../api_service";
 
-const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
+const AssessmentEntryModal = ({ isOpen, onClose, trainee,onSubmitAssessment   }) => {
   const [assessmentList, setAssessmentList] = useState([]);
   const [existingAssessmentId, setExistingAssessmentId] = useState(null);
   const [selectedSyllabus, setSelectedSyllabus] = useState([]);
@@ -27,7 +27,7 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
     maxMarks: '100',
     remarks: '',
     assessmentDate: new Date().toISOString().split('T')[0],
-    // subTopics: [],
+     subTopics: [],
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,7 +50,8 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
 
     const loadAssessments = async () => {
       try {
-
+        // setSelectedSyllabus([]);
+        // setSelectedSubTopics([]);
         console.log("Fetching assessments for traineeId:", trainee.traineeId);
         const res = await fetchAssessmentsByTrainee(trainee.traineeId);
         console.log("Assessments response:", res);
@@ -106,7 +107,7 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
   };
 
   useEffect(() => {
-    if (!syllabusData.length || !assessmentData.subTopics.length) return;
+    if (!syllabusData?.length || !assessmentData.subTopics.length) return;
 
     const matchedSyllabusTitles = syllabusData
       .filter(syllabus =>
@@ -126,55 +127,55 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
   };
 
-  const validateForm = () => {
-    const newErrors = {};
+const validateForm = () => {
+  const newErrors = {};
 
-    //  Assessment Type
-    if (!assessmentData.assessmentType) {
-      newErrors.assessmentType = "Assessment type is required";
-    }
+  // Assessment Type
+  if (!assessmentData.assessmentType) {
+    newErrors.assessmentType = "Assessment type is required";
+  }
 
-    //  Marks
-    if (!assessmentData.marks) {
-      newErrors.marks = "Marks obtained is required";
-    }
+  //  Marks
+  if (!assessmentData.marks) {
+    newErrors.marks = "Marks obtained is required";
+  } 
 
-    //  Max Marks
-    if (!assessmentData.maxMarks) {
-      newErrors.maxMarks = "Maximum marks is required";
-    }
+  //  Max Marks
+  if (!assessmentData.maxMarks) {
+    newErrors.maxMarks = "Maximum marks is required";
+  } 
 
-    //  Syllabus
-    if (!selectedSyllabus || selectedSyllabus.length === 0) {
-      newErrors.syllabus = "Please select at least one syllabus";
-    }
+  //  Syllabus
+  if (!selectedSyllabus || selectedSyllabus.length === 0) {
+    newErrors.syllabus = "Please select at least one syllabus";
+  }
 
-    //  Sub Topics
-    if (!assessmentData.subTopics || assessmentData.subTopics.length === 0) {
-      newErrors.subTopics = "Please select at least one sub topic";
-    }
+  //  Sub Topics
+  if (!assessmentData.subTopics || assessmentData.subTopics.length === 0) {
+    newErrors.subTopics = "Please select at least one sub topic";
+  }
 
-    //  Remarks
-    if (!assessmentData.remarks || assessmentData.remarks.trim().length < 10) {
-      newErrors.remarks = "Remarks must be at least 10 characters";
-    }
+  //  Remarks
+  if (!assessmentData.remarks || assessmentData.remarks.trim().length < 10) {
+    newErrors.remarks = "Remarks must be at least 10 characters";
+  }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Submitting assessment data:", assessmentData, existingAssessmentId);
+    console.log("Submitting assessment data:", assessmentData,existingAssessmentId);
     // if (!validateForm()) return;
 
     setIsSubmitting(true);
     const payload = {
       ...assessmentData,
       subTopicIds: assessmentData.subTopicIds,
-      subTopics: selectedSubTopics.join("|"),
+       subTopics: selectedSubTopics.join("|"),
       marks: parseInt(assessmentData.marks),
       maxMarks: parseInt(assessmentData.maxMarks),
       percentage: Math.round((assessmentData.marks / assessmentData.maxMarks) * 100),
@@ -188,15 +189,21 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
         setTimeout(() => { setShowUpdateAlert(false); }, 2000);
       } else {
         await createAssessment(trainee.traineeId, payload);
-
       }
+      if (onSubmitAssessment) {
+      await onSubmitAssessment();   //  notify parent
+    }
+    onClose();
+
     } catch (err) {
       console.error(err);
     } finally {
       setIsSubmitting(false);
     }
   };
-
+const restrictedRoles = ["CEO", "CTO", "HR", "PM"];
+const roleName = sessionStorage.getItem("roleName");
+const isRestricted = restrictedRoles.includes(roleName);
   useEffect(() => {
     if (!trainee?.traineeId) {
       setCompletedSubTopics([]);
@@ -284,8 +291,8 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
     }
 
     setSelectedSyllabus(selected);
-
-
+    //handleInputChange("syllabusTitles", selected);
+    setSelectedSubTopics([]);
     handleInputChange("subTopicIds", []);
   };
 
@@ -310,7 +317,7 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
             progress =>
               progress.checker === true &&
               progress.complete === true &&
-              progress.user?.empid === traineeId
+              progress.user?.trngid === traineeId
           )
         );
 
@@ -336,6 +343,7 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
             <h2 className="text-xl font-semibold">{existingAssessmentId ? "Update Assessment" : "Add Assessment"}</h2>
             <p className="text-sm text-muted-foreground">{trainee?.name}</p>
           </div>
+
           <Button variant="ghost" size="icon" onClick={onClose} iconName="X" />
         </div>
 
@@ -362,7 +370,7 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
           <div className={assessmentList.length > 0 ? "col-span-2" : "col-span-3"}>
             {showUpdateAlert && (
               <div className="mb-4 bg-green-50 text-green-700 border border-green-200 p-3 rounded text-sm">
-                Assessment updated successfully
+                 Assessment updated successfully
               </div>
             )}
 
@@ -370,6 +378,7 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
               <div className="grid grid-cols-2 gap-6">
                 <Select
                   label="Assessment Type"
+                  disabled={isRestricted}
                   options={assessmentTypeOptions}
                   value={assessmentData.assessmentType}
                   onChange={(v) => handleInputChange('assessmentType', v)}
@@ -378,11 +387,14 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
                 <Input
                   label="Assessment Date"
                   type="date"
+                 disabled={isRestricted}
                   value={assessmentData.assessmentDate}
                   onChange={(e) => handleInputChange('assessmentDate', e.target.value)}
                 />
                 <Input
                   label="Marks Obtained"
+                  
+                  disabled={isRestricted}
                   type="number"
                   value={assessmentData.marks}
                   onChange={(e) => handleInputChange('marks', e.target.value)}
@@ -391,6 +403,7 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
                 <Input
                   label="Maximum Marks"
                   type="number"
+                  disabled={isRestricted}
                   value={assessmentData.maxMarks}
                   onChange={(e) => handleInputChange('maxMarks', e.target.value)}
                 />
@@ -420,6 +433,7 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
                   {/* SYLLABUS MULTI SELECT */}
                   <Select
                     label="Syllabus"
+                    disabled={isRestricted}
                     options={syllabusOptions}
                     value={selectedSyllabus}
                     onChange={handleSyllabusChange}
@@ -456,6 +470,7 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
                   {/*  DROPDOWN */}
                   <Select
                     label="Completed Sub Topics"
+                    disabled={isRestricted}
                     options={filteredSubTopicOptions}
                     value={selectedSubTopics}
                     onChange={handleSubTopicChange}
@@ -497,6 +512,7 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
               <textarea
                 rows={4}
                 className="w-full border rounded-lg p-2"
+                disabled={isRestricted}
                 placeholder="Remarks"
                 value={assessmentData.remarks}
                 onChange={(e) => handleInputChange('remarks', e.target.value)}
@@ -505,7 +521,9 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee }) => {
 
               <div className="flex justify-end gap-3">
                 <Button variant="outline" onClick={onClose}>Cancel</Button>
+                {!isRestricted && (
                 <Button type="submit" loading={isSubmitting}>Save Assessment</Button>
+                )}
               </div>
             </form>
           </div>

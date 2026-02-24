@@ -136,7 +136,8 @@ const LoginScreen = () => {
 
         const userRole = response?.data?.user?.role?.manager ? "MANAGER" : "TRAINEE";
         sessionStorage.setItem("userRole", userRole);
-
+const roleName = response?.data?.user?.role?.roleName;
+sessionStorage.setItem("roleName", roleName);
 
         const userName = sessionStorage.setItem("userName", `${response?.data?.user?.firstname} ${response?.data?.user?.lastname}`);
         navigate(response?.data?.redirect || '/');

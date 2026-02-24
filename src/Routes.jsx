@@ -15,6 +15,7 @@ import UploadSyllabus from "./pages/manager-dashboard/components/UploadSyllabus"
 import TraineeStepsPage from "./pages/manager-dashboard/components/TraineeStepsPage";
 import DepartmentPage from "./pages/manager-dashboard/components/DepartmentPage";
 import AssignDepartmentPage from "./pages/manager-dashboard/components/AssignDepartmentPage";
+import TraineeSyllabusPage from "./pages/manager-dashboard/components/TraineeSyllabusPage";
 
 
 const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -112,6 +113,15 @@ const Routes = () => {
               <AssessmentEntry />
             </ProtectedRoute>
           }
+        />
+        <Route
+        
+          path="/trainee-syllabus/:traineeId"
+          element={
+             <ProtectedRoute allowedRoles={["MANAGER"]}>
+          <TraineeSyllabusPage />
+          </ProtectedRoute>
+        }
         />
 
         {/* Trainee Only */}

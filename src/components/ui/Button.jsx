@@ -106,7 +106,7 @@ const Button = React.forwardRef(({
         </button>
     );
 
-    // When asChild is true, merge icons into the child element
+    
     if (asChild) {
         try {
             if (!children || React.Children?.count(children) !== 1) {

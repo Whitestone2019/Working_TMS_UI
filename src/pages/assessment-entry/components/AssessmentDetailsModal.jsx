@@ -21,7 +21,7 @@ const AssessmentDetailsModal = ({
   const [selectedSubTopics, setSelectedSubTopics] = useState([]);
 
   useEffect(() => {
-    if (!trainee?.trngid || !assessment) return;
+    if (!trainee?.traineeId || !assessment) return;
 
     const loadData = async () => {
       try {

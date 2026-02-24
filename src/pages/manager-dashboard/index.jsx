@@ -8,19 +8,23 @@ import TraineeMetricsPanel from './components/TraineeMetricsPanel';
 import FilterToolbar from './components/FilterToolbar';
 import TraineeDataTable from './components/TraineeDataTable';
 import AssessmentEntryModal from './components/AssessmentEntryModal';
-import { fetchAllTraineeSummary, fetchCompletedSubTopics, fetchTraineeSummaryByManager } from '../../api_service';
+import TraineeSyllabusPage from './components/TraineeSyllabusPage';
+import { fetchAllTraineeSummaryAdmin, fetchCompletedSubTopics, fetchTraineeSummaryByManager,fetchManagerDelays } from '../../api_service';
 const ManagerDashboard = () => {
   const navigate = useNavigate();
   const [selectedTrainees, setSelectedTrainees] = useState([]);
   const [showAssessmentModal, setShowAssessmentModal] = useState(false);
   const [selectedTraineeForAssessment, setSelectedTraineeForAssessment] = useState(null);
   const [traineeInfo, setTraineeInfo] = useState(null);
+const [selectedTraineeId, setSelectedTraineeId] = useState(null);
+const [showDelayBox, setShowDelayBox] = useState(true);
 
 
   const [syllabusOptions, setSyllabusOptions] = useState([
     { value: 'all', label: 'All Syllabus' }
   ]);
 
+  const privilegedRoles = ["CEO", "CTO", "HR"];
 
   const [filters, setFilters] = useState({
     searchName: '',
@@ -33,6 +37,7 @@ const ManagerDashboard = () => {
 
   const [trainees, setTrainees] = useState([]);
   const [filteredTrainees, setFilteredTrainees] = useState([]);
+  const [delayNotifications, setDelayNotifications] = useState([]);
 
   useEffect(() => {
     fetchTrainees();
@@ -40,55 +45,67 @@ const ManagerDashboard = () => {
   }, []);
 
 
-  const fetchTrainees = async () => {
-    try {
-      const managerUserId = sessionStorage.getItem("userId");
+const fetchTrainees = async () => {
+  try {
+    const roleName = sessionStorage.getItem("roleName");
+    const userId = sessionStorage.getItem("userId");
 
-      if (!managerUserId) {
-        console.warn("Manager UserId not found");
+    if (!roleName) {
+      console.warn("Role not found in session");
+      return;
+    }
+
+    let response;
+
+    //  Role based API call
+    if (privilegedRoles.includes(roleName)) {
+      response = await fetchAllTraineeSummaryAdmin();
+    } else {
+      if (!userId) {
+        console.warn("UserId not found in session");
         return;
       }
+      response = await fetchTraineeSummaryByManager(userId);
+    }
 
-      const response = await fetchTraineeSummaryByManager(managerUserId);
+    const traineeList = Array.isArray(response?.data) ? response.data : [];
 
-      const traineeList = Array.isArray(response?.data) ? response.data : [];
+    const transformedList = traineeList.map((trainee) => {
+      const subtopics = [];
+      let lastSubTopicName = "Not Started";
+      let lastStepNumber = -1;
 
+      trainee?.syllabusProgress?.forEach((syllabus) => {
+        syllabus?.subTopics?.forEach((sub) => {
+          subtopics.push(sub.name);
 
-      const transformedList = traineeList.map((trainee) => {
-        const subtopics = []; // collect all subtopic names
-        let lastSubTopicName = "Not Started";
-        let lastStepNumber = -1;
+          const isCompleted = sub?.stepProgress?.some(
+            (sp) => sp?.complete === true
+          );
 
-        trainee?.syllabusProgress?.forEach((syllabus) => {
-          syllabus?.subTopics?.forEach((sub) => {
-            subtopics.push(sub.name); // collect name in array
-            const isCompleted = sub?.stepProgress?.some(sp => sp?.complete === true);
-
-            if (isCompleted && sub.stepNumber > lastStepNumber) {
-              lastStepNumber = sub.stepNumber;
-              lastSubTopicName = sub.name;
-            }
-          });
+          if (isCompleted && sub.stepNumber > lastStepNumber) {
+            lastStepNumber = sub.stepNumber;
+            lastSubTopicName = sub.name;
+          }
         });
-
-        return {
-          ...trainee,
-          subtopics,
-          currentStep: lastSubTopicName,
-        };
       });
 
-      console.log("Transformed trainee summary:", transformedList);
+      return {
+        ...trainee,
+        subtopics,
+        currentStep: lastSubTopicName,
+      };
+    });
 
-      setTrainees(transformedList);
-      setFilteredTrainees(transformedList);
+    setTrainees(transformedList);
+    setFilteredTrainees(transformedList);
 
-    } catch (err) {
-      console.error("Error fetching trainee summary:", err);
-      setTrainees([]);
-      setFilteredTrainees([]);
-    }
-  };
+  } catch (err) {
+    console.error("Error fetching trainee summary:", err);
+    setTrainees([]);
+    setFilteredTrainees([]);
+  }
+};
 
 
 
@@ -200,7 +217,7 @@ const ManagerDashboard = () => {
 
   const handleSelectAll = (isSelected) => {
     if (isSelected) {
-      setSelectedTrainees(filteredTrainees?.map(t => t?.id));
+      setSelectedTrainees(filteredTrainees?.map(t => t?.traineeId));
     } else {
       setSelectedTrainees([]);
     }
@@ -237,13 +254,21 @@ const ManagerDashboard = () => {
     navigate(`/progress-reports?trainee=${traineeId}`);
   };
 
-  const handleAddAssessment = (traineeId) => {
-    console.log("traineesHHHHH:", traineeId);
-    const trainee = trainees?.find(t => t?.traineeId === traineeId);
-    console.log("Selected Trainee for Assessment:", trainee);
-    setSelectedTraineeForAssessment(trainee);
-    setShowAssessmentModal(true);
-  };
+  // const handleAddAssessment = (traineeId) => {
+  //   console.log("traineesHHHHH:", traineeId);
+  //   const trainee = trainees?.find(t => t?.traineeId === traineeId);
+  //   console.log("Selected Trainee for Assessment:", trainee);
+  //   setSelectedTraineeForAssessment(trainee);
+  //   setShowAssessmentModal(true);
+  // };
+const handleAddAssessment = (traineeId) => {
+  const trainee = filteredTrainees?.find(
+    t => t?.traineeId === traineeId
+  );
+
+  setSelectedTraineeForAssessment(trainee);
+  setShowAssessmentModal(true);
+};
 
   const handleScheduleInterview = (traineeId) => {
     navigate(`/interview-scheduling?trainee=${traineeId}`);
@@ -259,7 +284,6 @@ const ManagerDashboard = () => {
     };
 
     console.log('Exporting reports:', exportData);
-
     // Create mock CSV content
     const csvContent = [
       ['Name', 'Email', 'Current Step', 'Completion %', 'Last Assessment', 'Score', 'Interview Status']?.join(','),
@@ -303,7 +327,7 @@ const ManagerDashboard = () => {
 
     // Update trainee's last assessment data
     setTrainees(prev => prev?.map(trainee => {
-      if (trainee?.id === assessmentData?.traineeId) {
+      if (trainee?.traineeId=== assessmentData?.trngid) {
         return {
           ...trainee,
           lastAssessmentDate: assessmentData?.assessmentDate,
@@ -322,6 +346,26 @@ const ManagerDashboard = () => {
   const handleLogout = () => {
     navigate('/');
   };
+ const selectedTrainee = filteredTrainees.find(
+  t => String(t?.traineeId) === String(selectedTraineeId)
+);
+
+  
+
+useEffect(() => {
+  const managerId = sessionStorage.getItem("userId");
+
+  const loadDelays = async () => {
+    try {
+      const response = await fetchManagerDelays(managerId);
+      setDelayNotifications(response.data || []);
+    } catch (error) {
+      console.error("Error fetching manager delays:", error);
+    }
+  };
+
+  loadDelays();
+}, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -332,6 +376,38 @@ const ManagerDashboard = () => {
         onLogout={handleLogout}
       />
       <main className="pt-16">
+      
+
+{showDelayBox && delayNotifications.length > 0 && (
+  <div className="max-w-7xl mx-auto px-6 mt-6">
+    <div className="relative bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-sm">
+
+      {/*  Cross Button */}
+      <button
+        onClick={() => setShowDelayBox(false)}
+        className="absolute top-2 right-3 text-red-600 hover:text-red-800 text-lg font-bold"
+      >
+        ×
+      </button>
+
+      {(() => {
+        const firstDelay = delayNotifications[0];
+
+        return (
+          <>
+            <strong>
+              ⚠ Delay Alert
+            </strong>
+
+            <div className="mt-2">
+              • {firstDelay.traineeId} → {firstDelay.delayDays} day(s) delay
+            </div>
+          </>
+        );
+      })()}
+    </div>
+  </div>
+)}
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Breadcrumb Navigation */}
           <NavigationBreadcrumb userRole="manager" className="mb-6" />
@@ -368,10 +444,28 @@ const ManagerDashboard = () => {
             onAddAssessment={handleAddAssessment}
             onScheduleInterview={handleScheduleInterview}
             onSort={handleSort}
+            onViewSyllabus={(id) => setSelectedTraineeId(id)} 
           />
+
+         {/* {selectedTraineeId && selectedTrainee && (
+        <TraineeSyllabusPage
+          traineeId={selectedTraineeId}
+          traineeName={`${selectedTrainee.firstname} ${selectedTrainee.lastname}`}
+          onClose={() => setSelectedTraineeId(null)}
+        />
+      )} */}
+
+{selectedTraineeId && selectedTrainee && (
+  <TraineeSyllabusPage
+    traineeId={selectedTraineeId}
+   traineeName={selectedTrainee?.name}
+    onClose={() => setSelectedTraineeId(null)}
+  />
+)}
 
           {/* Assessment Entry Modal */}
           <AssessmentEntryModal
+          key={selectedTraineeForAssessment?.traineeId}  
             isOpen={showAssessmentModal}
             onClose={() => {
               setShowAssessmentModal(false);

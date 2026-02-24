@@ -47,6 +47,9 @@ const AssessmentForm = ({
   const [completedSubTopics, setCompletedSubTopics] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
+  const restrictedRoles = ["CEO", "CTO", "HR", "PM"];
+  const roleName = sessionStorage.getItem("roleName");
+  const isRestricted = restrictedRoles.includes(roleName);
 
   const assessmentTypeOptions = [
     { value: 'weekly', label: 'Weekly Assessment' },
@@ -136,7 +139,7 @@ const AssessmentForm = ({
             progress =>
               progress.checker === true &&
               progress.complete === true &&
-              progress.user?.trngid=== traineeId
+              progress.user?.trngid === traineeId
           )
         );
 
@@ -450,6 +453,7 @@ const AssessmentForm = ({
 
           <Select
             label="Assessment Type"
+            disabled={isRestricted}
             options={assessmentTypeOptions}
             value={formData?.assessmentType}
             onChange={(value) => handleInputChange('assessmentType', value)}
@@ -457,6 +461,7 @@ const AssessmentForm = ({
           />
           <Input
             label="Assessment Date"
+            disabled={isRestricted}
             type="date"
             value={formData?.assessmentDate}
             onChange={(e) => handleInputChange('assessmentDate', e?.target?.value)}
@@ -469,6 +474,7 @@ const AssessmentForm = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Input
             label="Marks Obtained"
+            disabled={isRestricted}
             type="number"
             placeholder="Enter marks"
             value={formData?.marks}
@@ -480,6 +486,7 @@ const AssessmentForm = ({
           />
           <Input
             label="Maximum Marks"
+            disabled={isRestricted}
             type="number"
             value={formData?.maxMarks}
             onChange={(e) => handleInputChange('maxMarks', e?.target?.value)}
@@ -504,6 +511,7 @@ const AssessmentForm = ({
             {/* SYLLABUS MULTI SELECT */}
             <Select
               label="Syllabus"
+              disabled={isRestricted}
               options={syllabusOptions}
               value={selectedSyllabus}
               onChange={handleSyllabusChange}
@@ -540,6 +548,7 @@ const AssessmentForm = ({
             {/*  DROPDOWN */}
             <Select
               label="Completed Sub Topics"
+              disabled={isRestricted}
               options={filteredSubTopicOptions}
               value={selectedSubTopics}
               onChange={handleSubTopicChange}
@@ -619,6 +628,7 @@ const AssessmentForm = ({
           </label>
           <textarea
             className="w-full h-24 px-3 py-2 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+            disabled={isRestricted}
             placeholder="Enter detailed remarks about the trainee's performance..."
             value={formData?.remarks}
             onChange={(e) => handleInputChange('remarks', e?.target?.value)}
@@ -636,6 +646,7 @@ const AssessmentForm = ({
             </label>
             <textarea
               className="w-full h-20 px-3 py-2 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              disabled={isRestricted}
               placeholder="What did the trainee do well?"
               value={formData?.strengths}
               onChange={(e) => handleInputChange('strengths', e?.target?.value)}
@@ -647,6 +658,7 @@ const AssessmentForm = ({
             </label>
             <textarea
               className="w-full h-20 px-3 py-2 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              disabled={isRestricted}
               placeholder="What needs improvement?"
               value={formData?.improvements}
               onChange={(e) => handleInputChange('improvements', e?.target?.value)}
@@ -658,6 +670,7 @@ const AssessmentForm = ({
             </label>
             <textarea
               className="w-full h-20 px-3 py-2 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              disabled={isRestricted}
               placeholder="Specific recommendations..."
               value={formData?.recommendations}
               onChange={(e) => handleInputChange('recommendations', e?.target?.value)}
@@ -670,26 +683,30 @@ const AssessmentForm = ({
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">
-          <Button
-            variant="default"
-            onClick={() => handleSubmit(false)}
-            loading={isLoading}
-            iconName="Save"
-            iconPosition="left"
-            className="flex-1 sm:flex-none"
-          >
-            Save Assessment
-          </Button>
+          {!isRestricted && (
+            <Button
+              variant="default"
+              onClick={() => handleSubmit(false)}
+              loading={isLoading}
+              iconName="Save"
+              iconPosition="left"
+              className="flex-1 sm:flex-none"
+            >
+              Save Assessment
+            </Button>
+          )}
 
-          <Button
-            variant="ghost"
-            onClick={handleCancel}
-            iconName="X"
-            iconPosition="left"
-            className="flex-1 sm:flex-none"
-          >
-            Cancel
-          </Button>
+          {!isRestricted && (
+            <Button
+              variant="ghost"
+              onClick={handleCancel}
+              iconName="X"
+              iconPosition="left"
+              className="flex-1 sm:flex-none"
+            >
+              Cancel
+            </Button>
+          )}
         </div>
       </div>
     </div>

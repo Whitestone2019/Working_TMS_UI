@@ -2,13 +2,17 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Header from "../../../components/ui/Header";
+import Button from "../../../components/ui/Button";
 import { useNavigate } from "react-router-dom";
 import NavigationBreadcrumb from "../../../components/ui/NavigationBreadcrumb";
 import Icon from "../../../components/AppIcon";
 import {
     fetchCompletedSubTopics,
+    fetchCompletedSubTopicsByManager,
     approveSubTopicAPI,
     rejectSubTopicAPI,
+   fetchSyllabusByTrainer,fetchSyllabusProgressByEmpId, submitTrainerFeedbackAPI,
+  getSyllabusFeedbackAPI 
 } from "../../../api_service";
 
 export default function TraineeStepsPage() {
@@ -20,9 +24,64 @@ export default function TraineeStepsPage() {
     const [reviewInput, setReviewInput] = useState({});
     const [refreshKey, setRefreshKey] = useState(0);
     const [isLoading, setIsLoading] = useState(false); // Added loading state
+    const [traineeProgress, setTraineeProgress] = useState(null);
+const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+const [feedbackText, setFeedbackText] = useState("");
+const [feedbackSubtopic, setFeedbackSubtopic] = useState(null);
 
+const privilegeRoles = ["CEO", "CTO", "HR"<"PM"];
 
+const roleName = sessionStorage.getItem("roleName");
+const isRestrictedRole = privilegeRoles.includes(roleName);
+// useEffect(() => {
+//     if (!selectedTrainee) return;
 
+//     const loadProgress = async () => {
+//         try {
+//             const empid = selectedTrainee.id;
+//             const res = await fetchSyllabusProgressByEmpId(empid);
+//             const data = res?.data || res;
+
+//             if (!data || data.length === 0) return;
+
+//             for (let step of data) {
+
+//                 const lastSubtopic =
+//                     step.subTopics?.[step.subTopics.length - 1];
+
+//                 if (!lastSubtopic) continue;
+
+//                 const isCompletedAndApproved =
+//                     lastSubtopic.stepProgress?.some(
+//                         p => p.complete === true && p.checker === true
+//                     );
+
+//                 if (isCompletedAndApproved) {
+
+//                     // Agar already isi syllabus ka feedback show nahi hua
+//                     if (!feedbackSubtopic ||
+//                         feedbackSubtopic.id !== lastSubtopic.subTopicId) {
+
+//                         setFeedbackSubtopic({
+//                             ...lastSubtopic,
+//                             syllabusTitle: step.title,
+//                         });
+
+//                         setShowFeedbackModal(true);
+//                         break; // ek baar mein ek hi popup
+//                     }
+//                 }
+//             }
+
+//             setTraineeProgress(data);
+
+//         } catch (err) {
+//             console.error("Failed to fetch syllabus progress:", err);
+//         }
+//     };
+
+//     loadProgress();
+// }, [selectedTrainee, refreshKey]);
 
     // const buildTraineeStructure = (data = []) => {
     //     const traineeMap = {};
@@ -72,7 +131,109 @@ export default function TraineeStepsPage() {
     //     }));
     // };
 
-const buildTraineeStructure = (data = [], traineeFilterId) => {
+// const buildTraineeStructure = (data = [], traineeFilterId) => {
+//   const traineeMap = {};
+
+//   data.forEach((syllabus) => {
+//     syllabus.subTopics?.forEach((sub) => {
+//       sub.stepProgress?.forEach((progress) => {
+//         const user = progress.user;
+//         if (!user) return;
+
+//         // ✅ IMPORTANT FILTER (selected trainee only)
+//         if (traineeFilterId && user.trngid !== traineeFilterId) return;
+
+//         if (!traineeMap[user.trngid]) {
+//           traineeMap[user.trngid] = {
+//             id: user.trngid,
+//             name: `${user.firstname} ${user.lastname}`,
+//             syllabi: {},
+//           };
+//         }
+
+//         if (!traineeMap[user.trngid].syllabi[syllabus.title]) {
+//           traineeMap[user.trngid].syllabi[syllabus.title] = {
+//             title: syllabus.title,
+//             subTopics: [],
+//           };
+//         }
+
+//         traineeMap[user.trngid].syllabi[syllabus.title].subTopics.push({
+//           id: sub.subTopicId,
+//           progressId: progress.stepProgressId,
+//           name: sub.name,
+//           status: progress.complete ? "COMPLETED" : "PENDING",
+//           managerDecision: progress.checker,
+//           review: progress.review || "",
+//           startDateTime: progress.startDateTime,
+//           endDateTime: progress.endDateTime,
+//         });
+//       });
+//     });
+//   });
+
+//   return Object.values(traineeMap).map((t) => ({
+//     ...t,
+//     syllabi: Object.values(t.syllabi),
+//   }));
+// };
+useEffect(() => {
+    if (!selectedTrainee) return;
+
+    const loadProgress = async () => {
+        try {
+            const empid = selectedTrainee.id;
+            const trainerId = sessionStorage.getItem("empid");
+            const res = await fetchSyllabusProgressByEmpId(empid);
+            const data = res?.data || res;
+
+            if (!data || data.length === 0) return;
+
+            for (let step of data) {
+                //  Logic: Check if EVERY subtopic is complete and approved
+                const allSubtopicsFinished = step.subTopics?.every(sub => 
+                    sub.stepProgress?.some(p => p.complete === true && p.checker === true)
+                );
+
+                // If syllabus is not fully complete, skip to next syllabus
+                if (!allSubtopicsFinished) continue;
+
+                //  If fully complete, check if feedback already exists in DB
+                let feedbackRes = null;
+                try {
+                    // Note: Ensure your API params match your backend signature
+                    feedbackRes = await getSyllabusFeedbackAPI(empid, trainerId, step.syllabusId);
+                } catch (err) {
+                    if (err?.response?.status !== 404) console.error("Feedback Check Error:", err);
+                }
+
+                //  Only show modal if feedback record is missing or not yet given by trainer
+                if (!feedbackRes || feedbackRes.feedbackGivenTrainer === false) {
+                    
+                    const lastSub = step.subTopics[step.subTopics.length - 1];
+                    
+                    setFeedbackSubtopic({
+                        ...lastSub,
+                        syllabusTitle: step.title,
+                        syllabusId: step.syllabusId,
+                    });
+                    setShowFeedbackModal(true);
+                    
+                   
+                    break; 
+                }
+            }
+
+            setTraineeProgress(data);
+        } catch (err) {
+            console.error("Failed to fetch syllabus progress:", err);
+        }
+    };
+
+    loadProgress();
+}, [selectedTrainee, refreshKey]);
+
+const buildTraineeStructure = (data = []) => {
   const traineeMap = {};
 
   data.forEach((syllabus) => {
@@ -81,9 +242,7 @@ const buildTraineeStructure = (data = [], traineeFilterId) => {
         const user = progress.user;
         if (!user) return;
 
-        // ✅ IMPORTANT FILTER (selected trainee only)
-        if (traineeFilterId && user.trngid !== traineeFilterId) return;
-
+        // Agar user pehle se map mein nahi hai, toh create karein
         if (!traineeMap[user.trngid]) {
           traineeMap[user.trngid] = {
             id: user.trngid,
@@ -92,6 +251,7 @@ const buildTraineeStructure = (data = [], traineeFilterId) => {
           };
         }
 
+        // Syllabus ko title ke basis par group karein
         if (!traineeMap[user.trngid].syllabi[syllabus.title]) {
           traineeMap[user.trngid].syllabi[syllabus.title] = {
             title: syllabus.title,
@@ -99,12 +259,13 @@ const buildTraineeStructure = (data = [], traineeFilterId) => {
           };
         }
 
+        // Subtopic push karein
         traineeMap[user.trngid].syllabi[syllabus.title].subTopics.push({
           id: sub.subTopicId,
           progressId: progress.stepProgressId,
           name: sub.name,
           status: progress.complete ? "COMPLETED" : "PENDING",
-          managerDecision: progress.checker,
+          managerDecision: progress.checker, // true/false/null
           review: progress.review || "",
           startDateTime: progress.startDateTime,
           endDateTime: progress.endDateTime,
@@ -113,38 +274,53 @@ const buildTraineeStructure = (data = [], traineeFilterId) => {
     });
   });
 
+  // Object ko array mein convert karein
   return Object.values(traineeMap).map((t) => ({
     ...t,
     syllabi: Object.values(t.syllabi),
   }));
 };
 
+const loadData = useCallback(async () => {
+    setIsLoading(true);
 
-    const loadData = useCallback(async () => {
-        setIsLoading(true);
-        try {
-            const res = await fetchCompletedSubTopics();
-            const list = Array.isArray(res?.data) ? res.data : [];
-            const structured = buildTraineeStructure(list);
+    try {
+        const managerId = sessionStorage.getItem("empid");
+        const roleName = sessionStorage.getItem("roleName");
 
-            setTrainees(structured);
+let res;
+let list = [];
 
-            // Logic to maintain the selected trainee after reload
-            if (selectedTrainee) {
-                const updatedSelection = structured.find(t => t.id === selectedTrainee.id);
-                setSelectedTrainee(updatedSelection || structured[0] || null);
-            } else {
-                setSelectedTrainee(structured[0] || null);
-            }
-        } catch (err) {
-            console.error("API ERROR:", err);
-        } finally {
-            setIsLoading(false);
+if (privilegeRoles.includes(roleName)) {
+    res = await fetchCompletedSubTopics();
+    list = Array.isArray(res?.data) ? res.data : [];
+} else {
+    res = await fetchSyllabusByTrainer(managerId);
+    list = Array.isArray(res) ? res : []; // <-- important!
+}
+
+console.log("Syllabus list:", list);
+const structured = buildTraineeStructure(list);
+setTrainees(structured);
+
+        // Maintain selected trainee after refresh
+        if (selectedTrainee) {
+            const updatedSelection = structured.find(
+                (t) => t.id === selectedTrainee.id
+            );
+            setSelectedTrainee(updatedSelection || structured[0] || null);
+        } else {
+            setSelectedTrainee(structured[0] || null);
         }
-    }, [selectedTrainee?.id]); // Depend on ID to maintain selection context
 
-    //  Consolidated Reload Logic
-    // This triggers on mount AND whenever refreshKey changes
+    } catch (err) {
+        console.error("API ERROR:", err);
+    } finally {
+        setIsLoading(false);
+    }
+}, [selectedTrainee?.id]);
+
+
     useEffect(() => {
         loadData();
     }, [refreshKey]);
@@ -191,6 +367,7 @@ const buildTraineeStructure = (data = [], traineeFilterId) => {
     const toggleSyllabus = (key) => {
         setExpandedSyllabus((p) => ({ ...p, [key]: !p[key] }));
     };
+
 
     return (
         <div className="min-h-screen bg-blue-50">
@@ -249,7 +426,7 @@ const buildTraineeStructure = (data = [], traineeFilterId) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {selectedTrainee?.syllabi.map((syllabus) => {
+                                    {selectedTrainee?.syllabi?.map((syllabus) => {
                                         const syllabusKey = `syllabus-${syllabus.title}`;
                                         return (
                                             <React.Fragment key={syllabusKey}>
@@ -276,15 +453,17 @@ const buildTraineeStructure = (data = [], traineeFilterId) => {
                                                                 <input
                                                                     className="w-full border rounded px-2 py-1"
                                                                     placeholder="Review"
+                                                                 disabled={isRestrictedRole}
+ 
                                                                     value={reviewInput[subKey] ?? st.review ?? ""}
                                                                     onChange={(e) => setReviewInput((p) => ({ ...p, [subKey]: e.target.value }))}
                                                                 />
                                                             </td>
                                                             <td className="p-3 text-center">
-                                                                <input type="radio" name={`decision-${subKey}`} checked={st.managerDecision === true} onChange={() => handleDecision(subKey, "ACCEPT", st.progressId)} />
+                                                                <input type="radio" name={`decision-${subKey}`} checked={st.managerDecision === true}   disabled={isRestrictedRole} onChange={() => handleDecision(subKey, "ACCEPT", st.progressId)} />
                                                             </td>
                                                             <td className="p-3 text-center">
-                                                                <input type="radio" name={`decision-${subKey}`} checked={st.managerDecision === false} onChange={() => handleDecision(subKey, "REJECT", st.progressId)} />
+                                                                <input type="radio" name={`decision-${subKey}`} checked={st.managerDecision === false}  disabled={isRestrictedRole} onChange={() => handleDecision(subKey, "REJECT", st.progressId)} />
                                                             </td>
                                                         </tr>
                                                     );
@@ -294,10 +473,90 @@ const buildTraineeStructure = (data = [], traineeFilterId) => {
                                     })}
                                 </tbody>
                             </table>
+
+
                         </div>
                     </div>
                 </div>
             </main>
+    {showFeedbackModal && feedbackSubtopic &&   !isRestrictedRole && (
+  <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+    
+    <div className="bg-card p-6 rounded-lg max-w-md w-full mx-4">
+      
+      <div className="text-center">
+        
+        <Icon 
+          name="CheckCircle" 
+          size={48} 
+          className="text-success mx-auto mb-4" 
+        />
+
+        <h3 className="text-lg font-semibold text-foreground mb-2">
+          Feedback
+        </h3>
+
+        <textarea
+          className="w-full border p-2 rounded mb-4"
+          placeholder="Enter your feedback..."
+          value={feedbackText}
+          onChange={(e) => setFeedbackText(e.target.value)}
+          rows={4}
+        />
+
+        <div className="flex space-x-3">
+          
+          <Button
+            variant="outline"
+            onClick={() => {
+              setShowFeedbackModal(false);
+              setFeedbackText("");
+            }}
+            className="flex-1"
+            disabled={feedbackText.trim() === ""}
+          >
+            Cancel
+          </Button>
+
+         <Button
+  variant="success"
+  disabled={feedbackText.trim() === "" || isRestrictedRole}
+  onClick={async () => {
+    try {
+      const trainerId = sessionStorage.getItem("empid");
+      if (!trainerId) return alert("Trainer ID missing");
+
+      await submitTrainerFeedbackAPI(
+        selectedTrainee.id, 
+        trainerId, 
+        feedbackSubtopic.syllabusId, 
+        feedbackText
+      );
+
+      // CLOSE FIRST to prevent flicker
+      setShowFeedbackModal(false); 
+      setFeedbackText("");
+      setFeedbackSubtopic(null); // Clear the subtopic reference
+
+      alert("Feedback submitted successfully!");
+      setRefreshKey(p => p + 1); // Trigger re-fetch
+    } catch (err) {
+      alert("Failed to submit feedback");
+    }
+  }}
+>
+  Submit Feedback
+</Button>
+
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+)}
+
+
         </div>
     );
 }

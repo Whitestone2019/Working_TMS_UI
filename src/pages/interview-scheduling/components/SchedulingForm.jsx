@@ -29,6 +29,9 @@ const SchedulingForm = ({
     notes: Formdata?.notes || "",
     subTopics: parsedSubTopics || [],
   });
+  const restrictedRoles = ["CEO", "CTO", "HR", "PM"];
+const roleName = sessionStorage.getItem("roleName");
+const isRestricted = restrictedRoles.includes(roleName);
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -511,6 +514,7 @@ const SchedulingForm = ({
 
         {/* Actions */}
         <div className="flex items-center justify-end space-x-3 pt-4 border-t border-border">
+          {!isRestricted && (
           <Button
             type="button"
             variant="outline"
@@ -519,7 +523,9 @@ const SchedulingForm = ({
           >
             Cancel
           </Button>
+          )}
 
+{!isRestricted && (
           <Button
             type="submit"
             variant="default"
@@ -531,6 +537,7 @@ const SchedulingForm = ({
               ? "Schedule Interviews"
               : "Schedule Interview"}
           </Button>
+)}
         </div>
       </form>
     </div>

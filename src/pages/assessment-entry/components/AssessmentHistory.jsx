@@ -12,7 +12,7 @@ const AssessmentHistory = ({
   className = ''
 }) => {
 
-  // ✅ Ensure assessments is always an array
+  // Ensure assessments is always an array
   const safeAssessments = Array.isArray(assessments) ? assessments : [];
 
   console.log('Safe assessments:', safeAssessments, assessments, trainee);

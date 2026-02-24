@@ -12,7 +12,7 @@ import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
 import { fetchAssessmentsByTrainee } from '../../api_service';
 import { fetchUserByEmpId } from "../../api_service";
-import { fetchInterviewScheduleByEmpId, fetchSyllabusProgressByEmpId } from "../../api_service"
+import { fetchInterviewScheduleByEmpId, fetchSyllabusProgressByEmpId,fetchAllDelays, fetchTraineeDelays  } from "../../api_service"
 
 const TraineeDashboard = () => {
   const navigate = useNavigate();
@@ -29,8 +29,9 @@ const TraineeDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [syllabusProgress, setSyllabusProgress] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [delayNotifications, setDelayNotifications] = useState([]);
 
-
+const [delays, setDelays] = useState([]);
 
 
   useEffect(() => {
@@ -164,8 +165,39 @@ const TraineeDashboard = () => {
     loadTraineeData();
   }, [refreshKey]);
 
+useEffect(() => {
+  const empId = sessionStorage.getItem("empid");
+  if (!empId) return;
 
+  const loadDelays = async () => {
+    try {
+      const response = await fetchTraineeDelays(empId);
+      const list = Array.isArray(response.data) ? response.data : [];
+      setDelays(list);
+    } catch (err) {
+      console.error("Failed to fetch delays:", err);
+    }
+  };
 
+  loadDelays();
+
+  // Optional: auto-refresh every 1 minute
+  const interval = setInterval(loadDelays, 60000);
+  return () => clearInterval(interval);
+
+}, []);
+
+useEffect(() => {
+  if (!delays || delays.length === 0) {
+    setDelayNotifications([]);
+    return;
+  }
+
+  const delayedItems = delays.filter(item => item.delayDays > 0);
+
+  setDelayNotifications(delayedItems);
+
+}, [delays]);
 
   // Mock authentication check
   useEffect(() => {
@@ -295,8 +327,17 @@ const TraineeDashboard = () => {
         userName={traineeInfo?.name}
         onLogout={handleLogout}
       />
+   
+
       {/* Main Content */}
       <main className="pt-16">
+        {delayNotifications.length > 0 && (
+  <div className="max-w-7xl mx-auto px-6 mt-4">
+    <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-sm">
+      ⚠️ You have {delayNotifications.length} delayed syllabus pending.
+    </div>
+  </div>
+)}
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Breadcrumb Navigation */}
           <NavigationBreadcrumb
