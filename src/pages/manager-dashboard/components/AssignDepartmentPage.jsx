@@ -36,13 +36,13 @@ export default function AssignDepartmentPage() {
   const [roles, setRoles] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDeptDropdownOpen, setIsDeptDropdownOpen] = useState(false);
-  const privilegedRoles = ["CEO", "CTO", "HR", "PM"];
-
+  //const privilegeRoles = ["CEO", "CTO", "HR", "PM"];
+const [errors, setErrors] = useState({});
 
   const restrictedRoles = ["CEO", "CTO", "HR", "PM"];
   const roleName = sessionStorage.getItem("roleName");
   const isRestricted = restrictedRoles.includes(roleName);
-
+const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTrainee, setNewTrainee] = useState({
     trngid: "",
@@ -87,7 +87,7 @@ export default function AssignDepartmentPage() {
       const roleName = sessionStorage.getItem("roleName");   //  get role
       let res;
 
-      if (privilegedRoles.includes(roleName)) {
+      if (privilegeRoles.includes(roleName)) {
 
         res = await fetchAllTraineeSummaryAdmin();
       } else {
@@ -223,7 +223,11 @@ export default function AssignDepartmentPage() {
     }
   };
 
-  const privilegeRoles = ["CEO", "CTO", "HR"];
+  const filteredTrainees = trainees.filter(t =>
+  t.name?.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
+  const privilegeRoles = ["CEO", "CTO", "HR","TM"];
 
   const handleEdit = async (trainee, e) => {
     e.stopPropagation();
@@ -248,8 +252,60 @@ export default function AssignDepartmentPage() {
     });
   };
 
+const validateForm = () => {
+  let newErrors = {};
+
+  if (!newTrainee.trngid.trim()) {
+    newErrors.trngid = "Trainee ID is required";
+  }
+
+  if (!newTrainee.firstname.trim()) {
+    newErrors.firstname = "First name is required";
+  }
+
+  if (!newTrainee.lastname.trim()) {
+    newErrors.lastname = "Last name is required";
+  }
+
+  if (!newTrainee.username.trim()) {
+    newErrors.username = "Username is required";
+  }
+
+  if (!newTrainee.emailid.trim()) {
+    newErrors.emailid = "Email is required";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newTrainee.emailid)) {
+    newErrors.emailid = "Invalid email format";
+  }
+
+  if (!newTrainee.phonenumber.trim()) {
+    newErrors.phonenumber = "Phone number is required";
+  } else if (!/^\d{10}$/.test(newTrainee.phonenumber)) {
+    newErrors.phonenumber = "Phone must be 10 digits";
+  }
+
+ if (!newTrainee.designation.trim()) {
+    newErrors.designation = "Designation is required";
+  } else if (newTrainee.designation.length < 2) {
+    newErrors.designation = "Designation must be at least 2 characters";
+  }
+
+  if (!isEditMode && !newTrainee.password) {
+    newErrors.password = "Password is required";
+  } else if (newTrainee.password && newTrainee.password.length < 6) {
+    newErrors.password = "Password must be at least 6 characters";
+  }
+
+  if (!newTrainee.roleId) {
+    newErrors.roleId = "Role is required";
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
   const handleSaveTrainee = async () => {
+if (!validateForm()) return;
+
     try {
 
       // const payload = {
@@ -304,343 +360,365 @@ export default function AssignDepartmentPage() {
         userRole="manager"
         onLogout={() => navigate("/")}
       />
+<main className="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <NavigationBreadcrumb className="mb-6" />
 
-      <main className="pt-16 p-6">
-        <NavigationBreadcrumb className="mb-6" />
+  <h1 className="text-2xl font-bold mb-6 text-blue-700">
+    Assign Departments
+  </h1>
 
-        <h1 className="text-2xl font-bold mb-6 text-blue-700">
-          Assign Departments
-        </h1>
+  {/* 🔥 GRID START */}
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    {/* ================= LEFT SECTION ================= */}
+    <div className="lg:col-span-1">
+      <div className="bg-white p-5 rounded-2xl shadow-md">
 
-          <div className="bg-white p-5 rounded-2xl shadow-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="font-semibold text-lg">Trainees</h2>
+        {/* <div className="flex justify-between items-center mb-4">
+          <h2 className="font-semibold text-lg">Trainees</h2>
+<input
+  type="text"
+  placeholder="Search trainee..."
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  className="w-full mb-3 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+/>
+          {!privilegeRoles.includes(roleName) && (
+            <Button
+              onClick={() => {
+                resetForm();
+                setNewTrainee(prev => ({ ...prev, managerId: managerId }));
+                setIsDeptDropdownOpen(false);
+                setShowAddModal(true);
+              }}
+              className="bg-blue-600 text-white hover:bg-blue-700"
+            >
+              + Add
+            </Button>
+          )}
+        </div> */}
+        <div className="mb-4">
+  <div className="flex justify-between items-center">
+    <h2 className="font-semibold text-lg">Trainees</h2>
 
+    {!privilegeRoles.includes(roleName) && (
+      <Button
+        onClick={() => {
+          resetForm();
+          setNewTrainee(prev => ({ ...prev, managerId: managerId }));
+          setIsDeptDropdownOpen(false);
+          setShowAddModal(true);
+        }}
+        className="bg-blue-600 text-white hover:bg-blue-700"
+      >
+        + Add
+      </Button>
+    )}
+  </div>
 
-              {!privilegeRoles.includes(roleName) && (   //  CEO ko hide kar diya
-                <Button
-                  onClick={() => {
-                    resetForm();
-                    setNewTrainee(prev => ({ ...prev, managerId: managerId }));
-                    setIsDeptDropdownOpen(false);
-                    setShowAddModal(true);
-                  }}
-                  className="bg-blue-600 text-white hover:bg-blue-700"
-                >
-                  + Add
-                </Button>
+  {/* ✅ SEARCH FIELD BELOW HEADING */}
+  <input
+    type="text"
+    placeholder="Search trainee..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="w-full mt-3 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+  />
+</div>
+
+        {filteredTrainees?.map((t) => (
+          <div
+            key={t.traineeId}
+            onClick={() => selectTrainee(t)}
+            className={`p-3 mb-2 rounded-xl cursor-pointer flex justify-between items-center
+              ${selectedTrainee?.traineeId === t.traineeId
+                ? "bg-blue-600 text-white"
+                : "hover:bg-blue-100"
+              }`}
+          >
+            <span>{t.name}</span>
+
+            {!isRestricted && (
+              <div className="flex gap-3 text-lg">
+                <FiEdit
+                  className="cursor-pointer hover:text-yellow-500"
+                  onClick={(e) => handleEdit(t, e)}
+                />
+                <FiTrash2
+                  className="cursor-pointer hover:text-red-500"
+                  onClick={(e) => handleDelete(t.traineeId)}
+                />
+              </div>
+            )}
+          </div>
+        ))}
+
+      </div>
+    </div>
+
+    {/* ================= RIGHT SECTION ================= */}
+    <div className="lg:col-span-2">
+      <div className="bg-white p-6 rounded-2xl shadow-md">
+
+        {!selectedTrainee ? (
+          <p className="text-gray-500">
+            Please select a trainee from left side.
+          </p>
+        ) : (
+          <>
+            <h2 className="font-semibold mb-4 text-lg text-blue-700">
+              Assign Departments to {selectedTrainee.name}
+            </h2>
+
+            {/* Buttons */}
+            <div className="flex gap-3 mb-4">
+              <Button
+                onClick={handleSelectAll}
+                className="bg-gray-200"
+              >
+                Select All
+              </Button>
+
+              <Button
+                onClick={handleUnselectAll}
+                className="bg-gray-200"
+              >
+                Unselect All
+              </Button>
+            </div>
+
+            {/* Dropdown */}
+            <div className="relative mb-4">
+              <div
+                onClick={() => {
+                  if (!isRestricted) {
+                    setIsDeptDropdownOpen(!isDeptDropdownOpen);
+                  }
+                }}
+                className="w-full border p-3 rounded-xl cursor-pointer flex justify-between"
+              >
+                <span>
+                  {selectedDeptIds.length > 0
+                    ? `${selectedDeptIds.length} selected`
+                    : "Select Departments"}
+                </span>
+                ▼
+              </div>
+
+              {isDeptDropdownOpen && (
+                <div className="absolute z-20 w-full bg-white border rounded-xl max-h-60 overflow-y-auto">
+                  {departments?.map((dept) => (
+                    <label key={dept.id} className="flex gap-2 p-2">
+                      <input
+                        type="checkbox"
+                        disabled={isRestricted}
+                        checked={selectedDeptIds.includes(dept.id)}
+                        onChange={() => handleCheckboxChange(dept.id)}
+                      />
+                      {dept.name}
+                    </label>
+                  ))}
+                </div>
               )}
             </div>
 
-            {trainees?.map((t) => (
-              <div
-                key={t.traineeId}
-                onClick={() => selectTrainee(t)}
-                className={`p-3 mb-2 rounded-xl cursor-pointer transition flex justify-between items-center
-                    ${selectedTrainee?.traineeId === t.traineeId
-                    ? "bg-blue-600 text-white"
-                    : "hover:bg-blue-100"
-                  }`}
+            {/* Selected */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              {selectedDeptIds.map((id) => {
+                const dept = departments.find((d) => d.id === id);
+                return (
+                  <div key={id} className="bg-blue-100 px-3 py-1 rounded-full">
+                    {dept?.name}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Save */}
+            {!isRestricted && (
+              <Button
+                onClick={handleAssign}
+                disabled={!hasChanges || loading}
+                className="bg-blue-600 text-white"
               >
-                <span>{t.name}</span>
-
-                {/* ICONS */}
-                {!isRestricted && (
-                  <div className="flex gap-3 text-lg">
-                    <FiEdit
-                      className="cursor-pointer hover:text-yellow-500"
-                      onClick={(e) => handleEdit(t, e)}
-                    />
-                    <FiTrash2
-                      className="cursor-pointer hover:text-red-500"
-                      onClick={(e) => handleDelete(t.traineeId, e)}
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-
-          {/* Department Section */}
-          <div className="md:col-span-2 bg-white p-6 rounded-2xl shadow-md">
-
-            {!selectedTrainee ? (
-              <p className="text-gray-500">
-                Please select a trainee from left side.
-              </p>
-            ) : (
-              <>
-                <h2 className="font-semibold mb-4 text-lg text-blue-700">
-                  Assign Departments to {selectedTrainee.name}
-                </h2>
-
-                {/* Select All Buttons */}
-                <div className="flex gap-3 mb-4">
-                  <Button
-                    onClick={handleSelectAll}
-                    className="bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  >
-                    Select All
-                  </Button>
-
-                  <Button
-                    onClick={handleUnselectAll}
-                    className="bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  >
-                    Unselect All
-                  </Button>
-                </div>
-
-                {/* Checkbox Grid */}
-                {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                    {departments.map((dept) => (
-                      <label
-                        key={dept.id}
-                        className="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-blue-50"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedDeptIds.includes(dept.id)}
-                          onChange={() => handleCheckboxChange(dept.id)}
-                          className="w-4 h-4 accent-blue-600"
-                        />
-                        <span>{dept.name}</span>
-                      </label>
-                    ))}
-                  </div> */}
-
-                {/* Custom Multi Select Dropdown */}
-                <div className="relative mb-4">
-                  <div
-                    //onClick={() => setIsEditMode(!isEditMode)}
-                    // onClick={() => setIsDeptDropdownOpen(!isDeptDropdownOpen)}
-                    onClick={() => {
-                      if (!isRestricted) {
-                        setIsDeptDropdownOpen(!isDeptDropdownOpen);
-                      }
-                    }}
-
-                    className="w-full border-2 border-gray-300 rounded-xl p-3 bg-white cursor-pointer flex justify-between items-center hover:border-blue-500 transition"
-                  >
-                    <span className="text-gray-700">
-                      {selectedDeptIds.length > 0
-                        ? `${selectedDeptIds.length} department(s) selected`
-                        : "Select Departments"}
-                    </span>
-                    <span className="text-gray-500 text-sm">▼</span>
-                  </div>
-
-                  {isDeptDropdownOpen && (
-
-                    <div className="absolute z-20 mt-2 w-full bg-white border rounded-xl shadow-lg max-h-60 overflow-y-auto">
-                      {departments?.map((dept) => (
-                        <label
-                          key={dept.id}
-                          className="flex items-center gap-3 px-4 py-2 hover:bg-blue-50 cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            disabled={isRestricted}
-                            checked={selectedDeptIds.includes(dept.id)}
-                            onChange={() => handleCheckboxChange(dept.id)}
-                            className="w-4 h-4 accent-blue-600"
-                          />
-                          <span>{dept.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Selected Departments Preview */}
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {selectedDeptIds.map((id) => {
-                    const dept = departments.find((d) => d.id === id);
-                    return (
-                      <div
-                        key={id}
-                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-2"
-                      >
-                        {dept?.name}
-                        {!isRestricted && (
-                          <button
-                            onClick={() =>
-                              setSelectedDeptIds(selectedDeptIds.filter((d) => d !== id))
-                            }
-                            className="text-red-500 font-bold"
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-
-
-                {/* Save Button */}
-                {!isRestricted && (
-                  <Button
-                    onClick={handleAssign}
-                    disabled={!hasChanges || loading}
-                    className={`text-white ${!hasChanges
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-blue-600 hover:bg-blue-700"
-                      }`}
-                  >
-                    {loading ? "Saving..." : "Save Changes"}
-                  </Button>
-                )}
-
-                {/* Success Message */}
-                {successMsg && (
-                  <div className="mt-4 text-blue-600 font-medium">
-                    {successMsg}
-                  </div>
-                )}
-
-                {/* Assigned Departments */}
-                <div className="mt-6">
-                  <h3 className="font-semibold mb-2">Currently Assigned</h3>
-
-                  {assignedDepartments.length === 0 ? (
-                    <p className="text-gray-500">No departments assigned.</p>
-                  ) : (
-                    assignedDepartments.map((d) => (
-                      <div
-                        key={d.id}
-                        className="bg-blue-100 text-blue-800 px-3 py-2 rounded-lg mb-2"
-                      >
-                        {d.name}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </>
+                {loading ? "Saving..." : "Save Changes"}
+              </Button>
             )}
 
-          </div>
+            {successMsg && (
+              <p className="text-blue-600 mt-3">{successMsg}</p>
+            )}
+          </>
+        )}
+
+      </div>
+    </div>
+
+  </div>
+</main>
+   {showAddModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 p-4">
+
+    <div className="bg-white w-full max-w-2xl p-6 rounded-2xl shadow-xl">
+
+      <h2 className="text-xl font-bold mb-4 text-blue-700">
+        {isEditMode ? "Edit Trainee" : "Add New Trainee"}
+      </h2>
+
+      {/* 🔥 2 COLUMN GRID */}
+      <div className="grid grid-cols-2 gap-4">
+
+        {/* Trainee ID */}
+        <div>
+          <input
+            name="trngid"
+            placeholder="Trainee ID"
+            value={newTrainee.trngid}
+            onChange={handleNewTraineeChange}
+            className="border p-2 rounded-lg w-full"
+          />
+          {errors.trngid && <p className="text-red-500 text-sm">{errors.trngid}</p>}
         </div>
-      </main>{/* ADD TRAINEE MODAL */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white w-96 p-6 rounded-2xl shadow-xl">
-            <h2 className="text-xl font-bold mb-4 text-blue-700">
-              Add New Trainee
-            </h2>
 
-            <div className="flex flex-col gap-3">
-              <input
-                name="trngid"
-                placeholder="Trainee ID"
-                value={newTrainee.trngid}
-                onChange={handleNewTraineeChange}
-                className="border p-2 rounded"
-              />
-              <input
-                name="firstname"
-                placeholder="First Name"
-                value={newTrainee.firstname}
-                onChange={handleNewTraineeChange}
-                className="border p-2 rounded"
-              />
-              <input
-                name="lastname"
-                placeholder="Last Name"
-                value={newTrainee.lastname}
-                onChange={handleNewTraineeChange}
-                className="border p-2 rounded"
-              />
-              <input
-                name="username"
-                placeholder="Username"
-                value={newTrainee.username}
-                onChange={handleNewTraineeChange}
-                className="border p-2 rounded"
-              />
-              <input
-                name="emailid"
-                placeholder="Email"
-                value={newTrainee.emailid}
-                onChange={handleNewTraineeChange}
-                className="border p-2 rounded"
-              />
-              <input
-                name="phonenumber"
-                placeholder="Phone Number"
-                value={newTrainee.phonenumber}
-                onChange={handleNewTraineeChange}
-                className="border p-2 rounded"
-              />
-              <input
-                name="managerId"
-                placeholder="Manager ID"
-                value={newTrainee.managerId}
-                readOnly
-                className="border p-2 rounded bg-gray-100"
-              />
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={newTrainee.password}
-                onChange={handleNewTraineeChange}
-                className="border p-2 rounded"
-              />
-
-
-              <input
-                name="designation"
-                placeholder="Designation"
-                value={newTrainee.designation}
-                onChange={handleNewTraineeChange}
-                className="border p-2 rounded"
-              />
-
-              <select
-                name="roleId"
-                value={newTrainee.roleId}
-                onChange={handleNewTraineeChange}
-                className="border p-2 rounded"
-              >
-                <option value="">Select Role</option>
-                {roles?.map((role) => (
-                  <option key={role.roleId} value={role.roleId}>
-                    {role.roleName}
-                  </option>
-                ))}
-              </select>
-
-            </div>
-
-            <div className="flex justify-end gap-3 mt-5">
-              <Button
-                onClick={() => {
-                  resetForm();
-                  setShowAddModal(false);
-                }}
-
-
-                className="bg-gray-400 text-white"
-              >
-                Cancel
-              </Button>
-             
-              <Button
-
-                onClick={handleSaveTrainee}
-                className="bg-blue-600 text-white hover:bg-blue-700"
-              >
-                {isEditMode ? "Update" : "Save"}
-              </Button>
-
-            </div>
-          </div>
+        {/* First Name */}
+        <div>
+          <input
+            name="firstname"
+            placeholder="First Name"
+            value={newTrainee.firstname}
+            onChange={handleNewTraineeChange}
+            className="border p-2 rounded-lg w-full"
+          />
+          {errors.firstname && <p className="text-red-500 text-sm">{errors.firstname}</p>}
         </div>
-      )}
+
+        {/* Last Name */}
+        <div>
+          <input
+            name="lastname"
+            placeholder="Last Name"
+            value={newTrainee.lastname}
+            onChange={handleNewTraineeChange}
+            className="border p-2 rounded-lg w-full"
+          />
+          {errors.lastname && <p className="text-red-500 text-sm">{errors.lastname}</p>}
+        </div>
+
+        {/* Username */}
+        <div>
+          <input
+            name="username"
+            placeholder="Username"
+            value={newTrainee.username}
+            onChange={handleNewTraineeChange}
+            className="border p-2 rounded-lg w-full"
+          />
+          {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
+        </div>
+
+        {/* Email */}
+        <div>
+          <input
+            name="emailid"
+            placeholder="Email"
+            value={newTrainee.emailid}
+            onChange={handleNewTraineeChange}
+            className="border p-2 rounded-lg w-full"
+          />
+          {errors.emailid && <p className="text-red-500 text-sm">{errors.emailid}</p>}
+        </div>
+
+        {/* Phone */}
+        <div>
+          <input
+            name="phonenumber"
+            placeholder="Phone Number"
+            value={newTrainee.phonenumber}
+            onChange={handleNewTraineeChange}
+            className="border p-2 rounded-lg w-full"
+          />
+          {errors.phonenumber && <p className="text-red-500 text-sm">{errors.phonenumber}</p>}
+        </div>
+
+        {/* Manager ID */}
+        <div>
+          <input
+            name="managerId"
+            placeholder="Manager ID"
+            value={newTrainee.managerId}
+            readOnly
+            className="border p-2 rounded bg-gray-100 w-full"
+          />
+        </div>
+
+        {/* Password */}
+        <div>
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={newTrainee.password}
+            onChange={handleNewTraineeChange}
+            className="border p-2 rounded-lg w-full"
+          />
+          {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+        </div>
+
+        {/* Designation */}
+        <div>
+          <input
+            name="designation"
+            placeholder="Designation"
+            value={newTrainee.designation}
+            onChange={handleNewTraineeChange}
+            className="border p-2 rounded-lg w-full"
+          />
+          {errors.designation && <p className="text-red-500 text-sm">{errors.designation}</p>}
+        </div>
+
+        {/* Role */}
+        <div>
+          <select
+            name="roleId"
+            value={newTrainee.roleId}
+            onChange={handleNewTraineeChange}
+            className="border p-2 rounded-lg w-full"
+          >
+            <option value="">Select Role</option>
+            {roles?.map((role) => (
+              <option key={role.roleId} value={role.roleId}>
+                {role.roleName}
+              </option>
+            ))}
+          </select>
+          {errors.roleId && <p className="text-red-500 text-sm">{errors.roleId}</p>}
+        </div>
+
+      </div>
+
+      {/* BUTTONS */}
+      <div className="flex justify-end gap-3 mt-6">
+        <Button
+          onClick={() => {
+            resetForm();
+            setShowAddModal(false);
+          }}
+          className="bg-gray-400 text-white"
+        >
+          Cancel
+        </Button>
+
+        <Button
+          onClick={handleSaveTrainee}
+          className="bg-blue-600 text-white hover:bg-blue-700"
+        >
+          {isEditMode ? "Update" : "Save"}
+        </Button>
+      </div>
+
+    </div>
+  </div>
+)}
 
 
     </div>

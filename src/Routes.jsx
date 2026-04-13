@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes as RouterRoutes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes as RouterRoutes, Route, Navigate ,useLocation} from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import ErrorBoundary from "./components/ErrorBoundary";
 import NotFound from "./pages/NotFound";
@@ -16,23 +16,53 @@ import TraineeStepsPage from "./pages/manager-dashboard/components/TraineeStepsP
 import DepartmentPage from "./pages/manager-dashboard/components/DepartmentPage";
 import AssignDepartmentPage from "./pages/manager-dashboard/components/AssignDepartmentPage";
 import TraineeSyllabusPage from "./pages/manager-dashboard/components/TraineeSyllabusPage";
+import CreateQuestion from "./pages/manager-dashboard/CreateQuestion";
+import TraineeTestPage from "./pages/manager-dashboard/components/TraineeTestPage";
+import TraineeAssessmentList from "./pages/manager-dashboard/components/TraineeAssessmentList";
+import TrainerEvaluationPage from "./pages/manager-dashboard/components/TrainerEvaluationPage";
+import EvaluationDetailsPage from "./pages/manager-dashboard/components/EvaluationDetailsPage";
+import TraineeResult from "./pages/trainee-dashboard/components/TraineeResult";
+
+
+// const ProtectedRoute = ({ allowedRoles, children }) => {
+//   const role = sessionStorage.getItem("userRole");
+
+//   if (!role) {
+//     console.log("sd", role)
+//     return <Navigate to="/login-screen" replace />;
+//   }
+
+//   if (!allowedRoles.includes(role)) {
+//     return <Navigate to="/*" replace />;
+//   }
+
+//   return children;
+// };
+
 
 
 const ProtectedRoute = ({ allowedRoles, children }) => {
   const role = sessionStorage.getItem("userRole");
+  const location = useLocation(); // 🔥 important
 
+  // 🔴 Not logged in
   if (!role) {
-    console.log("sd", role)
-    return <Navigate to="/login-screen" replace />;
+    return (
+      <Navigate
+        to={`/login-screen?redirect=${location.pathname}`}
+        replace
+      />
+    );
   }
+  
 
+  // 🔴 Role mismatch
   if (!allowedRoles.includes(role)) {
-    return <Navigate to="/*" replace />;
+    return <Navigate to="/not-authorized" replace />;
   }
 
   return children;
 };
-
 
 const NotAuthorized = () => (
   <div className="h-screen flex items-center justify-center text-xl font-semibold">
@@ -56,6 +86,26 @@ const Routes = () => {
           element={
             <ProtectedRoute allowedRoles={["MANAGER"]}>
               <ManagerDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+         <Route
+          path="/check-page"
+          element={
+            <ProtectedRoute allowedRoles={["MANAGER"]}>
+              <TrainerEvaluationPage />
+            </ProtectedRoute>
+          }
+        />
+
+        
+
+        <Route
+          path="/evaluation/:attemptId"
+          element={
+            <ProtectedRoute allowedRoles={["MANAGER"]}>
+              <EvaluationDetailsPage />
             </ProtectedRoute>
           }
         />
@@ -92,18 +142,18 @@ const Routes = () => {
 <Route
           path="/department"
           element={
-            //<ProtectedRoute allowedRoles={["MANAGER"]}>
+            <ProtectedRoute allowedRoles={["MANAGER"]}>
               <DepartmentPage />
-            //</ProtectedRoute>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/assign-trainee"
           element={
-            //<ProtectedRoute allowedRoles={["MANAGER"]}>
+            <ProtectedRoute allowedRoles={["MANAGER"]}>
               <AssignDepartmentPage/>
-            //</ProtectedRoute>
+            </ProtectedRoute>
           }
         />
         <Route
@@ -123,6 +173,14 @@ const Routes = () => {
           </ProtectedRoute>
         }
         />
+         <Route
+          path="/create-question"
+          element={
+            <ProtectedRoute allowedRoles={["MANAGER"]}>
+              <CreateQuestion />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Trainee Only */}
         <Route
@@ -140,6 +198,33 @@ const Routes = () => {
               <SyllabusContentViewer />
             </ProtectedRoute>
           }
+        />
+        
+         <Route
+          path="/trainee-assessment-list"
+          element={
+             <ProtectedRoute allowedRoles={["TRAINEE"]}>
+          <TraineeAssessmentList />
+          </ProtectedRoute>
+        }
+        />
+
+
+ <Route
+          path="/trainee-result/:id"
+          element={
+             <ProtectedRoute allowedRoles={["TRAINEE"]}>
+          <TraineeResult />
+          </ProtectedRoute>
+        }
+        />
+        <Route
+          path="/trainee-test/:assessmentId"
+          element={
+            <ProtectedRoute allowedRoles={["TRAINEE"]}>
+          <TraineeTestPage />
+          </ProtectedRoute>
+        }
         />
 
         {/* System Routes */}

@@ -17,6 +17,9 @@ const InterviewStatusTracker = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date');
 
+   const userRole = sessionStorage.getItem("roleName");
+  const restrictedRoles = ["HR", "CEO", "CTO", "TM"];
+  const isRestricted = restrictedRoles.includes(userRole);
 
   console.log('Interviews:', interviews);
 
@@ -86,9 +89,13 @@ const InterviewStatusTracker = ({
       status: group.status,
 
       //  IMPORTANT: keeps all users for reschedule
+      // rawItems: data.filter(
+      //   i => i?.interviewSchedule?.scheduleId === group.scheduleId && i?.roleRvsp?.toLowerCase() === 'trainee'
+      // )
       rawItems: data.filter(
-        i => i?.interviewSchedule?.scheduleId === group.scheduleId && i?.roleRvsp?.toLowerCase() === 'trainee'
-      )
+  i =>
+    String(i?.interviewSchedule?.scheduleId) === String(group.scheduleId)
+)
 
     };
   });
@@ -184,70 +191,154 @@ const InterviewStatusTracker = ({
     return filtered;
   }, [interviews, statusFilter, searchTerm, sortBy]);
 
-  const getStatusActions = (interview) => {
-    const actions = [];
-    const anyAccepted = interview?.trainees?.length > 1 && interview?.trainees?.some(t => t.status === 'accepted');
+  // const getStatusActions = (interview) => {
+  //   const actions = [];
+  //   const anyAccepted = interview?.trainees?.length > 1 && interview?.trainees?.some(t => t.status === 'accepted');
 
-    if (anyAccepted) {
-      // If any trainee accepted, show Complete + Reschedule + Cancel
+  //   if (anyAccepted) {
+  //     // If any trainee accepted, show Complete + Reschedule + Cancel
+  //     actions.push(
+  //       { label: 'Complete', action: 'complete', variant: 'default', icon: 'CheckCircle' },
+  //       { label: 'Reschedule', action: 'reschedule', variant: 'default', icon: 'Calendar' },
+  //       { label: 'Cancel', action: 'cancel', variant: 'outline', icon: 'X' }
+  //     );
+  //   } else {
+
+  //     switch (interview?.status.toLowerCase()) {
+  //       case 'pending':
+  //       case 'tentative':
+  //       case 'declined':
+  //       case 'needsaction':
+  //         actions?.push(
+  //           { label: 'Reschedule', action: 'reschedule', variant: 'default', icon: 'Calendar' },
+  //           { label: 'Cancel', action: 'cancel', variant: 'outline', icon: 'X' },
+
+  //         );
+  //         break;
+  //       case 'accepted':
+  //         actions?.push(
+  //           { label: 'Complete', action: 'complete', variant: 'default', icon: 'CheckCircle' },
+  //           { label: 'Cancel', action: 'cancel', variant: 'outline', icon: 'X' }
+  //         );
+  //         break;
+  //       case 'cancelled':
+  //         actions?.push(
+  //           { label: 'Reschedule', action: 'reschedule', variant: 'default', icon: 'Calendar' }
+  //         );
+  //         break;
+  //       default:
+  //         actions?.push(
+  //           { label: 'Cancel', action: 'cancel', variant: 'outline', icon: 'X' }
+  //         );
+  //     }
+  //   }
+  //   return actions;
+
+  // };
+
+const getStatusActions = (interview) => {
+  const actions = [];
+  const anyAccepted = interview?.trainees?.length > 1 && interview?.trainees?.some(t => t.status === 'accepted');
+
+  if (anyAccepted) {
+
+    if (!isRestricted) {
       actions.push(
         { label: 'Complete', action: 'complete', variant: 'default', icon: 'CheckCircle' },
         { label: 'Reschedule', action: 'reschedule', variant: 'default', icon: 'Calendar' },
         { label: 'Cancel', action: 'cancel', variant: 'outline', icon: 'X' }
       );
-    } else {
+    }
 
-      switch (interview?.status.toLowerCase()) {
-        case 'pending':
-        case 'tentative':
-        case 'declined':
-        case 'needsaction':
-          actions?.push(
+  } else {
+
+    switch (interview?.status.toLowerCase()) {
+
+      case 'pending':
+      case 'tentative':
+      case 'declined':
+      case 'needsaction':
+
+        if (!isRestricted) {
+          actions.push(
             { label: 'Reschedule', action: 'reschedule', variant: 'default', icon: 'Calendar' },
-            { label: 'Cancel', action: 'cancel', variant: 'outline', icon: 'X' },
-
+            { label: 'Cancel', action: 'cancel', variant: 'outline', icon: 'X' }
           );
-          break;
-        case 'accepted':
-          actions?.push(
+        }
+
+        break;
+
+      case 'accepted':
+
+        if (!isRestricted) {
+          actions.push(
             { label: 'Complete', action: 'complete', variant: 'default', icon: 'CheckCircle' },
             { label: 'Cancel', action: 'cancel', variant: 'outline', icon: 'X' }
           );
-          break;
-        case 'cancelled':
-          actions?.push(
+        }
+
+        break;
+
+      case 'cancelled':
+
+        if (!isRestricted) {
+          actions.push(
             { label: 'Reschedule', action: 'reschedule', variant: 'default', icon: 'Calendar' }
           );
-          break;
-        default:
-          actions?.push(
+        }
+
+        break;
+
+      default:
+
+        if (!isRestricted) {
+          actions.push(
             { label: 'Cancel', action: 'cancel', variant: 'outline', icon: 'X' }
           );
-      }
+        }
     }
-    return actions;
+  }
 
-  };
+  return actions;
+};
 
   const handleActionClick = (interview, action) => {
+
+    if (isRestricted) {
+    alert("You are not authorized for this action");
+    return;
+  }
 
 
     switch (action) {
 
       case 'reschedule':
 
-        console.log('Rescheduling Interview ID:', interview?.interviewSchedule?.scheduleId);
-        const selected = data.filter(
-          item => {
-            console.log('Comparing:', item.interviewSchedule?.scheduleId, interview?.scheduleId);
-            return item.interviewSchedule?.scheduleId === interview?.scheduleId
-          }
-        );
-        if (!selected) {
-          console.warn('No matching interview found for reschedule');
-          return;
-        }
-        onReschedule(selected);
+        //console.log('Rescheduling Interview ID:', interview?.interviewSchedule?.scheduleId);
+        console.log('Rescheduling Interview ID:', interview?.scheduleId);
+        // const selected = data.filter(
+        //   item => {
+        //     console.log('Comparing:', item.interviewSchedule?.scheduleId, interview?.scheduleId);
+        //     return item.interviewSchedule?.scheduleId === interview?.scheduleId
+        //   }
+        // );
+        const selected = data.filter(item => {
+  console.log('Comparing:', item.interviewSchedule?.scheduleId, interview?.scheduleId);
+
+  return String(item.interviewSchedule?.scheduleId) === String(interview?.scheduleId);
+});
+        // if (!selected) {
+        //   console.warn('No matching interview found for reschedule');
+        //   return;
+        // }
+        // onReschedule(selected);
+
+        if (!selected || selected.length === 0) {
+  console.warn('No matching interview found for reschedule');
+  return;
+}
+
+onReschedule(selected);
 
         break;
 

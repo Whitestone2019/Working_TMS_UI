@@ -94,13 +94,19 @@ useEffect(() => {
           stepNumber: index + 1,
           title: item?.title || `Step ${index + 1}`,
           description: item?.topic || "",
-          trainer: item?.trainer
-            ? {
-                id: item.trainer.trainerId,
-                name: item.trainer.name,
-                email: item.trainer.email,
-              }
-            : null,
+          // trainer: item?.trainer
+          //   ? {
+          //       id: item.trainer.trainerId,
+          //       name: item.trainer.name,
+          //       email: item.trainer.email,
+          //     }
+          //   : null,
+
+          trainers: item?.trainers?.map(t => ({
+  trainerId: t.trainerId,
+  name: t.name,
+  email: t.email
+})) || [],
           isLocked: !prevStepCompleted,
           isCompleted: isStepCompleted,
           progress: item?.subTopics?.length

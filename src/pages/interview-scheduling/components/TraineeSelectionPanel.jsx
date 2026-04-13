@@ -15,6 +15,7 @@ const TraineeSelectionPanel = ({
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   console.log("trainees in panel", trainees);
+  console.log("Trainee IDs:", trainees.map(t => t.id));
   const statusOptions = [
     { value: 'all', label: 'All Status' },
     { value: 'due', label: 'Due for Interview' },

@@ -26,6 +26,23 @@ const CalendarView = ({
     setSelectedTimeSlot(selectedTime);
   }, [selectedTime]);
 
+const isPastTime = (date, time) => {
+  if (!date) return false;
+
+  const now = new Date();
+
+  // sirf aaj ke liye check lagega
+  if (date.toDateString() !== now.toDateString()) return false;
+
+  const [hours, minutes] = time.split(":").map(Number);
+
+  const slotTime = new Date(date);
+  slotTime.setHours(hours, minutes, 0, 0);
+
+  return slotTime < now; // agar time chala gaya
+};
+
+
   const getDaysInMonth = (date) => {
     const year = date?.getFullYear();
     const month = date?.getMonth();
@@ -229,11 +246,18 @@ const CalendarView = ({
                 <button
                   key={time}
                   onClick={() => handleTimeSlotClick(time)}
-                  disabled={isBooked || hasConflictAtTime || isPastDate(selectedDate)}
+                  //disabled={isBooked || hasConflictAtTime || isPastDate(selectedDate)}
+                  disabled={
+  isBooked ||
+  hasConflictAtTime ||
+  isPastDate(selectedDate) ||
+  isPastTime(selectedDate, time)
+}
                   className={`
                     p-2 text-sm rounded-lg border transition-colors duration-150
                     ${isSelectedTime ? 'bg-primary text-primary-foreground border-primary' : ''}
                     ${isPastDate(selectedDate) ? 'text-muted-foreground cursor-not-allowed' : ''}
+                    ${isPastTime(selectedDate, time) ? 'bg-muted text-muted-foreground cursor-not-allowed' : ''}
                     ${isBooked ? 'bg-muted text-muted-foreground text-primary border-border border-primary cursor-not-allowed' : ''}
                     ${hasConflictAtTime ? 'bg-error/10 text-error border-error cursor-not-allowed' : ''}
                     ${!isBooked && !hasConflictAtTime && !isSelectedTime ? 'bg-background border-border hover:bg-muted' : ''}

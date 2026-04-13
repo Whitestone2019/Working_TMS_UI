@@ -237,7 +237,81 @@ useEffect(() => {
 
 
   const empid = sessionStorage.getItem("empid");
-  useEffect(() => {
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         setLoading(true);
+//         const result = await fetchSyllabusProgressByEmpId(empid);
+
+//         const apiData = result?.data || result || [];
+
+//         const sortedData = [...apiData].sort((a, b) => {
+//           const dateA = new Date(a?.createdDate || 0);
+//           const dateB = new Date(b?.createdDate || 0);
+//           return dateA - dateB;
+//         });
+//         setSyllabusProgress(sortedData);
+//         // ✅ Extract only departmentIds
+// const departmentIds = sortedData.flatMap(item =>
+//   (item.departments || []).map(dep => dep.departmentId)
+// );
+
+// // ✅ Make distinct
+// const uniqueDepartmentIds = [...new Set(departmentIds)];
+
+// // ✅ Store in sessionStorage
+// sessionStorage.setItem("departmentIds", JSON.stringify(uniqueDepartmentIds));
+
+// console.log("Stored Department IDs:", uniqueDepartmentIds);
+
+//         const formattedSteps = sortedData.map((item, index, arr) => {
+//           //  current step completed
+//           const isCompleted = item?.subTopics?.every(sub =>
+//             sub?.stepProgress?.some(p => p.complete === true && p.checker === true)
+//           );
+
+
+//           //  previous step completed
+//           const prevCompleted =
+//             index === 0
+//               ? true
+//               : arr[index - 1]?.subTopics?.every(sub =>
+//                 sub?.stepProgress?.some(
+//                   p => p.complete === true && p.checker === true
+//                 )
+//               );
+
+//           return {
+//             stepNumber: index + 1,
+//             title: item?.title || `Step ${index + 1}`,
+//             description: item?.topic || '',
+//             completed: isCompleted,
+//             locked: !prevCompleted
+//           };
+//         });
+
+//         console.log("Formatted steps status:", formattedSteps);
+
+
+//         setStepsStatus(formattedSteps);
+
+//         const totalSteps = stepsStatus.length;
+//         const completedSteps = stepsStatus.filter(s => s.completed).length;
+
+//         const progressPercentage =
+//           totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
+//         setOverall(progressPercentage.toFixed(0));
+//         setLoading(false);
+//       } catch (err) {
+//         console.error(err);
+//         setLoading(false);
+//       }
+//     };
+
+//     if (empid) fetchData();
+//   }, [empid, refreshKey]);
+
+ useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -251,6 +325,36 @@ useEffect(() => {
           return dateA - dateB;
         });
         setSyllabusProgress(sortedData);
+        // ✅ Extract only departmentIds
+const departmentIds = sortedData.flatMap(item =>
+  (item.departments || []).map(dep => dep.departmentId)
+);
+
+// ✅ Make distinct
+const uniqueDepartmentIds = [...new Set(departmentIds)];
+
+// ✅ Store in sessionStorage
+sessionStorage.setItem("departmentIds", JSON.stringify(uniqueDepartmentIds));
+
+console.log("Stored Department IDs:", uniqueDepartmentIds);
+
+// ✅ Extract all trainers
+const allTrainers = sortedData.flatMap(item => item.trainers || []);
+
+// ✅ Remove duplicates based on trainerId
+const uniqueTrainers = Object.values(
+  allTrainers.reduce((acc, trainer) => {
+    if (!acc[trainer.trainerId]) {
+      acc[trainer.trainerId] = trainer; // store full object
+    }
+    return acc;
+  }, {})
+);
+
+// ✅ Store in sessionStorage
+sessionStorage.setItem("trainers", JSON.stringify(uniqueTrainers));
+
+console.log("Stored Unique Trainers:", uniqueTrainers);
 
         const formattedSteps = sortedData.map((item, index, arr) => {
           //  current step completed
@@ -298,8 +402,6 @@ useEffect(() => {
 
     if (empid) fetchData();
   }, [empid, refreshKey]);
-
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">

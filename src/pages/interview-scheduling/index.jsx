@@ -29,7 +29,8 @@ const InterviewScheduling = () => {
   const [trainees, setTrainees] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [formdata, setFormdata] = useState();
-
+// Add this near your other useState declarations
+const [selectedManagers, setSelectedManagers] = useState([]);
   const privilegedRoles = ["CEO", "CTO", "HR", "PM"];
   const roleName = sessionStorage.getItem("roleName");
   const isRestricted = privilegedRoles.includes(roleName);
@@ -300,6 +301,12 @@ const InterviewScheduling = () => {
 
   // Handle conflict resolution
 
+  useEffect(() => {
+  if (isRestricted && activeView === 'calendar') {
+    setActiveView('tracker');
+  }
+}, [isRestricted, activeView]);
+
   const formatDateLocal = (date) => {
     if (!date) return null;
 
@@ -338,7 +345,8 @@ const InterviewScheduling = () => {
       //   trainees: scheduleData.trainees
       // })
       const updateRes = await updateInterviewSchedule(scheduleData.scheduleId, {
-        interviewer: scheduleData.interviewerId,
+        //interviewer: scheduleData.interviewerId,
+        interviewer: scheduleData.interviewerIds, 
         date: formatDateLocal(scheduleData.date),
         date1: scheduleData.date,
         time: scheduleData.time,
@@ -366,7 +374,7 @@ const InterviewScheduling = () => {
 
       try {
         //  Create Schedule
-        const scheduleRes = await createSchedule(scheduleData.interviewer, {
+        const scheduleRes = await createSchedule(scheduleData.interviewerIds, {
           date: formatDateLocal(scheduleData.date),
           date1: scheduleData.date,
           time: scheduleData.time,
@@ -389,7 +397,11 @@ const InterviewScheduling = () => {
 
 
         console.log("created Schedule ID:", scheduleData);
-        const emailIds = [...scheduleData.trainees, scheduleData.interviewerId];
+       // const emailIds = [...scheduleData.trainees, scheduleData.interviewerId];
+       const emailIds = [
+  ...scheduleData.trainees,
+  ...scheduleData.interviewerIds   // ✅ spread
+];
         console.log("Trainee Emails for Notification:", emailIds);
         // assign Trainees
         await assignTrainees(scheduleId, emailIds);
@@ -444,52 +456,167 @@ const InterviewScheduling = () => {
   }
 
   // Reschedule interview
-  const handleRescheduleInterview = (interview) => {
-    if (isRestricted) {
-      alert("You are not authorized to reschedule interviews.");
-      return;
-    }
-    console.log('Rescheduling interview:', interview);
-    if (!interview || !interview[0].interviewSchedule) return;
+//   const handleRescheduleInterview = (interview) => {
+//     if (isRestricted) {
+//       alert("You are not authorized to reschedule interviews.");
+//       return;
+//     }
+//     console.log('Rescheduling interview:', interview);
+//     // if (!interview || !interview[0].interviewSchedule) return;
+//     const schedule = interview.interviewSchedule || interview[0]?.interviewSchedule;
 
-    const { date, time } = interview[0].interviewSchedule;
+//     if (!schedule) {
+//     console.error("Schedule data missing!");
+//     return;
+//   }
 
+//     // const { date, time } = interview[0].interviewSchedule;
+//     if (!interview?.interviewSchedule) return;
 
-    // Ensure we have a valid date object
-    const interviewDate = date ? new Date(date) : null;
-
-    // Format time to HH:MM
-    const interviewTime = time ? time.slice(0, 5) : null;
-
-    console.log("Formatted Interview Date and Time:", interviewDate, interviewTime);
-    setSelectedDate(interviewDate);
-    setSelectedTime(interviewTime);
+// const { date, time } = interview.interviewSchedule;
 
 
-    // const traineeIds = interview
-    //   .map(item => item?.user?.trngid)
-    //   .filter(Boolean);
-    // setSelectedTrainees(traineeIds);
-    const traineeIds = interview
-      .filter(item => item?.roleRvsp?.toLowerCase() === "trainee")
-      .map(item => item?.user?.trngid)
-      .filter(Boolean);
+//     // Ensure we have a valid date object
+//     const interviewDate = date ? new Date(date) : null;
+
+//     // Format time to HH:MM
+//     const interviewTime = time ? time.slice(0, 5) : null;
+
+//     //const traineeIds = interview.trainees?.map(t => t.trngid) || [];
+    
+
+//     console.log("Formatted Interview Date and Time:", interviewDate, interviewTime);
+//     setSelectedDate(interviewDate);
+//     setSelectedTime(interviewTime);
+//     //setSelectedTrainees(traineeIds);
 
 
-    setSelectedTrainees(traineeIds);
+//     // const traineeIds = interview
+//     //   .map(item => item?.user?.trngid)
+//     //   .filter(Boolean);
+//     // setSelectedTrainees(traineeIds);
+//     const traineeIds = interview?.trainees?.map(t => t.id) || [];
+//  setSelectedTrainees(traineeIds);
+      
 
-    console.log(interview)
-    console.log("fddddddd", interview[0]?.interviewSchedule)
-    setFormdata(interview[0]?.interviewSchedule);
-    setActiveView('calendar');
+   
 
-    console.log("Rescheduling interview:", {
-      interviewDate,
-      interviewTime,
-      selectedTrainees
-    });
-  };
+//     console.log(interview)
+//     console.log("fddddddd", interview?.interviewSchedule)
+//     //setFormdata(interview[0]?.interviewSchedule);
+//     //setFormdata(interview?.interviewSchedule);
+//     setFormdata({
+//   ...interview.interviewSchedule,
+//   scheduleId: interview.interviewSchedule.scheduleId
+// });
+//     setActiveView('calendar');
 
+//     console.log("Rescheduling interview:", {
+//       interviewDate,
+//       interviewTime,
+//       selectedTrainees
+//     });
+//   };
+
+// const handleRescheduleInterview = (interview) => {
+//     // interview ab aggregated object hai jisme 'trainees' array hai
+//     const schedule = interview.interviewSchedule;
+    
+//     const interviewDate = schedule.date ? new Date(schedule.date) : null;
+//     const interviewTime = schedule.time ? schedule.time.slice(0, 5) : null;
+
+//     // Humne loadAllSchedules mein trainees array pehle hi bhar diya hai
+//     const traineeIds = interview.map(item => item.user?.trngid).filter(id => id);
+    
+//     console.log("Setting Trainee IDs:", traineeIds);
+    
+//     setSelectedDate(interviewDate);
+//     setSelectedTime(interviewTime);
+//     setSelectedTrainees(traineeIds); 
+
+//     // Pure form ko reset/set karna
+//     setFormdata({
+//         ...schedule,
+//         scheduleId: schedule.scheduleId,
+//         traineeIds: traineeIds // Isse SchedulingForm ko fresh list milegi
+//     });
+    
+//     setActiveView('calendar');
+// };
+
+
+// const handleRescheduleInterview = (interview) => {
+//     // 1. Check if interview exists
+//     if (!interview) return;
+
+//     // 2. Extract the schedule
+//     const schedule = interview.interviewSchedule;
+    
+//     // 3. Extract Trainee ID
+//     // Since 'interview' is the object, we get the ID from interview.user
+//     // We put it in an array [id] because your form expects a list (traineeIds)
+//    // const traineeId = interview.user?.trngid;
+   
+//     //const traineeIds = traineeId ? [traineeId] : [];
+
+//     const traineeIds = interviews
+//     .filter(i => i.roleRvsp?.toLowerCase() === 'trainee')
+//     .map(i => i.user?.trngid)
+//     .filter(Boolean);
+
+//   console.log("All Trainee IDs:", traineeIds);
+
+
+//     // 4. Format Date and Time
+//     const interviewDate = schedule?.date ? new Date(schedule.date) : null;
+//     const interviewTime = schedule?.time ? schedule.time.slice(0, 5) : null;
+
+//     console.log("Setting Trainee IDs:", traineeIds);
+
+//     // 5. Update States
+//     setSelectedDate(interviewDate);
+//     setSelectedTime(interviewTime);
+//     setSelectedTrainees(traineeIds); 
+
+//     // 6. Update Form Data
+//     setFormdata({
+//         ...schedule,
+//         scheduleId: schedule?.scheduleId,
+//         traineeIds: traineeIds 
+//     });
+
+//     setActiveView('calendar');
+// };
+
+const handleRescheduleInterview = (interviews) => {
+  if (!interviews || interviews.length === 0) return;
+
+  // ✅ schedule common hoga sabka
+  const schedule = interviews[0].interviewSchedule;
+
+  // ✅ ONLY TRAINEES pick karo
+  const traineeIds = interviews
+    .filter(i => i.roleRvsp?.toLowerCase() === 'trainee')
+    .map(i => i.user?.trngid)
+    .filter(Boolean);
+
+  console.log("All Trainee IDs:", traineeIds);
+
+  const interviewDate = schedule?.date ? new Date(schedule.date) : null;
+  const interviewTime = schedule?.time ? schedule.time.slice(0, 5) : null;
+
+  setSelectedDate(interviewDate);
+  setSelectedTime(interviewTime);
+  setSelectedTrainees(traineeIds);
+
+  setFormdata({
+    ...schedule,
+    scheduleId: schedule?.scheduleId,
+    traineeIds: traineeIds
+  });
+
+  setActiveView('calendar');
+};
 
   const handleStatusUpdate = async (interviewId, newStatus) => {
 
@@ -547,12 +674,20 @@ const InterviewScheduling = () => {
     return mockInterviewers?.[0]; // Default to first interviewer for demo
   };
 
-  const viewTabs = [
-    { id: 'calendar', label: 'Calendar View', icon: 'Calendar' },
-    { id: 'tracker', label: 'Status Tracker', icon: 'List' },
+  // const viewTabs = [
+  //   { id: 'calendar', label: 'Calendar View', icon: 'Calendar' },
+  //   { id: 'tracker', label: 'Status Tracker', icon: 'List' },
 
-  ];
+  // ];
 
+  const viewTabs = isRestricted
+  ? [
+      { id: 'tracker', label: 'Status Tracker', icon: 'List' }
+    ]
+  : [
+      { id: 'calendar', label: 'Calendar View', icon: 'Calendar' },
+      { id: 'tracker', label: 'Status Tracker', icon: 'List' }
+    ];
 
 
 
@@ -629,6 +764,7 @@ const InterviewScheduling = () => {
       // ✅ Map API response
       const formatted = result.data.map(t => ({
         id: t.traineeId,
+        
         name: t.name,
         email: t.email,
         progressPercentage: t.completionPercentage || 0,
@@ -681,6 +817,36 @@ const InterviewScheduling = () => {
     }
   };
 
+
+//   const loadAllSchedules = async () => {
+//   try {
+//     const result = await fetchAllSchedules();
+//     const rawData = result.data;
+
+//     // 1. Grouping by scheduleId
+//     const groupedSchedules = rawData.reduce((acc, curr) => {
+//       const sId = curr.interviewSchedule.scheduleId;
+//       if (!acc[sId]) {
+//         acc[sId] = {
+//           interviewSchedule: curr.interviewSchedule,
+//           trainees: [],
+//           managers: curr.interviewSchedule.managers || []
+//         };
+//       }
+//       // Agar role TRAINEE hai toh list mein daalo
+//       if (curr.roleRvsp === "TRAINEE") {
+//         acc[sId].trainees.push(curr.user);
+//       }
+//       return acc;
+//     }, {});
+
+//     const finalSchedules = Object.values(groupedSchedules);
+//     console.log("Transformed Grouped Schedules:", finalSchedules);
+//     setSchedules(finalSchedules); // Ab yahan aggregated data hai
+//   } catch (error) {
+//     console.error("Failed to load schedules:", error);
+//   }
+// };
 
   useEffect(() => {
     loadAllTrainers();

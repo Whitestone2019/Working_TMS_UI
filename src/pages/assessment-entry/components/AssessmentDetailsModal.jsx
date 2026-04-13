@@ -190,7 +190,7 @@ const AssessmentDetailsModal = ({
           </div>
 
           {/* General Remarks */}
-          {assessment?.remarks && (
+          {/* {assessment?.remarks && (
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center">
                 <Icon name="MessageSquare" size={20} className="mr-2" />
@@ -200,7 +200,44 @@ const AssessmentDetailsModal = ({
                 <p className="text-foreground leading-relaxed">{assessment?.remarks}</p>
               </div>
             </div>
-          )}
+          )} */}
+
+          {/* General Remarks + Recommendations SIDE BY SIDE */}
+{(assessment?.remarks || assessment?.recommendations) && (
+  <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    {/* LEFT - General Remarks */}
+    {assessment?.remarks && (
+      <div>
+        <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center">
+          <Icon name="MessageSquare" size={20} className="mr-2" />
+          General Remarks
+        </h3>
+        <div className="bg-muted/50 rounded-lg p-4 h-full">
+          <p className="text-foreground leading-relaxed">
+            {assessment?.remarks}
+          </p>
+        </div>
+      </div>
+    )}
+
+    {/* RIGHT - Recommendations */}
+    {assessment?.recommendations && (
+      <div>
+        <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center">
+          <Icon name="Lightbulb" size={20} className="mr-2 text-primary" />
+          Recommendations
+        </h3>
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 h-full">
+          <p className="text-sm text-foreground">
+            {assessment?.recommendations}
+          </p>
+        </div>
+      </div>
+    )}
+
+  </div>
+)}
 
           {/* Detailed Feedback */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -275,7 +312,7 @@ const AssessmentDetailsModal = ({
               </div>
             )}
 
-            {assessment?.recommendations && (
+            {/* {assessment?.recommendations && (
               <div>
                 <h4 className="font-semibold text-foreground mb-3 flex items-center">
                   <Icon name="Lightbulb" size={16} className="mr-2 text-primary" />
@@ -285,7 +322,7 @@ const AssessmentDetailsModal = ({
                   <p className="text-sm text-foreground">{assessment?.recommendations}</p>
                 </div>
               </div>
-            )}
+            )} */}
           </div>
 
 

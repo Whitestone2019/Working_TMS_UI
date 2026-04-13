@@ -7,6 +7,7 @@ import Button from '../../../components/ui/Button';
 const FilterToolbar = ({
   filters,
   syllabusOptions,
+  departmentOptions,
   onFilterChange,
   onExportReports,
   onScheduleInterview,
@@ -48,7 +49,12 @@ const FilterToolbar = ({
             onChange={(value) => handleInputChange('syllabusStep', value)}
           /> */}
 
-
+<Select
+  label="Department"
+  options={departmentOptions}
+  value={filters?.departmentId}
+  onChange={(value) => handleInputChange('departmentId', value)}
+/>
 
           <Select
             label="Completion Status"

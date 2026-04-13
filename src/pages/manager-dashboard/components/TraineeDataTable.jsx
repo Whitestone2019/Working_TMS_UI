@@ -257,7 +257,7 @@ const TraineeDataTable = ({
                       iconSize={16}
                       title="Schedule Interview"
                     />
-                    <Button
+                    {/* <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => onViewSyllabus(trainee?.traineeId)}
@@ -266,7 +266,7 @@ const TraineeDataTable = ({
                       iconName="BookOpen"
                       iconSize={16}
                       title="View Syllabus"
-                    />
+                    /> */}
 
                   </div>
                 </td>
@@ -366,7 +366,7 @@ const TraineeDataTable = ({
                   Interview
                 </Button>
 
-                <Button
+                {/* <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => onViewSyllabus(trainee?.traineeId)}
@@ -375,7 +375,7 @@ const TraineeDataTable = ({
                   iconName="BookOpen"
                   iconSize={16}
                   title="View Syllabus"
-                />
+                /> */}
               </div>
             </div>
           </div>

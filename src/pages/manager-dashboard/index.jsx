@@ -9,7 +9,8 @@ import FilterToolbar from './components/FilterToolbar';
 import TraineeDataTable from './components/TraineeDataTable';
 import AssessmentEntryModal from './components/AssessmentEntryModal';
 import TraineeSyllabusPage from './components/TraineeSyllabusPage';
-import { fetchAllTraineeSummaryAdmin, fetchCompletedSubTopics, fetchTraineeSummaryByManager,fetchManagerDelays } from '../../api_service';
+import { fetchFeedbackBySyllabusForManager,fetchAllTraineeSummaryAdmin,fetchAllDepartments, fetchCompletedSubTopics, fetchTraineeSummaryByManager,fetchManagerDelays } from '../../api_service';
+
 const ManagerDashboard = () => {
   const navigate = useNavigate();
   const [selectedTrainees, setSelectedTrainees] = useState([]);
@@ -24,6 +25,10 @@ const [showDelayBox, setShowDelayBox] = useState(true);
     { value: 'all', label: 'All Syllabus' }
   ]);
 
+  const [departmentOptions, setDepartmentOptions] = useState([
+  { value: 'all', label: 'All Departments' }
+]);
+
   const privilegedRoles = ["CEO", "CTO", "HR"];
 
   const [filters, setFilters] = useState({
@@ -31,6 +36,7 @@ const [showDelayBox, setShowDelayBox] = useState(true);
     syllabusId: 'all',
     syllabusStep: 'all',
     completionStatus: 'all',
+    departmentId: 'all',
     dateFrom: '',
     dateTo: ''
   });
@@ -42,8 +48,33 @@ const [showDelayBox, setShowDelayBox] = useState(true);
   useEffect(() => {
     fetchTrainees();
     fetchAllSyllabus();
+    fetchDepartments();
   }, []);
 
+const fetchDepartments = async () => {
+  try {
+    const res = await fetchAllDepartments();
+    console.log("depart",res);
+    //const list = res?.data || [];
+    const list = Array.isArray(res) ? res : res?.data || [];
+
+    const options = [
+      { value: 'all', label: 'All Departments' }
+    ];
+
+    list.forEach(dep => {
+      options.push({
+        value: dep.id,
+        label: dep.name
+      });
+    });
+
+    setDepartmentOptions(options);
+
+  } catch (err) {
+    console.error("Error fetching departments", err);
+  }
+};
 
 const fetchTrainees = async () => {
   try {
@@ -180,6 +211,13 @@ const fetchTrainees = async () => {
       return "not-started";
     };
 
+if (filters?.departmentId !== 'all') {
+  filtered = filtered.filter(trainee =>
+    trainee?.assignedDepartments?.some(
+      dep => dep?.departmentId === Number(filters.departmentId)
+    )
+  );
+}
 
     if (filters?.completionStatus !== 'all') {
       filtered = filtered?.filter(
@@ -352,21 +390,38 @@ const handleAddAssessment = (traineeId) => {
 
   
 
-useEffect(() => {
-  const managerId = sessionStorage.getItem("userId");
+// useEffect(() => {
+//   const managerId = sessionStorage.getItem("userId");
 
+//   const loadDelays = async () => {
+//     try {
+//       const response = await fetchManagerDelays(managerId);
+//       setDelayNotifications(response.data || []);
+//     } catch (error) {
+//       console.error("Error fetching manager delays:", error);
+//     }
+//   };
+
+//   loadDelays();
+// }, []);
+
+
+const [delays, setDelays] = useState([]);
+
+useEffect(() => {
+
+   const managerId = sessionStorage.getItem("userId");
   const loadDelays = async () => {
     try {
       const response = await fetchManagerDelays(managerId);
-      setDelayNotifications(response.data || []);
-    } catch (error) {
-      console.error("Error fetching manager delays:", error);
+      // console.log(response.data); // Yahan check karein 2 items hain ya nahi
+      setDelays(response.data); // Pura array set karein
+    } catch (err) {
+      console.error(err);
     }
   };
-
   loadDelays();
 }, []);
-
   return (
     <div className="min-h-screen bg-background">
       <Header
@@ -378,11 +433,11 @@ useEffect(() => {
       <main className="pt-16">
       
 
-{showDelayBox && delayNotifications.length > 0 && (
+{showDelayBox && delays.length > 0 && (
   <div className="max-w-7xl mx-auto px-6 mt-6">
     <div className="relative bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-sm">
-
-      {/*  Cross Button */}
+      
+      {/* Cross Button */}
       <button
         onClick={() => setShowDelayBox(false)}
         className="absolute top-2 right-3 text-red-600 hover:text-red-800 text-lg font-bold"
@@ -390,21 +445,16 @@ useEffect(() => {
         ×
       </button>
 
-      {(() => {
-        const firstDelay = delayNotifications[0];
+      <strong>⚠ Delay Alerts</strong>
 
-        return (
-          <>
-            <strong>
-              ⚠ Delay Alert
-            </strong>
-
-            <div className="mt-2">
-              • {firstDelay.traineeId} → {firstDelay.delayDays} day(s) delay
-            </div>
-          </>
-        );
-      })()}
+      <div className="mt-2 space-y-1">
+        {delays.map((item) => (
+          <div key={item.id}>
+            • <b>{item.traineeId}</b>: {item.delayDays} day(s) delay (Deadline: {new Date(item.deadlineDate).toLocaleDateString()})
+          </div>
+        ))}
+      </div>
+      
     </div>
   </div>
 )}
@@ -427,6 +477,7 @@ useEffect(() => {
           <FilterToolbar
             filters={filters}
             syllabusOptions={syllabusOptions}
+            departmentOptions={departmentOptions}
             onFilterChange={setFilters}
             onExportReports={handleExportReports}
             onScheduleInterview={handleBulkScheduleInterview}
@@ -444,7 +495,7 @@ useEffect(() => {
             onAddAssessment={handleAddAssessment}
             onScheduleInterview={handleScheduleInterview}
             onSort={handleSort}
-            onViewSyllabus={(id) => setSelectedTraineeId(id)} 
+           
           />
 
          {/* {selectedTraineeId && selectedTrainee && (

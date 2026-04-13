@@ -44,8 +44,32 @@ const calcProgress = totalSubs > 0 ? Math.round((completedSubs / totalSubs) * 10
                 const isLastStep = currentIndex === allSteps.length - 1;
                 const isLastSubOfLastStep = isLastStep && isLastSub;
               const syllabusId = currentStep?.id;
-              const trainerId = currentStep?.trainer?.id;
+              //const trainerId = currentStep?.trainer?.id;
+//               const trainersFromSession = JSON.parse(sessionStorage.getItem("trainers") || []);
 
+// const trainerId =
+//   currentStep?.trainer?.id ||
+//   trainersFromSession[0]?.trainerId ||
+//   null;
+// const trainerId = trainer?.trainerId || null;
+// const trainerName = trainer?.name || "N/A";
+const trainersFromSession = JSON.parse(sessionStorage.getItem("trainers") || []);
+
+const trainer =
+  currentStep?.trainer ||
+  trainersFromSession.find(t => t.trainerId === trainersFromSession[0]?.trainerId) ||
+  null;
+
+// const trainerId = trainer?.trainerId || null;
+// const trainerName = trainer?.name || "N/A";
+
+const trainers = currentStep?.trainers || [];
+
+const trainerId = trainers.length > 0 ? trainers[0].trainerId : null;
+
+const trainerNames = trainers.length > 0
+  ? trainers.map(t => `${t.name} (${t.trainerId})`).join(", ")
+  : "N/A";
             const trainingId = currentStep?.syllabusId;
 
 
@@ -212,10 +236,23 @@ useEffect(() => {
                           <p className="text-muted-foreground">{currentStep?.description}</p>
                         </div>
                         <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <div className="flex items-center space-x-2">
-                            <Icon name="Clock" size={16} />
-                            <span>Time: {formatTime(timeSpent)}</span>
-                          </div>
+                         <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+  
+  {/* Time */}
+  <div className="flex items-center space-x-2">
+    <Icon name="Clock" size={16} />
+    <span>Time: {formatTime(timeSpent)}</span>
+  </div>
+
+  {/* Trainer Info */}
+  <div className="flex items-center space-x-2">
+    <Icon name="User" size={16} />
+    <span>
+  Trainers: {trainerNames}
+</span>
+  </div>
+
+</div>
                         </div>
                       </div>
                       <div className="mt-4 px-6">

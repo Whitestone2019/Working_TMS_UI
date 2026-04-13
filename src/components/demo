@@ -3447,3 +3447,671 @@
 //         System.out.println("⏱ Checking deadlines... " + LocalDateTime.now());
 //         checkSyllabusDeadlines();
 //     }
+
+
+import React, { useEffect, useState,useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import Header from "../../../components/ui/Header";
+import NavigationBreadcrumb from "../../../components/ui/NavigationBreadcrumb";
+import Icon from "../../../components/ui/../AppIcon";
+import axios from "axios";
+import { submitAssessment, checkAssessmentAttempt } from "../../../api_service";
+
+function TraineeTestPage() {
+  const { assessmentId } = useParams();
+  const navigate = useNavigate();
+
+  const [assessment, setAssessment] = useState(null);
+  const [answers, setAnswers] = useState({});
+  const [visited, setVisited] = useState({});
+  const [activeSection, setActiveSection] = useState(0);
+  const [activeQuestion, setActiveQuestion] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [sectionTimers, setSectionTimers] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+
+  const traineeId = sessionStorage.getItem("empid");
+  const trainerIds = JSON.parse(sessionStorage.getItem("trainerIds") || "[]");
+  const trainerIdsStr = trainerIds.map((id) => id.toString());
+const submittedRef = useRef(false);
+  const alertAudio = new Audio("https://www.soundjay.com/buttons/sounds/beep-07.mp3");
+
+
+const warningCountRef = useRef(0);
+const isLockedRef = useRef(false);
+
+  const playBeep = () => {
+  const context = new AudioContext();
+  const oscillator = context.createOscillator();
+  oscillator.type = "square";
+  oscillator.frequency.setValueAtTime(440, context.currentTime);
+  oscillator.connect(context.destination);
+  oscillator.start();
+  oscillator.stop(context.currentTime + 0.1);
+};
+
+  /* ---------------- FETCH ASSESSMENT ---------------- */
+  // useEffect(() => {
+  //   const fetchAssessment = async () => {
+  //     try {
+  //       const checkRes = await checkAssessmentAttempt(assessmentId, traineeId);
+  //       if (checkRes.data === true) {
+  //         alert("You have already submitted this assessment!");
+  //         navigate("/trainee-assessment-list");
+  //         return;
+  //       }
+
+  //       const res = await axios.get(
+  //         `http://localhost:8080/api/assessment/test/${assessmentId}`
+  //       );
+  //       setAssessment(res.data);
+
+  //       const totalTime = res.data.sections.reduce(
+  //         (sum, sec) => sum + Number(sec.time),
+  //         0
+  //       );
+
+  //       // Use saved time if exists
+  //       const savedTime = sessionStorage.getItem(`timeLeft_${assessmentId}`);
+  //       setTimeLeft(savedTime ? Number(savedTime) : totalTime * 60);
+
+  //       const secTimers = {};
+  //       res.data.sections.forEach((sec) => {
+  //         secTimers[sec.id] = Number(sec.time) * 60;
+  //       });
+  //       setSectionTimers(secTimers);
+  //     } catch (err) {
+  //       console.error(err);
+  //       alert("Failed to load assessment.");
+  //     }
+  //   };
+
+  //   fetchAssessment();
+  // }, [assessmentId, traineeId, navigate]);
+
+
+  useEffect(() => {
+  const fetchAssessment = async () => {
+    try {
+      const checkRes = await checkAssessmentAttempt(assessmentId, traineeId);
+      if (checkRes.data === true) {
+        alert("You have already submitted this assessment!");
+        //navigate("/trainee-assessment-list");
+        navigate("/trainee-dashboard");
+        return;
+      }
+
+      const res = await axios.get(
+        `http://localhost:8080/api/assessment/test/${assessmentId}`
+      );
+
+      let data = res.data;
+
+      // Check if restricted action happened → shuffle questions
+      // if (sessionStorage.getItem(`shuffleOnLoad_${assessmentId}`) === "true") {
+      //   data.sections = data.sections.map((sec) => ({
+      //     ...sec,
+      //     questions: sec.questions
+      //       .map((q) => ({ ...q, rand: Math.random() }))
+      //       .sort((a, b) => a.rand - b.rand)
+      //       .map(({ rand, ...q }) => q),
+      //   }));
+      //   sessionStorage.removeItem(`shuffleOnLoad_${assessmentId}`);
+      // }
+
+      setAssessment(data);
+
+      const totalTime = data.sections.reduce(
+        (sum, sec) => sum + Number(sec.time),
+        0
+      );
+
+      // Load saved time if exists
+      const savedTime = sessionStorage.getItem(`timeLeft_${assessmentId}`);
+      setTimeLeft(savedTime ? Number(savedTime) : totalTime * 60);
+
+      const secTimers = {};
+      data.sections.forEach((sec) => {
+        secTimers[sec.id] = Number(sec.time) * 60;
+      });
+      setSectionTimers(secTimers);
+
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load assessment.");
+    }
+  };
+
+  fetchAssessment();
+}, [assessmentId, traineeId, navigate]);
+  /* ---------------- TIMER ---------------- */
+  useEffect(() => {
+    if (!assessment || submitted) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        const newTime = prev <= 1 ? 0 : prev - 1;
+        sessionStorage.setItem(`timeLeft_${assessmentId}`, newTime);
+        if (newTime === 0) handleSubmit();
+        return newTime;
+      });
+
+      setSectionTimers((prev) => {
+        const updated = { ...prev };
+        const currentSec = assessment.sections[activeSection];
+        if (currentSec && updated[currentSec.id] > 0) {
+          updated[currentSec.id] -= 1;
+        }
+        return updated;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [assessment, activeSection, submitted]);
+
+  /* ---------------- ANSWER ---------------- */
+  const handleAnswer = (qId, value) => {
+    if (submitted) return;
+
+    setAnswers((prev) => ({
+      ...prev,
+      [qId]: value,
+    }));
+
+    setVisited((prev) => ({
+      ...prev,
+      [qId]: true,
+    }));
+  };
+
+  const handleQuestionClick = (qId, index) => {
+    setActiveQuestion(index);
+    setVisited((prev) => ({
+      ...prev,
+      [qId]: true,
+    }));
+  };
+
+  /* ---------------- SUBMIT ---------------- */
+  // const handleSubmit = async () => {
+  //   const alreadySubmitted = sessionStorage.getItem(`submitted_${assessmentId}`);
+  //   //if (submitted || alreadySubmitted === "true") return;
+  //   if (submittedRef.current || alreadySubmitted === "true") return;
+
+  // submittedRef.current = true; // ✅ IMPORTANT
+
+  //   setSubmitted(true);
+  //   sessionStorage.setItem(`submitted_${assessmentId}`, "true");
+
+  //   try {
+  //     const traineeIdStr = traineeId.toString();
+  //     const trainerIdsArr = JSON.parse(sessionStorage.getItem("trainerIds") || "[]");
+  //     const trainerIdsStr = trainerIdsArr.map((id) => id.toString());
+
+  //     const formattedSections = assessment.sections.map((section) => ({
+  //       sectionId: section.id,
+  //       sectionName: section.sectionName,
+  //       timeSpent: Number(section.time) * 60 - (sectionTimers[section.id] || 0),
+  //       questions: section.questions.map((q) => ({
+  //         questionId: q.id,
+  //         answer: answers[q.id] !== undefined ? answers[q.id].toString() : "",
+  //       })),
+  //     }));
+
+  //     await submitAssessment(assessmentId, {
+  //       traineeId: traineeIdStr,
+  //       trainerIds: trainerIdsStr,
+  //       answers: formattedSections,
+  //     });
+
+  //     alert("Test Submitted Successfully!");
+  //     //navigate("/trainee-assessment-list");
+  //     navigate("/trainee-dashboard");
+  //   } catch (err) {
+  //     console.error("Submission error:", err);
+  //     submittedRef.current = false; // rollback if failed
+  //     setSubmitted(false);
+  //     sessionStorage.removeItem(`submitted_${assessmentId}`);
+  //     alert("Submission failed. Please try again.");
+  //   }
+  // };
+
+
+  // Inhe apne component ke andar top par rakhein (saare useEffects se pehle)
+const isSubmittingRef = useRef(false);
+
+const handleSubmit = async () => {
+    // Double submission check
+    const alreadySubmitted = sessionStorage.getItem(`submitted_${assessmentId}`);
+    if (submittedRef.current || alreadySubmitted === "true" || isSubmittingRef.current) return;
+
+    isSubmittingRef.current = true;
+    submittedRef.current = true; 
+    setSubmitted(true);
+    sessionStorage.setItem(`submitted_${assessmentId}`, "true");
+
+    try {
+        const traineeIdStr = traineeId ? traineeId.toString() : "";
+        const rawTrainerIds = sessionStorage.getItem("trainerIds");
+        const trainerIdsArr = JSON.parse(rawTrainerIds || "[]");
+        const trainerIdsStr = trainerIdsArr.map((id) => id.toString());
+
+        if (!assessment) throw new Error("Assessment data is missing");
+
+        const formattedSections = assessment.sections.map((section) => ({
+            sectionId: section.id,
+            sectionName: section.sectionName,
+            timeSpent: Math.max(0, Number(section.time) * 60 - (sectionTimers[section.id] || 0)),
+            questions: section.questions.map((q) => ({
+                questionId: q.id,
+                answer: answers[q.id] !== undefined ? answers[q.id].toString() : "",
+            })),
+        }));
+
+        await submitAssessment(assessmentId, {
+            traineeId: traineeIdStr,
+            trainerIds: trainerIdsStr,
+            answers: formattedSections,
+        });
+
+        alert("Test Submitted Successfully!");
+        sessionStorage.removeItem(`timeLeft_${assessmentId}`);
+        navigate("/trainee-dashboard");
+
+    } catch (err) {
+        console.error("Submission error:", err);
+        isSubmittingRef.current = false;
+        submittedRef.current = false; 
+        setSubmitted(false);
+        sessionStorage.removeItem(`submitted_${assessmentId}`);
+        alert("Submission failed. Please try again.");
+    }
+};
+  /* ---------------- QUESTION SHUFFLE ON RESTRICTED ACTION ---------------- */
+  // const forceQuestionSwap = () => {
+  //   if (!assessment) return;
+
+  //   const shuffled = { ...assessment };
+  //   shuffled.sections = shuffled.sections.map((sec) => ({
+  //     ...sec,
+  //     questions: sec.questions
+  //       .map((q) => ({ ...q, rand: Math.random() }))
+  //       .sort((a, b) => a.rand - b.rand)
+  //       .map(({ rand, ...q }) => q),
+  //   }));
+
+  //   setAssessment(shuffled);
+  //   playBeep();
+  // };
+
+  // const handleRestrictedAction = () => {
+  //   forceQuestionSwap();
+  //   playBeep();
+  // };
+// useEffect(() => {
+//   // Flag to allow audio after first click
+//   let canPlayAudio = false;
+//   const enableAudio = () => {
+//     canPlayAudio = true;
+//     window.removeEventListener("click", enableAudio);
+//   };
+//   window.addEventListener("click", enableAudio);
+
+//   // Restricted action handler
+//   const restrictedAction = () => {
+//     if (canPlayAudio) playBeep();
+//     alert("Action not allowed!");
+//     // Set flag to shuffle questions after reload
+//     sessionStorage.setItem(`shuffleOnLoad_${assessmentId}`, "true");
+//     window.location.reload();
+//   };
+
+//   const handleVisibility = () => {
+//     if (document.hidden) restrictedAction();
+//   };
+
+//   const handleBlur = () => {
+//     restrictedAction();
+//   };
+
+//   const handleKey = (e) => {
+//     if (e.ctrlKey || e.metaKey || e.key === "Tab" || e.key === "Escape") {
+//       e.preventDefault();
+//       restrictedAction();
+//     }
+//   };
+
+//   const handleCopyPaste = (e) => {
+//     e.preventDefault();
+//     restrictedAction();
+//   };
+
+//   const handleContextMenu = (e) => {
+//     e.preventDefault();
+//     restrictedAction();
+//   };
+
+//   document.addEventListener("visibilitychange", handleVisibility);
+//   window.addEventListener("blur", handleBlur);
+//   window.addEventListener("keydown", handleKey);
+//   document.addEventListener("copy", handleCopyPaste);
+//   document.addEventListener("paste", handleCopyPaste);
+//   document.addEventListener("contextmenu", handleContextMenu);
+
+//   return () => {
+//     document.removeEventListener("visibilitychange", handleVisibility);
+//     window.removeEventListener("blur", handleBlur);
+//     window.removeEventListener("keydown", handleKey);
+//     document.removeEventListener("copy", handleCopyPaste);
+//     document.removeEventListener("paste", handleCopyPaste);
+//     document.removeEventListener("contextmenu", handleContextMenu);
+//     window.removeEventListener("click", enableAudio);
+//   };
+// }, []);
+
+useEffect(() => {
+  if (submitted) return; 
+
+  const isProcessingWarning = { current: false };
+
+  // const showWarning = async (msg) => {
+  //   // Prevent overlapping alerts and check if already submitted
+  //   if (submittedRef.current || isProcessingWarning.current) return;
+
+  //   isProcessingWarning.current = true;
+  //   warningCountRef.current += 1;
+  //   playBeep();
+
+  //   if (warningCountRef.current < 3) {
+  //     alert(`⚠ Warning ${warningCountRef.current}/3\n${msg}`);
+      
+  //     // Small timeout to allow the browser to regain focus after clicking 'OK'
+  //     // This stops the infinite "blur" loop
+  //     setTimeout(() => {
+  //       isProcessingWarning.current = false;
+  //     }, 1000);
+  //     return;
+  //   }
+
+  //   // FINAL SUBMIT
+  //   alert("❌ Maximum warnings reached. Test will be submitted automatically!");
+  //   try {
+  //     await handleSubmit();
+  //   } catch (e) {
+  //     console.error("Auto-submit failed:", e);
+  //   } finally {
+  //     isProcessingWarning.current = false;
+  //   }
+  // };
+
+const showWarning = async (msg) => {
+    // Agar submit ho raha hai ya pehle se warning chal rahi hai toh exit
+    if (submittedRef.current || isProcessingWarning.current) return;
+
+    isProcessingWarning.current = true;
+    warningCountRef.current += 1;
+    playBeep();
+
+    if (warningCountRef.current < 3) {
+        alert(`⚠ Warning ${warningCountRef.current}/3\n${msg}`);
+        // Alert OK karne ke baad 1 second wait karein taaki focus wapas aa jaye
+        setTimeout(() => { 
+            isProcessingWarning.current = false; 
+        }, 1000);
+        return;
+    }
+
+    // FINAL AUTO-SUBMIT
+    alert("❌ Maximum warnings reached. Test will be submitted automatically!");
+    
+    // Yahan seedha handleSubmit call karein
+    await handleSubmit();
+    isProcessingWarning.current = false;
+};
+  /* ---------- EVENT HANDLERS ---------- */
+
+  const handleVisibility = () => {
+    if (document.hidden) {
+      showWarning("Tab switching is not allowed!");
+    }
+  };
+
+  const handleBlur = () => {
+    // Only trigger if the window actually loses focus
+    if (!document.hasFocus()) {
+      showWarning("You left the test window!");
+    }
+  };
+
+  const handleKey = (e) => {
+    // Block Alt+Tab, Ctrl+C, Ctrl+V, Meta (Windows/Cmd) keys
+    if (
+      e.altKey || 
+      e.metaKey || 
+      e.key === "Tab" || 
+      (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'x'))
+    ) {
+      e.preventDefault();
+      showWarning("Keyboard shortcuts are disabled during the test!");
+    }
+  };
+
+  const handleCopyPaste = (e) => {
+    e.preventDefault();
+    showWarning("Copy/Paste is disabled!");
+  };
+
+  const handleRightClick = (e) => {
+    e.preventDefault();
+    showWarning("Right-click menu is disabled!");
+  };
+
+  /* ---------- FULLSCREEN LOGIC ---------- */
+
+  const enterFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {
+        console.warn("Fullscreen request denied by browser.");
+      });
+    }
+  };
+
+  const handleFullScreenChange = () => {
+    if (!document.fullscreenElement && !submittedRef.current) {
+      showWarning("Exiting fullscreen is not allowed!");
+      // Attempt to re-enter
+      enterFullScreen();
+    }
+  };
+
+  /* ---------- ADD LISTENERS ---------- */
+
+  document.addEventListener("visibilitychange", handleVisibility);
+  window.addEventListener("blur", handleBlur);
+  window.addEventListener("keydown", handleKey);
+  document.addEventListener("copy", handleCopyPaste);
+  document.addEventListener("paste", handleCopyPaste);
+  document.addEventListener("contextmenu", handleRightClick);
+  document.addEventListener("fullscreenchange", handleFullScreenChange);
+
+  // Initial prompt for Fullscreen (Browsers require a user gesture usually)
+  enterFullScreen();
+
+  /* ---------- CLEANUP ---------- */
+
+  return () => {
+    document.removeEventListener("visibilitychange", handleVisibility);
+    window.removeEventListener("blur", handleBlur);
+    window.removeEventListener("keydown", handleKey);
+    document.removeEventListener("copy", handleCopyPaste);
+    document.removeEventListener("paste", handleCopyPaste);
+    document.removeEventListener("contextmenu", handleRightClick);
+    document.removeEventListener("fullscreenchange", handleFullScreenChange);
+  };
+}, [submitted, assessmentId]);
+
+  /* ---------------- UI ---------------- */
+  if (!assessment) return <p className="p-10">Loading...</p>;
+  if (!assessment.sections || assessment.sections.length === 0) {
+    return <p className="p-10">No assessment data available.</p>;
+  }
+
+  const currentSection = assessment.sections[activeSection];
+  const currentQuestion =
+    currentSection && currentSection.questions && currentSection.questions.length > 0
+      ? currentSection.questions[activeQuestion]
+      : null;
+
+  if (!currentQuestion) return <p className="p-10">No questions available in this section.</p>;
+
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+
+  const secTime = sectionTimers[currentSection.id] || 0;
+  const secMin = Math.floor(secTime / 60);
+  const secSec = secTime % 60;
+
+  return (
+    <div className="min-h-screen bg-blue-50">
+      <Header userName="Trainee" userRole="trainee" testMode={true} />
+      <main className="pt-20 max-w-7xl mx-auto px-4">
+        <NavigationBreadcrumb userRole="trainee" />
+        <div className="mt-6 bg-white p-6 rounded-2xl shadow">
+          {/* HEADER */}
+          <div className="flex justify-between mb-6">
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <Icon name="ClipboardList" />
+              {assessment.title}
+            </h2>
+            <div className="text-red-500 font-bold">
+              {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-12 gap-6">
+            {/* LEFT SECTIONS */}
+            <div className="col-span-2 bg-gray-100 p-4 rounded-xl">
+              {assessment.sections.map((sec, i) => (
+                <div
+                  key={sec.id}
+                  onClick={() => {
+                    setActiveSection(i);
+                    setActiveQuestion(0);
+                  }}
+                  className={`p-2 mb-2 cursor-pointer rounded ${
+                    activeSection === i ? "bg-blue-500 text-white" : "bg-white"
+                  }`}
+                >
+                  {sec.sectionName}
+                </div>
+              ))}
+            </div>
+
+            {/* QUESTION */}
+            <div className="col-span-7 bg-white p-6 rounded-xl border">
+              <div className="flex justify-between mb-4">
+                <h3 className="font-semibold">
+                  Q{activeQuestion + 1}. {currentQuestion.question}
+                </h3>
+                <span className="text-red-500 text-sm">
+                  ⏱ {secMin}:{secSec < 10 ? `0${secSec}` : secSec}
+                </span>
+              </div>
+
+              {/* MCQ */}
+              {currentSection.type === "MCQ" && (
+                <div className="grid grid-cols-2 gap-3">
+                  {currentQuestion.options.map((opt, i) => (
+                    <label key={i} className="border p-2 rounded cursor-pointer">
+                      <input
+                        type="radio"
+                        name={currentQuestion.id}
+                        checked={answers[currentQuestion.id] === i}
+                        onChange={() => handleAnswer(currentQuestion.id, i)}
+                        className="mr-2"
+                      />
+                      {opt}
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {/* TEXT */}
+              {currentSection.type === "TEXT" && (
+                <input
+                  className="border p-2 w-full"
+                  value={answers[currentQuestion.id] || ""}
+                  onChange={(e) => handleAnswer(currentQuestion.id, e.target.value)}
+                />
+              )}
+
+              {/* CODING */}
+              {currentSection.type === "CODING" && (
+                <textarea
+                  className="w-full h-40 p-3 bg-black text-green-400 font-mono rounded"
+                  value={answers[currentQuestion.id] || ""}
+                  onChange={(e) => handleAnswer(currentQuestion.id, e.target.value)}
+                />
+              )}
+
+              {/* NAV */}
+              <div className="flex justify-between mt-6">
+                <button
+                  disabled={activeQuestion === 0}
+                  onClick={() => setActiveQuestion((prev) => prev - 1)}
+                  className="bg-gray-300 px-4 py-2 rounded"
+                >
+                  Prev
+                </button>
+
+                <button
+                  disabled={activeQuestion === currentSection.questions.length - 1}
+                  onClick={() => setActiveQuestion((prev) => prev + 1)}
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+
+            {/* RIGHT PALETTE */}
+            <div className="col-span-3 bg-gray-100 p-4 rounded-xl">
+              <div className="grid grid-cols-5 gap-2">
+                {currentSection.questions.map((q, i) => {
+                  const isAnswered = answers[q.id] !== undefined && answers[q.id] !== "";
+                  const isVisited = visited[q.id];
+
+                  let color = "bg-gray-300";
+                  if (isAnswered) color = "bg-green-500 text-white";
+                  else if (isVisited) color = "bg-red-500 text-white";
+
+                  return (
+                    <div
+                      key={q.id}
+                      onClick={() => handleQuestionClick(q.id, i)}
+                      className={`p-2 text-center rounded cursor-pointer ${color}`}
+                    >
+                      {i + 1}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* SUBMIT */}
+          <div className="text-center mt-6">
+            <button
+              onClick={handleSubmit}
+              className="bg-blue-600 text-white px-6 py-3 rounded-xl"
+            >
+              Submit Test
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+export default TraineeTestPage;

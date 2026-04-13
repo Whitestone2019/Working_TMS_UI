@@ -8,7 +8,7 @@ import {
   fetchAssessmentsByTrainee,
   createAssessment,
   updateAssessment,
-  fetchCompletedSubTopics
+  fetchCompletedSubTopics,fetchFeedbackBySyllabusForManager
 } from "../../../api_service";
 
 const AssessmentEntryModal = ({ isOpen, onClose, trainee,onSubmitAssessment   }) => {
@@ -19,7 +19,10 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee,onSubmitAssessment   })
 
   const [syllabusData, setSyllabusData] = useState([]);
   const [completedSubTopics, setCompletedSubTopics] = useState([]);
-  ;
+  const [selectedSyllabusId, setSelectedSyllabusId] = useState(null);
+  const [feedbackData, setFeedbackData] = useState([]);
+const [privilegeRoles] = useState(["CEO", "CTO", "HR","TM"]);
+
   const [assessmentData, setAssessmentData] = useState({
     traineeId: '',
     assessmentType: '',
@@ -60,7 +63,7 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee,onSubmitAssessment   })
           new Date(b.createdAt) - new Date(a.createdAt)
         );
         setAssessmentList(sortedList);
-        if (sortedList.length > 0) populateForm(sortedList[0]);
+        //if (sortedList.length > 0) populateForm(sortedList[0]);
       } catch (err) {
         console.error(err);
         setAssessmentList([]);
@@ -73,39 +76,110 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee,onSubmitAssessment   })
 
 
 
-  const populateForm = (assessment) => {
-    console.log("Populating form with assessment:", assessment);
-    if (!assessment?.assessmentId) return;
-    setSelectedSyllabus([]);
-    setSelectedSubTopics([]);
+  // const populateForm = (assessment) => {
+  //   console.log("Populating form with assessment:", assessment);
+  //   if (!assessment?.assessmentId) return;
+  //   setSelectedSyllabus([]);
+  //   setSelectedSubTopics([]);
 
-    setExistingAssessmentId(assessment.assessmentId);
-
-
-    const parsedSubTopics =
-      typeof assessment.subTopics === "string"
-        ? assessment.subTopics.split("|").map(Number)
-        : [];
+  //   setExistingAssessmentId(assessment.assessmentId);
 
 
-    setAssessmentData({
-      traineeId: trainee.traineeId,
-      assessmentType: assessment.assessmentType?.toLowerCase() || '',
-      marks: String(assessment.marks || ''),
-      maxMarks: String(assessment.maxMarks || '100'),
-      remarks: assessment.remarks || '',
-      assessmentDate: assessment.assessmentDate
-        ? new Date(assessment.assessmentDate).toISOString().split('T')[0]
-        : new Date().toISOString().split('T')[0],
-      subTopics: parsedSubTopics,
+  //   const parsedSubTopics =
+  //     typeof assessment.subTopics === "string"
+  //       ? assessment.subTopics.split("|").map(Number)
+  //       : [];
 
 
-    });
-    setSelectedSubTopics(parsedSubTopics);
-    console.log("Parsed subtopics:", syllabusData);
-    console.log("Populated form with assessment data:", assessmentData);
+  //   setAssessmentData({
+  //     traineeId: trainee.traineeId,
+  //     assessmentType: assessment.assessmentType?.toLowerCase() || '',
+  //     marks: String(assessment.marks || ''),
+  //     maxMarks: String(assessment.maxMarks || '100'),
+  //     remarks: assessment.remarks || '',
+  //     assessmentDate: assessment.assessmentDate
+  //       ? new Date(assessment.assessmentDate).toISOString().split('T')[0]
+  //       : new Date().toISOString().split('T')[0],
+  //     subTopics: parsedSubTopics,
+
+
+  //   });
+  //   setSelectedSubTopics(parsedSubTopics);
+  //   console.log("Parsed subtopics:", syllabusData);
+  //   console.log("Populated form with assessment data:", assessmentData);
+  // };
+
+const populateForm = async (assessment) => {
+  if (!assessment?.assessmentId) return;
+
+  setSelectedSyllabus([]);
+  setSelectedSubTopics([]);
+
+  setExistingAssessmentId(assessment.assessmentId);
+
+  const parsedSubTopics =
+    typeof assessment.subTopics === "string"
+      ? assessment.subTopics.split("|").map(Number)
+      : [];
+
+  setAssessmentData({
+    traineeId: trainee.traineeId,
+    assessmentType: assessment.assessmentType?.toLowerCase() || '',
+    marks: String(assessment.marks || ''),
+    maxMarks: String(assessment.maxMarks || '100'),
+    remarks: assessment.remarks || '',
+    assessmentDate: assessment.assessmentDate
+      ? new Date(assessment.assessmentDate).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0],
+    subTopics: parsedSubTopics,
+  });
+
+  setSelectedSubTopics(parsedSubTopics);
+
+  // ✅ FIX: find syllabusId from subTopics
+if (syllabusData?.length && parsedSubTopics.length) {
+  const matchedSyllabus = syllabusData.find(s =>
+    s.subTopics.some(st => parsedSubTopics.includes(st.subTopicId))
+  );
+
+  if (matchedSyllabus) {
+    setSelectedSyllabusId(matchedSyllabus.syllabusId);
+  }
+}
+
+  // ✅ NEW: syllabusId + traineeId pass
+  
+};
+useEffect(() => {
+  const loadFeedback = async () => {
+    try {
+      if (trainee?.traineeId && selectedSyllabusId) {
+        const feedback = await fetchFeedbackBySyllabusForManager(
+          trainee.traineeId,
+          selectedSyllabusId
+          
+        );
+        console.log("Selected Syllabus ID:", selectedSyllabusId);
+console.log("Trainee ID:", trainee?.traineeId);
+setFeedbackData(
+  Array.isArray(feedback) ? feedback : []
+);
+console.log("Feedback API full response:", feedback);
+      }
+    } catch (err) {
+      console.error("Feedback fetch error", err);
+      setFeedbackData([]);
+    }
   };
 
+  loadFeedback();
+}, [selectedSyllabusId, trainee?.traineeId]);
+
+useEffect(() => {
+  if (assessmentList.length > 0 && syllabusData.length > 0) {
+    populateForm(assessmentList[0]);
+  }
+}, [assessmentList, syllabusData]);
   useEffect(() => {
     if (!syllabusData?.length || !assessmentData.subTopics.length) return;
 
@@ -281,21 +355,42 @@ const isRestricted = restrictedRoles.includes(roleName);
     ];
   })();
 
+  // const handleSyllabusChange = values => {
+  //   let selected = Array.isArray(values) ? values : [values];
+
+  //   if (selected.includes("ALL")) {
+  //     selected = syllabusOptions
+  //       .filter(opt => opt.value !== "ALL")
+  //       .map(opt => opt.value);
+  //   }
+
+  //   setSelectedSyllabus(selected);
+  //   //handleInputChange("syllabusTitles", selected);
+  //   setSelectedSubTopics([]);
+  //   handleInputChange("subTopicIds", []);
+  // };
+
+
   const handleSyllabusChange = values => {
-    let selected = Array.isArray(values) ? values : [values];
+  let selected = Array.isArray(values) ? values : [values];
 
-    if (selected.includes("ALL")) {
-      selected = syllabusOptions
-        .filter(opt => opt.value !== "ALL")
-        .map(opt => opt.value);
-    }
+  if (selected.includes("ALL")) {
+    selected = syllabusOptions
+      .filter(opt => opt.value !== "ALL")
+      .map(opt => opt.value);
+  }
 
-    setSelectedSyllabus(selected);
-    //handleInputChange("syllabusTitles", selected);
-    setSelectedSubTopics([]);
-    handleInputChange("subTopicIds", []);
-  };
+  setSelectedSyllabus(selected);
 
+  // 👉 syllabusId nikalna (first selected syllabus)
+  const selectedObj = syllabusData.find(s => s.title === selected[0]);
+  if (selectedObj) {
+    setSelectedSyllabusId(selectedObj.syllabusId); // make sure backend me ye field ho
+  }
+
+  setSelectedSubTopics([]);
+  handleInputChange("subTopicIds", []);
+};
   const handleSubTopicChange = values => {
     let selected = Array.isArray(values) ? values : [values];
 
@@ -334,7 +429,7 @@ const isRestricted = restrictedRoles.includes(roleName);
       .filter(Boolean);
   };
 
-  // ---------------- UI ----------------
+  
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="bg-card rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -506,7 +601,49 @@ const isRestricted = restrictedRoles.includes(roleName);
                       </div>
                     </div>
                   )}
+                  
                 </div>
+
+                {/* ✅ FEEDBACK BELOW SUBTOPICS */}
+{feedbackData.length > 0 && (
+  <div className="mt-4 border rounded-lg p-4 bg-muted/20">
+    <h3 className="text-sm font-semibold mb-3 text-foreground">
+      Feedback
+    </h3>
+
+    {feedbackData.map((item, index) => (
+      <div key={index} className="grid grid-cols-2 gap-4">
+
+        {/* Trainee Feedback */}
+        <div>
+          <p className="text-xs font-medium text-gray-600 mb-1">
+            Trainee Feedback
+          </p>
+          <div className="bg-gray-50 p-2 rounded border text-sm">
+            {item?.traineeFeedbackGiven
+              ? item?.traineeFeedback
+              : "Not given"}
+          </div>
+        </div>
+
+        {/* Trainer Feedback */}
+        {privilegeRoles.includes(roleName) && (
+          <div>
+            <p className="text-xs font-medium text-gray-600 mb-1">
+              Trainer Feedback
+            </p>
+            <div className="bg-blue-50 p-2 rounded border text-sm">
+              {item?.trainerFeedbackGiven
+                ? item?.trainerFeedback
+                : "Not given"}
+            </div>
+          </div>
+        )}
+
+      </div>
+    ))}
+  </div>
+)}
 
               </div>
               <textarea
@@ -525,12 +662,18 @@ const isRestricted = restrictedRoles.includes(roleName);
                 <Button type="submit" loading={isSubmitting}>Save Assessment</Button>
                 )}
               </div>
+              
+            
+
             </form>
+            {/* ✅ FEEDBACK SECTION */}
+
           </div>
         </div>
       </div>
     </div>
   );
+
 };
 
 export default AssessmentEntryModal;

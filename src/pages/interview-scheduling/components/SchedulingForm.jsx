@@ -22,7 +22,8 @@ const SchedulingForm = ({
       : [];
 
   const [formData, setFormData] = useState({
-    interviewer: Formdata?.managerId?.userid || "",
+    //interviewer: Formdata?.managerId?.userid || "",
+    interviewer: Formdata?.managerId?.userid ? [Formdata.managerId.userid] : [],
     interviewType: Formdata?.interviewType || "",
     location: Formdata?.location || "",
     duration: Formdata?.duration?.toString() || "60",
@@ -112,6 +113,23 @@ const isRestricted = restrictedRoles.includes(roleName);
     }))
     : [];
 
+useEffect(() => {
+  if (Formdata) {
+    const parsedSubTopics = typeof Formdata.subTopics === "string"
+      ? Formdata.subTopics.split("|").map(Number)
+      : [];
+
+    setFormData({
+      interviewer: Formdata.managers?.map(m => m.userid) || [],
+      interviewType: Formdata.interviewType || "",
+      location: Formdata.location || "",
+      duration: Formdata.duration?.toString() || "60",
+      notes: Formdata.notes || "",
+      subTopics: parsedSubTopics,
+    });
+  }
+}, [Formdata]); // Jab bhi reschedule button click hoga, form update ho jayega
+
   useEffect(() => {
     setSelectedSubTopics(formData.subTopics || []);
 
@@ -127,6 +145,8 @@ const isRestricted = restrictedRoles.includes(roleName);
 
     setSelectedSyllabus(matchedSyllabusTitles);
   }, [syllabusData, formData.subTopics]);
+console.log("Managers from Formdata:", Formdata?.managers);
+console.log("Interviewer prefilled:", Formdata?.managers?.map(m => m.userid));
 
   useEffect(() => {
     // Reset errors when new selection occurs
@@ -252,10 +272,9 @@ const isRestricted = restrictedRoles.includes(roleName);
 
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.interviewer) {
-      newErrors.interviewer = "Please select an interviewer";
-    }
+if (!formData.interviewer || formData.interviewer.length === 0) {
+  newErrors.interviewer = "Please select at least one interviewer";
+}
     if (!formData.interviewType) {
       newErrors.interviewType = "Please select interview type";
     }
@@ -301,7 +320,11 @@ const isRestricted = restrictedRoles.includes(roleName);
         duration: parseInt(formData.duration),
         syllabusTitles: formData.syllabusTitles,
         subTopicIds: formData.subTopics,
-        interviewerId: trainerList.find(t => t.userid === formData.interviewer)?.trngid,
+       // interviewerId: trainerList.find(t => t.userid === formData.interviewer)?.trngid,
+
+  interviewerIds: trainerList
+  .filter(t => formData.interviewer.includes(t.userid))
+  .map(t => t.userid)   
 
       };
       console.log("Scheduling data:", scheduleData);
@@ -387,6 +410,7 @@ const isRestricted = restrictedRoles.includes(roleName);
           onChange={(value) => handleInputChange("interviewer", value)}
           error={errors.interviewer}
           searchable
+          multiple 
         />
 
         {/* Type + Duration */}

@@ -28,7 +28,7 @@ export default function TraineeStepsPage() {
 const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 const [feedbackText, setFeedbackText] = useState("");
 const [feedbackSubtopic, setFeedbackSubtopic] = useState(null);
-
+const [searchTerm, setSearchTerm] = useState("");
 const privilegeRoles = ["CEO", "CTO", "HR"<"PM"];
 
 const roleName = sessionStorage.getItem("roleName");
@@ -177,6 +177,10 @@ const isRestrictedRole = privilegeRoles.includes(roleName);
 //     syllabi: Object.values(t.syllabi),
 //   }));
 // };
+
+const filteredTrainees = trainees.filter((t) =>
+  t.name.toLowerCase().includes(searchTerm.toLowerCase())
+);
 useEffect(() => {
     if (!selectedTrainee) return;
 
@@ -383,13 +387,32 @@ setTrainees(structured);
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mt-6">
                     {/* LEFT PANEL */}
                     <div className="bg-white border border-blue-200 rounded-2xl shadow">
-                        <div className="p-3 bg-blue-100 rounded-t-2xl font-bold text-blue-800 flex justify-between items-center">
+                        {/* <div className="p-3 bg-blue-100 rounded-t-2xl font-bold text-blue-800 flex justify-between items-center">
                             <span className="flex gap-2"><Icon name="Users" size={18} /> Trainees</span>
                             {isLoading && <Icon name="RotateCw" size={14} className="animate-spin" />}
-                        </div>
+                        </div> */}
+                        <div className="p-3 bg-blue-100 rounded-t-2xl text-blue-800">
+
+  <div className="flex justify-between items-center font-bold mb-2">
+    <span className="flex gap-2">
+      <Icon name="Users" size={18} /> Trainees
+    </span>
+    {isLoading && <Icon name="RotateCw" size={14} className="animate-spin" />}
+  </div>
+
+  {/* 🔍 SEARCH INPUT */}
+  <input
+    type="text"
+    placeholder="Search trainee..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+  />
+
+</div>
 
                         <div className="max-h-[300px] overflow-y-auto">
-                            {trainees.map((t) => (
+                            {filteredTrainees.map((t) => (
                                 <div
                                     key={t.id}
                                     onClick={() => setSelectedTrainee(t)}

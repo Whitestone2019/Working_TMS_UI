@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useLocation } from 'react-router-dom';
 import Input from '../../components/ui/Input';
 import Select from '../../components/ui/Select';
 import Button from '../../components/ui/Button';
@@ -25,6 +25,8 @@ const LoginScreen = () => {
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
   const [lockTimeRemaining, setLockTimeRemaining] = useState(0);
+
+  const location = useLocation();
 
   useEffect(() => {
     const initUsers = async () => {
@@ -140,7 +142,21 @@ const roleName = response?.data?.user?.role?.roleName;
 sessionStorage.setItem("roleName", roleName);
 
         const userName = sessionStorage.setItem("userName", `${response?.data?.user?.firstname} ${response?.data?.user?.lastname}`);
-        navigate(response?.data?.redirect || '/');
+       // navigate(response?.data?.redirect || '/');
+       // ✅ redirect logic
+const params = new URLSearchParams(location.search);
+const redirectPath = params.get("redirect");
+
+
+if (redirectPath) {
+  navigate(redirectPath);
+} else {
+  if (userRole === "MANAGER") {
+    navigate("/manager-dashboard");
+  } else {
+    navigate("/trainee-dashboard");
+  }
+}
 
       } else {
         if (response?.status === 401) {
