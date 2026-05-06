@@ -59,7 +59,7 @@ const AssessmentHistory = ({ className = '', assessments = [], syllabus = [] }) 
       <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-foreground flex items-center">
+            <h2 className="text-xl font-semibold text-black flex items-center">
               <Icon name="ClipboardCheck" size={24} className="mr-3 text-primary" />
               Assessment History
             </h2>
@@ -94,7 +94,7 @@ const AssessmentHistory = ({ className = '', assessments = [], syllabus = [] }) 
 
                   </div>
                   <div>
-                    <h3 className="font-medium text-foreground">Week {assessment?.week} Assessment</h3>
+                    <h3 className="font-medium text-black">Week {assessment?.week} Assessment</h3>
                     <p className="text-sm text-muted-foreground">{assessment?.step}</p>
                   </div>
                 </div>
@@ -102,7 +102,7 @@ const AssessmentHistory = ({ className = '', assessments = [], syllabus = [] }) 
                   {assessment?.marks !== null ?
                     <div className="flex items-center space-x-3">
                       <div>
-                        <div className="text-lg font-semibold text-foreground">
+                        <div className="text-lg font-semibold text-black">
                           {assessment?.marks}/{assessment?.maxMarks}
                         </div>
                         <div className={`text-sm font-medium ${getGradeColor(assessment?.grade)}`}>
@@ -129,7 +129,7 @@ const AssessmentHistory = ({ className = '', assessments = [], syllabus = [] }) 
               {/* Remarks Preview */}
               {assessment?.remarks &&
                 <div className="bg-muted/30 rounded-lg p-3 mb-3">
-                  <p className="text-sm text-foreground line-clamp-2">
+                  <p className="text-sm text-black line-clamp-2">
                     {assessment?.remarks?.split('\n')?.[0]}
                   </p>
                 </div>
@@ -181,7 +181,7 @@ const AssessmentHistory = ({ className = '', assessments = [], syllabus = [] }) 
 
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-foreground">{assessment?.managerName}</p>
+                        <p className="text-sm font-medium text-black">{assessment?.managerName}</p>
                         <p className="text-xs text-muted-foreground">Training Manager</p>
                       </div>
                     </div>
@@ -192,7 +192,7 @@ const AssessmentHistory = ({ className = '', assessments = [], syllabus = [] }) 
                         <div className="flex items-start gap-2">
 
                           {/* LEFT: SYLLABUS */}
-                          <div className="w-[28%] font-medium text-foreground text-sm whitespace-nowrap">
+                          <div className="w-[28%] font-medium text-black text-sm whitespace-nowrap">
                             📘 Syllabus:
                             <span className="ml-1 font-normal">
                               {syllabus[assessment.week - 1]?.title}
@@ -242,8 +242,8 @@ const AssessmentHistory = ({ className = '', assessments = [], syllabus = [] }) 
 
                     {/* Full Remarks */}
                     <div className="bg-muted/30 rounded-lg p-4">
-                      <h4 className="font-medium text-foreground mb-2">Manager Remarks:</h4>
-                      <div className="text-sm text-foreground whitespace-pre-line">
+                      <h4 className="font-medium text-black mb-2">Manager Remarks:</h4>
+                      <div className="text-sm text-black whitespace-pre-line">
                         {assessment?.remarks}
                       </div>
                     </div>
@@ -251,8 +251,8 @@ const AssessmentHistory = ({ className = '', assessments = [], syllabus = [] }) 
                     {/* Feedback */}
                     {assessment?.feedback &&
                       <div className="bg-primary/5 rounded-lg p-4">
-                        <h4 className="font-medium text-foreground mb-2">Additional Feedback:</h4>
-                        <p className="text-sm text-foreground">{assessment?.feedback}</p>
+                        <h4 className="font-medium text-black mb-2">Additional Feedback:</h4>
+                        <p className="text-sm text-black">{assessment?.feedback}</p>
                       </div>
                     }
                   </div>
@@ -266,7 +266,7 @@ const AssessmentHistory = ({ className = '', assessments = [], syllabus = [] }) 
         <div className="mt-6 pt-6 border-t border-border">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center p-4 bg-muted/30 rounded-lg">
-              <div className="text-2xl font-bold text-foreground">
+              <div className="text-2xl font-bold text-black">
                 {assessments?.filter((a) => a?.status === 'completed')?.length}
               </div>
               <div className="text-sm text-muted-foreground">Completed</div>

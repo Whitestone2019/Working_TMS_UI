@@ -151,7 +151,7 @@ const AssessmentDetailsModal = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div>
-            <h2 className="text-xl font-semibold text-foreground">Assessment Details</h2>
+            <h2 className="text-xl font-semibold text-black">Assessment Details</h2>
             <p className="text-sm text-muted-foreground">
               {trainee?.name} • {formatDate(assessment?.date)}
             </p>
@@ -172,35 +172,24 @@ const AssessmentDetailsModal = ({
 
             <div className="space-y-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">{assessment?.marks}</div>
+                <div className="text-2xl font-bold text-muted-foreground">{assessment?.marks}</div>
                 <div className="text-sm text-muted-foreground">Marks Obtained</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">{assessment?.maxMarks}</div>
+                <div className="text-2xl font-bold text-black">{assessment?.maxMarks}</div>
                 <div className="text-sm text-muted-foreground">Maximum Marks</div>
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="text-center">
-                <div className="text-lg font-semibold text-foreground capitalize">{assessment?.type?.replace('_', ' ')}</div>
+                <div className="text-lg font-semibold text-black capitalize">{assessment?.type?.replace('_', ' ')}</div>
                 <div className="text-sm text-muted-foreground">Assessment Type</div>
               </div>
             </div>
           </div>
 
-          {/* General Remarks */}
-          {/* {assessment?.remarks && (
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center">
-                <Icon name="MessageSquare" size={20} className="mr-2" />
-                General Remarks
-              </h3>
-              <div className="bg-muted/50 rounded-lg p-4">
-                <p className="text-foreground leading-relaxed">{assessment?.remarks}</p>
-              </div>
-            </div>
-          )} */}
+         
 
           {/* General Remarks + Recommendations SIDE BY SIDE */}
 {(assessment?.remarks || assessment?.recommendations) && (
@@ -209,12 +198,12 @@ const AssessmentDetailsModal = ({
     {/* LEFT - General Remarks */}
     {assessment?.remarks && (
       <div>
-        <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center">
+        <h3 className="text-lg font-semibold text-black mb-3 flex items-center">
           <Icon name="MessageSquare" size={20} className="mr-2" />
           General Remarks
         </h3>
         <div className="bg-muted/50 rounded-lg p-4 h-full">
-          <p className="text-foreground leading-relaxed">
+          <p className="text-black leading-relaxed">
             {assessment?.remarks}
           </p>
         </div>
@@ -224,12 +213,12 @@ const AssessmentDetailsModal = ({
     {/* RIGHT - Recommendations */}
     {assessment?.recommendations && (
       <div>
-        <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center">
+        <h3 className="text-lg font-semibold text-black mb-3 flex items-center">
           <Icon name="Lightbulb" size={20} className="mr-2 text-primary" />
           Recommendations
         </h3>
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 h-full">
-          <p className="text-sm text-foreground">
+          <p className="text-sm text-black">
             {assessment?.recommendations}
           </p>
         </div>
@@ -243,12 +232,12 @@ const AssessmentDetailsModal = ({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             {assessment?.strengths && (
               <div>
-                <h4 className="font-semibold text-foreground mb-3 flex items-center">
+                <h4 className="font-semibold text-black mb-3 flex items-center">
                   <Icon name="TrendingUp" size={16} className="mr-2 text-success" />
                   Strengths
                 </h4>
                 <div className="bg-success/5 border border-success/20 rounded-lg p-3">
-                  <p className="text-sm text-foreground">{assessment?.strengths}</p>
+                  <p className="text-sm text-black">{assessment?.strengths}</p>
                 </div>
               </div>
             )}
@@ -256,7 +245,7 @@ const AssessmentDetailsModal = ({
             {/* SYLLABUS | SUBTOPICS SIDE BY SIDE */}
             {syllabusData.length > 0 && selectedSubTopics.length > 0 && (
               <div className="mb-6">
-                <h3 className="font-semibold text-foreground mb-3 flex items-center">
+                <h3 className="font-semibold text-black mb-3 flex items-center">
                   <Icon name="BookOpen" size={18} className="mr-2" />
                   Syllabus & Subtopics
                 </h3>
@@ -275,7 +264,7 @@ const AssessmentDetailsModal = ({
                         className=" rounded-lg p-3 bg-muted/20"
                       >
                         {/* LEFT: SYLLABUS */}
-                        <div className="w-1/3 font-semibold text-sm text-foreground">
+                        <div className="w-1/3 font-semibold text-sm text-black">
                           📘 {syllabus.title}
                         </div>
 
@@ -302,27 +291,17 @@ const AssessmentDetailsModal = ({
 
             {assessment?.improvements && (
               <div>
-                <h4 className="font-semibold text-foreground mb-3 flex items-center">
+                <h4 className="font-semibold text-black mb-3 flex items-center">
                   <Icon name="Target" size={16} className="mr-2 text-warning" />
                   Areas for Improvement
                 </h4>
                 <div className="bg-warning/5 border border-warning/20 rounded-lg p-3">
-                  <p className="text-sm text-foreground">{assessment?.improvements}</p>
+                  <p className="text-sm text-black">{assessment?.improvements}</p>
                 </div>
               </div>
             )}
 
-            {/* {assessment?.recommendations && (
-              <div>
-                <h4 className="font-semibold text-foreground mb-3 flex items-center">
-                  <Icon name="Lightbulb" size={16} className="mr-2 text-primary" />
-                  Recommendations
-                </h4>
-                <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
-                  <p className="text-sm text-foreground">{assessment?.recommendations}</p>
-                </div>
-              </div>
-            )} */}
+           
           </div>
 
 
@@ -330,15 +309,15 @@ const AssessmentDetailsModal = ({
 
           {/* Assessment Metadata */}
           <div className="bg-muted/30 rounded-lg p-4">
-            <h4 className="font-semibold text-foreground mb-3">Assessment Information</h4>
+            <h4 className="font-semibold text-black mb-3">Assessment Information</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Assessment ID:</span>
-                <span className="text-foreground font-medium">{assessment?.assessmentId}</span>
+                <span className="text-black font-medium">{assessment?.assessmentId}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Submitted:</span>
-                <span className="text-foreground font-medium">
+                <span className="text-black font-medium">
                   {assessment?.submittedAt ? new Date(assessment.submittedAt)?.toLocaleString() : 'Not submitted'}
                 </span>
               </div>
@@ -349,7 +328,7 @@ const AssessmentDetailsModal = ({
 
         {/* Footer */}
         <div className="flex justify-end space-x-3 p-6">
-          <Button variant="outline" onClick={onClose} iconName="X" iconPosition="left">
+          <Button variant="default" onClick={onClose} iconName="X" iconPosition="left">
             Close
           </Button>
         </div>

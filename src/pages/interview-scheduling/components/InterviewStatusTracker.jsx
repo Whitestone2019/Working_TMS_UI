@@ -129,7 +129,7 @@ const InterviewStatusTracker = ({
         label: 'Pending'
       },
       accepted: {
-        color: 'text-accent',
+        color: 'text-black',
         bgColor: 'bg-accent/10',
         borderColor: 'border-accent/20',
         icon: 'CheckCircle',
@@ -383,7 +383,7 @@ onReschedule(selected);
       {/* Header */}
       <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Interview Status Tracker</h3>
+          <h3 className="text-lg font-semibold text-card-foreground">Interview Status Tracker</h3>
           <div className="flex items-center space-x-2">
             <span className="text-sm text-muted-foreground">
               {filteredAndSortedInterviews?.length} of {interviews?.length} interviews
@@ -439,7 +439,7 @@ onReschedule(selected);
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-foreground truncate">
+                          <h4 className="text-sm font-medium text-card-foreground truncate">
                             {interview?.traineeName} - {interview?.type}
                           </h4>
                           <p className="text-xs text-muted-foreground">
@@ -557,7 +557,7 @@ onReschedule(selected);
                 <div className={`w-8 h-8 rounded-full ${config?.bgColor} flex items-center justify-center`}>
                   <Icon name={config?.icon} size={16} className={config?.color} />
                 </div>
-                <span className="text-sm font-medium text-foreground">{count}</span>
+                <span className="text-sm font-medium text-muted-foreground">{count}</span>
                 <span className="text-xs text-muted-foreground">{config?.label}</span>
               </div>
             );

@@ -5,6 +5,7 @@ import NavigationBreadcrumb from "../../../components/ui/NavigationBreadcrumb";
 import Button from "../../../components/ui/Button";
 import axios from "axios";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
+import Icon from "../../../components/AppIcon";
 
 
 import {
@@ -76,10 +77,10 @@ const [searchTerm, setSearchTerm] = useState("");
   // const loadTrainees = async () => {
   //   try {
   //     const res = await fetchTraineeSummaryByManager(managerId);
-  //     setTrainees(res?.data || []);   // 👈 safe fallback
+  //     setTrainees(res?.data || []);   //  safe fallback
   //   } catch (error) {
   //     console.error(error);
-  //     setTrainees([]); // 👈 fallback
+  //     setTrainees([]); //  fallback
   //   }
   // };
   const loadTrainees = async () => {
@@ -252,12 +253,22 @@ const [searchTerm, setSearchTerm] = useState("");
     });
   };
 
+const isDuplicateTraineeId = () => {
+  return trainees.some(
+    (t) =>
+      t.trngid === newTrainee.trngid &&
+      (!isEditMode || t.traineeId !== selectedTrainee?.traineeId)
+  );
+};
+
 const validateForm = () => {
   let newErrors = {};
 
   if (!newTrainee.trngid.trim()) {
-    newErrors.trngid = "Trainee ID is required";
-  }
+  newErrors.trngid = "Trainee ID is required";
+} else if (isDuplicateTraineeId()) {
+  newErrors.trngid = "Trainee ID already exists";
+}
 
   if (!newTrainee.firstname.trim()) {
     newErrors.firstname = "First name is required";
@@ -348,26 +359,32 @@ if (!validateForm()) return;
 
     } catch (error) {
       console.error(error);
+
+        if (error.response?.status === 500) {
+      alert("Duplicate Trainee ID not allowed");
     }
+    }
+
+    
   };
 
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header
         userName={sessionStorage.getItem("userName") || "Manager"}
         userRole="manager"
         onLogout={() => navigate("/")}
       />
 <main className="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-  <NavigationBreadcrumb className="mb-6" />
+   <NavigationBreadcrumb userRole="manager" className="mb-4" />
 
-  <h1 className="text-2xl font-bold mb-6 text-blue-700">
+  <h1 className="text-3xl font-bold mb-6 text-black">
     Assign Departments
   </h1>
 
-  {/* 🔥 GRID START */}
+  {/*  GRID START */}
   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     {/* ================= LEFT SECTION ================= */}
@@ -409,24 +426,78 @@ if (!validateForm()) return;
           setIsDeptDropdownOpen(false);
           setShowAddModal(true);
         }}
-        className="bg-blue-600 text-white hover:bg-blue-700"
+       variant="default"
       >
         + Add
       </Button>
     )}
   </div>
 
-  {/* ✅ SEARCH FIELD BELOW HEADING */}
+  {/*  SEARCH FIELD BELOW HEADING */}
   <input
     type="text"
     placeholder="Search trainee..."
     value={searchTerm}
     onChange={(e) => setSearchTerm(e.target.value)}
-    className="w-full mt-3 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+    className="w-full mt-3 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
   />
 </div>
 
-        {filteredTrainees?.map((t) => (
+<div className="space-y-3 max-h-[400px] overflow-y-auto">
+
+  {filteredTrainees.length === 0 ? (
+    <div className="text-center py-6 text-gray-400">
+      No trainees found
+    </div>
+  ) : (
+    filteredTrainees.map((t) => (
+      <div
+        key={t.traineeId}
+        onClick={() => selectTrainee(t)}
+        className={`p-4 border rounded-xl cursor-pointer transition-all
+          ${selectedTrainee?.traineeId === t.traineeId
+            ? "border-purple-500 bg-purple-50"
+            : "hover:border-purple-300"
+          }`}
+      >
+
+        <div className="flex justify-between items-center">
+
+          {/* LEFT */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+              <Icon name="User" size={18} className="text-purple-600" />
+            </div>
+
+            <div>
+              <h3 className="font-medium text-black">{t.name}</h3>
+              <p className="text-xs text-gray-500">ID: {t.traineeId}</p>
+            </div>
+          </div>
+
+          {/* RIGHT */}
+          {!isRestricted && (
+            <div className="flex gap-3 text-lg">
+              <FiEdit
+                className="cursor-pointer hover:text-yellow-500"
+                onClick={(e) => handleEdit(t, e)}
+              />
+              <FiTrash2
+                className="cursor-pointer hover:text-red-500"
+                onClick={(e) => handleDelete(t.traineeId)}
+              />
+            </div>
+          )}
+
+        </div>
+
+      </div>
+    ))
+  )}
+
+</div>
+
+        {/* {filteredTrainees?.map((t) => (
           <div
             key={t.traineeId}
             onClick={() => selectTrainee(t)}
@@ -451,7 +522,7 @@ if (!validateForm()) return;
               </div>
             )}
           </div>
-        ))}
+        ))} */}
 
       </div>
     </div>
@@ -466,7 +537,7 @@ if (!validateForm()) return;
           </p>
         ) : (
           <>
-            <h2 className="font-semibold mb-4 text-lg text-blue-700">
+            <h2 className="font-semibold mb-4 text-lg text-black">
               Assign Departments to {selectedTrainee.name}
             </h2>
 
@@ -474,14 +545,14 @@ if (!validateForm()) return;
             <div className="flex gap-3 mb-4">
               <Button
                 onClick={handleSelectAll}
-                className="bg-gray-200"
+                className="bg-purple-300 text-white"
               >
                 Select All
               </Button>
 
               <Button
                 onClick={handleUnselectAll}
-                className="bg-gray-200"
+                className="bg-purple-300 text-white"
               >
                 Unselect All
               </Button>
@@ -511,6 +582,7 @@ if (!validateForm()) return;
                     <label key={dept.id} className="flex gap-2 p-2">
                       <input
                         type="checkbox"
+                        className="w-3.5 h-3.5 text-purple-600"
                         disabled={isRestricted}
                         checked={selectedDeptIds.includes(dept.id)}
                         onChange={() => handleCheckboxChange(dept.id)}
@@ -527,7 +599,7 @@ if (!validateForm()) return;
               {selectedDeptIds.map((id) => {
                 const dept = departments.find((d) => d.id === id);
                 return (
-                  <div key={id} className="bg-blue-100 px-3 py-1 rounded-full">
+                  <div key={id} className="bg-purple-100 px-3 py-1 rounded-full">
                     {dept?.name}
                   </div>
                 );
@@ -539,14 +611,14 @@ if (!validateForm()) return;
               <Button
                 onClick={handleAssign}
                 disabled={!hasChanges || loading}
-                className="bg-blue-600 text-white"
+                variant="default"
               >
                 {loading ? "Saving..." : "Save Changes"}
               </Button>
             )}
 
             {successMsg && (
-              <p className="text-blue-600 mt-3">{successMsg}</p>
+              <p className="text-purple-600 mt-3">{successMsg}</p>
             )}
           </>
         )}
@@ -561,11 +633,11 @@ if (!validateForm()) return;
 
     <div className="bg-white w-full max-w-2xl p-6 rounded-2xl shadow-xl">
 
-      <h2 className="text-xl font-bold mb-4 text-blue-700">
+      <h2 className="text-xl font-bold mb-4 text-black">
         {isEditMode ? "Edit Trainee" : "Add New Trainee"}
       </h2>
 
-      {/* 🔥 2 COLUMN GRID */}
+      {/*  2 COLUMN GRID */}
       <div className="grid grid-cols-2 gap-4">
 
         {/* Trainee ID */}
@@ -575,7 +647,7 @@ if (!validateForm()) return;
             placeholder="Trainee ID"
             value={newTrainee.trngid}
             onChange={handleNewTraineeChange}
-            className="border p-2 rounded-lg w-full"
+            className="border p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           {errors.trngid && <p className="text-red-500 text-sm">{errors.trngid}</p>}
         </div>
@@ -587,7 +659,7 @@ if (!validateForm()) return;
             placeholder="First Name"
             value={newTrainee.firstname}
             onChange={handleNewTraineeChange}
-            className="border p-2 rounded-lg w-full"
+            className="border p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           {errors.firstname && <p className="text-red-500 text-sm">{errors.firstname}</p>}
         </div>
@@ -599,7 +671,7 @@ if (!validateForm()) return;
             placeholder="Last Name"
             value={newTrainee.lastname}
             onChange={handleNewTraineeChange}
-            className="border p-2 rounded-lg w-full"
+            className="border p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           {errors.lastname && <p className="text-red-500 text-sm">{errors.lastname}</p>}
         </div>
@@ -611,7 +683,7 @@ if (!validateForm()) return;
             placeholder="Username"
             value={newTrainee.username}
             onChange={handleNewTraineeChange}
-            className="border p-2 rounded-lg w-full"
+            className="border p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
         </div>
@@ -623,7 +695,7 @@ if (!validateForm()) return;
             placeholder="Email"
             value={newTrainee.emailid}
             onChange={handleNewTraineeChange}
-            className="border p-2 rounded-lg w-full"
+            className="border p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           {errors.emailid && <p className="text-red-500 text-sm">{errors.emailid}</p>}
         </div>
@@ -635,7 +707,7 @@ if (!validateForm()) return;
             placeholder="Phone Number"
             value={newTrainee.phonenumber}
             onChange={handleNewTraineeChange}
-            className="border p-2 rounded-lg w-full"
+            className="border p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           {errors.phonenumber && <p className="text-red-500 text-sm">{errors.phonenumber}</p>}
         </div>
@@ -647,7 +719,7 @@ if (!validateForm()) return;
             placeholder="Manager ID"
             value={newTrainee.managerId}
             readOnly
-            className="border p-2 rounded bg-gray-100 w-full"
+            className="border p-2 rounded bg-gray-100 w-full focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
         </div>
 
@@ -659,7 +731,7 @@ if (!validateForm()) return;
             placeholder="Password"
             value={newTrainee.password}
             onChange={handleNewTraineeChange}
-            className="border p-2 rounded-lg w-full"
+            className="border p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
         </div>
@@ -671,7 +743,7 @@ if (!validateForm()) return;
             placeholder="Designation"
             value={newTrainee.designation}
             onChange={handleNewTraineeChange}
-            className="border p-2 rounded-lg w-full"
+            className="border p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           {errors.designation && <p className="text-red-500 text-sm">{errors.designation}</p>}
         </div>
@@ -682,7 +754,7 @@ if (!validateForm()) return;
             name="roleId"
             value={newTrainee.roleId}
             onChange={handleNewTraineeChange}
-            className="border p-2 rounded-lg w-full"
+            className="border p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-purple-400"
           >
             <option value="">Select Role</option>
             {roles?.map((role) => (
@@ -710,7 +782,8 @@ if (!validateForm()) return;
 
         <Button
           onClick={handleSaveTrainee}
-          className="bg-blue-600 text-white hover:bg-blue-700"
+          // className="bg-blue-600 text-white hover:bg-blue-700"
+          variant="default"
         >
           {isEditMode ? "Update" : "Save"}
         </Button>

@@ -7,17 +7,17 @@
 @layer base {
   :root {
     /* Core Colors */
-    --color-primary: #1E3A8A; /* blue-800 */
+    --color-primary: #1E1B4B; /* blue-800 */
     --color-primary-foreground: #FFFFFF; /* white */
-    --color-secondary: #3B82F6; /* blue-500 */
+    --color-secondary:  #A78BFA;; /* blue-500 */
     --color-secondary-foreground: #FFFFFF; /* white */
-    --color-accent: #10B981; /* emerald-500 */
+    --color-accent: #C084FC; /* emerald-500 */
     --color-accent-foreground: #FFFFFF; /* white */
     
     /* Background & Surface */
-    --color-background: #F8FAFC; /* slate-50 */
-    --color-foreground: #1F2937; /* gray-800 */
-    --color-surface: #FFFFFF; /* white */
+    --color-background: #EDE9FE;
+    --color-foreground: #FFFFFF; /* gray-800 */
+    --color-surface: #3B0764; /* white */
     --color-card: #FFFFFF; /* white */
     --color-card-foreground: #1F2937; /* gray-800 */
     --color-popover: #FFFFFF; /* white */
@@ -28,10 +28,10 @@
     --color-muted-foreground: #6B7280; /* gray-500 */
     --color-border: #E5E7EB; /* gray-200 */
     --color-input: #FFFFFF; /* white */
-    --color-ring: #1E3A8A; /* blue-800 */
+    --color-ring: #6C2BD9; /* blue-800 */
     
     /* Status Colors */
-    --color-success: #059669; /* emerald-600 */
+    --color-success:  #059669; /* emerald-600 */
     --color-success-foreground: #FFFFFF; /* white */
     --color-warning: #D97706; /* amber-600 */
     --color-warning-foreground: #FFFFFF; /* white */
@@ -54,6 +54,16 @@
     /* Animation Timing */
     --transition-fast: 150ms ease-out;
     --transition-normal: 300ms ease-in-out;
+
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE & Edge */
+  scrollbar-width: none;     /* Firefox */
+}
   }
   
   * {
@@ -61,7 +71,7 @@
   }
   
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-black font-body;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   

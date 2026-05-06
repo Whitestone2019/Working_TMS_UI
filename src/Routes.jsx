@@ -22,6 +22,8 @@ import TraineeAssessmentList from "./pages/manager-dashboard/components/TraineeA
 import TrainerEvaluationPage from "./pages/manager-dashboard/components/TrainerEvaluationPage";
 import EvaluationDetailsPage from "./pages/manager-dashboard/components/EvaluationDetailsPage";
 import TraineeResult from "./pages/trainee-dashboard/components/TraineeResult";
+import ActiveTraineeReport from "./pages/manager-dashboard/components/ActiveTraineeReport";
+import TraineeDetailReport from "./pages/manager-dashboard/components/TraineeDetailReport";
 
 
 // const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -181,7 +183,24 @@ const Routes = () => {
             </ProtectedRoute>
           }
         />
+ <Route
+          path="/trainee-report"
+          element={
+             <ProtectedRoute allowedRoles={["MANAGER"]}>
+          <ActiveTraineeReport />
+          </ProtectedRoute>
+        }
+        />
+ <Route
+          path="/trainee-report/:id"
+          element={
+             <ProtectedRoute allowedRoles={["MANAGER"]}>
+          <TraineeDetailReport />
+          </ProtectedRoute>
+        }
+        />
 
+        
         {/* Trainee Only */}
         <Route
           path="/trainee-dashboard"
@@ -218,6 +237,8 @@ const Routes = () => {
           </ProtectedRoute>
         }
         />
+
+        
         <Route
           path="/trainee-test/:assessmentId"
           element={

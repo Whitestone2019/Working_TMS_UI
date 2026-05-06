@@ -24,7 +24,7 @@ const ProgressTracker = ({
     <div className={`bg-surface border border-border rounded-lg p-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Learning Progress</h3>
+        <h3 className="text-lg font-semibold text-black">Learning Progress</h3>
         <div className="text-2xl font-bold text-primary">
           {progressPercentage}%
         </div>
@@ -48,7 +48,7 @@ const ProgressTracker = ({
           <div className="flex items-center justify-center mb-2">
             <Icon name="CheckCircle" size={20} className="text-success" />
           </div>
-          <div className="text-lg font-semibold text-foreground">{completedSteps}</div>
+          <div className="text-lg font-semibold text-black">{completedSteps}</div>
           <div className="text-xs text-muted-foreground">Completed</div>
         </div>
         
@@ -56,7 +56,7 @@ const ProgressTracker = ({
           <div className="flex items-center justify-center mb-2">
             <Icon name="Clock" size={20} className="text-warning" />
           </div>
-          <div className="text-lg font-semibold text-foreground">{totalSteps - completedSteps}</div>
+          <div className="text-lg font-semibold text-black">{totalSteps - completedSteps}</div>
           <div className="text-xs text-muted-foreground">Remaining</div>
         </div>
       </div>
@@ -67,7 +67,7 @@ const ProgressTracker = ({
             <Icon name="Timer" size={16} className="text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Time Spent Today</span>
           </div>
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-sm font-medium text-black">
             {formatTime(timeSpent)}
           </span>
         </div>
@@ -77,7 +77,7 @@ const ProgressTracker = ({
             <Icon name="TrendingUp" size={16} className="text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Est. Remaining</span>
           </div>
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-sm font-medium text-black">
             {formatTime(estimatedTimeRemaining)}
           </span>
         </div>
@@ -88,7 +88,7 @@ const ProgressTracker = ({
           <div className="text-sm text-muted-foreground mb-2">Current Step</div>
           <div className="flex items-center space-x-2">
             <Icon name="PlayCircle" size={16} className="text-primary" />
-            <span className="text-sm font-medium text-foreground truncate">
+            <span className="text-sm font-medium text-black truncate">
               Step {currentStep?.stepNumber}: {currentStep?.title}
             </span>
           </div>

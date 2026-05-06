@@ -83,7 +83,7 @@ const AssessmentHistory = ({
     return (
       <div className={`bg-card border border-border rounded-lg p-8 text-center ${className}`}>
         <Icon name="History" size={48} className="text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-foreground mb-2">No Trainee Selected</h3>
+        <h3 className="text-lg font-medium text-black mb-2">No Trainee Selected</h3>
         <p className="text-muted-foreground">Select a trainee to view assessment history.</p>
       </div>
     );
@@ -97,13 +97,13 @@ const AssessmentHistory = ({
       <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-semibold text-foreground">Assessment History</h2>
+            <h2 className="text-lg font-semibold text-black">Assessment History</h2>
             <p className="text-sm text-muted-foreground">
               {trainee?.username} - {safeAssessments?.length} assessments
             </p>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-foreground">{calculateAverage()}%</div>
+            <div className="text-2xl font-bold text-black">{calculateAverage()}%</div>
             <div className="text-xs text-muted-foreground">Average Score</div>
           </div>
         </div>
@@ -133,7 +133,7 @@ const AssessmentHistory = ({
                       {getGradeLetter(assessment?.percentage)}
                     </div>
                     <div>
-                      <h4 className="font-medium text-foreground capitalize">
+                      <h4 className="font-medium text-black capitalize">
                         {assessment?.type} Assessment
                       </h4>
                       <p className="text-sm text-muted-foreground">
@@ -143,7 +143,7 @@ const AssessmentHistory = ({
                   </div>
 
                   <Button
-                    variant="ghost"
+                    variant="default"
                     size="sm"
                     onClick={() => onViewDetails && onViewDetails(assessment)}
                     iconName="Eye"
@@ -170,7 +170,7 @@ const AssessmentHistory = ({
         <div className="p-6 border-t border-border">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div>
-              <div className="text-lg font-semibold text-foreground">{safeAssessments.length}</div>
+              <div className="text-lg font-semibold text-black">{safeAssessments.length}</div>
               <div className="text-xs text-muted-foreground">Total Assessments</div>
             </div>
             <div>

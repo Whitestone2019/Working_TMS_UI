@@ -53,13 +53,13 @@ const StepNavigationSidebar = ({
 
 
   return (
-    <div className={`bg-surface border-r border-border transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-80'
+    <div className={`bg-background border-r border-border transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-80'
       }`}>
       {/* Sidebar Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
         {!isCollapsed && (
           <div>
-            <h2 className="text-lg font-semibold text-foreground">Syllabus Steps</h2>
+            <h2 className="text-lg font-semibold text-black">Syllabus Steps</h2>
             <p className="text-sm text-muted-foreground">Training Progress</p>
           </div>
         )}
@@ -109,7 +109,7 @@ const StepNavigationSidebar = ({
                   {!isCollapsed && (
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <h3 className={`text-sm font-medium truncate ${status === 'current' ? 'text-primary' : 'text-foreground'
+                        <h3 className={`text-sm font-medium truncate ${status === 'current' ? 'text-primary' : 'text-black'
                           }`}>
                           Step {step?.stepNumber}: {step?.title}
                         </h3>
@@ -165,7 +165,7 @@ const StepNavigationSidebar = ({
       {!isCollapsed && (
         <div className="border-t border-border p-4">
           <div className="text-center">
-            <div className="text-sm font-medium text-foreground mb-1">
+            <div className="text-sm font-medium text-black mb-1">
               Overall Progress
             </div>
             <div className="text-2xl font-bold text-primary mb-2">

@@ -5,6 +5,7 @@ import Header from "../../../components/ui/Header";
 import NavigationBreadcrumb from "../../../components/ui/NavigationBreadcrumb";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import Button from "../../../components/ui/Button";
 import { getResultByTraineeAndAssessment } from "../../../api_service";
 
 function TraineeResult() {
@@ -12,7 +13,7 @@ function TraineeResult() {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
 
-  const pdfRef = useRef(); // 🔥 for PDF
+  const pdfRef = useRef(); //  for PDF
 
   useEffect(() => {
     fetchResult();
@@ -57,12 +58,12 @@ const fetchResult = async () => {
 
   if (!data) return <p className="p-6">Loading...</p>;
 
-  // ✅ evaluation check
+  //  evaluation check
   const allEvaluated = data.questions.every(q => q.evaluated === true);
 
   if (!allEvaluated) {
     return (
-      <div className="min-h-screen bg-blue-50">
+      <div className="min-h-screen bg-background">
         <Header
           userName={sessionStorage.getItem("userName") || "Trainee"}
           userRole="trainee"
@@ -80,19 +81,19 @@ const fetchResult = async () => {
               Evaluation is still pending
             </p>
 
-            <button
+            <Button
               onClick={() => navigate(-1)}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
+              variant="default"
             >
               Go Back
-            </button>
+            </Button>
           </div>
         </main>
       </div>
     );
   }
 
-  // ✅ calculations
+  //  calculations
   const calculateTotalMaxMarks = (questions) => {
     let total = 0;
     questions.forEach((q) => {
@@ -145,7 +146,7 @@ const fetchResult = async () => {
     return "Fail";
   };
 
-  // 🔥 PDF DOWNLOAD
+  //  PDF DOWNLOAD
   const downloadPDF = async () => {
     const element = pdfRef.current;
 
@@ -175,7 +176,7 @@ const fetchResult = async () => {
   };
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-screen bg-background">
 
       <Header
         userName={sessionStorage.getItem("userName") || "Trainee"}
@@ -187,23 +188,23 @@ const fetchResult = async () => {
 
         <NavigationBreadcrumb userRole="trainee" />
 
-        {/* 🔥 PDF BUTTON */}
-        <div className="flex justify-end mt-4">
+        {/*  PDF BUTTON */}
+        {/* <div className="flex justify-end mt-4">
           <button
             onClick={downloadPDF}
             className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
           >
             Download PDF
           </button>
-        </div>
+        </div> */}
 
-        {/* 🔥 RESULT CONTENT */}
+        {/* RESULT CONTENT */}
         <div ref={pdfRef}>
 
           {/* SUMMARY */}
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow mt-4 border">
 
-            <h2 className="text-xl sm:text-2xl font-bold text-blue-700">
+            <h2 className="text-xl sm:text-2xl font-bold text-black">
               {data.assessmentTitle} Result
             </h2>
 
@@ -214,9 +215,9 @@ const fetchResult = async () => {
                 <b className="text-green-600">{data.totalMarks}</b>
               </div>
 
-              <div className="bg-blue-50 p-3 rounded-lg text-center">
+              <div className="bg-purple-50 p-3 rounded-lg text-center">
                 <p>Total</p>
-                <b className="text-blue-600">{maxMarks}</b>
+                <b className="text-purple-600">{maxMarks}</b>
               </div>
 
               <div className="bg-purple-50 p-3 rounded-lg text-center">
@@ -240,13 +241,13 @@ const fetchResult = async () => {
 
           {/* SECTION SUMMARY */}
           <div className="bg-white p-4 rounded-xl shadow mt-5">
-            <h3 className="font-semibold text-blue-700 mb-3">
+            <h3 className="font-semibold text-black mb-3">
               Section Summary
             </h3>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {Object.keys(sectionMarks).map((sec, i) => (
-                <div key={i} className="bg-blue-50 p-3 rounded-lg text-center">
+                <div key={i} className="bg-purple-50 p-3 rounded-lg text-center">
                   <p className="font-semibold">{sec}</p>
                   <p>{sectionMarks[sec].obtained}/{sectionMarks[sec].total}</p>
                 </div>
@@ -258,7 +259,7 @@ const fetchResult = async () => {
           {Object.keys(grouped).map((sectionName, idx) => (
             <div key={idx} className="mt-5">
 
-              <h3 className="bg-blue-500 text-white px-3 py-2 rounded-t-lg text-sm sm:text-base">
+              <h3 className="bg-primary text-white px-3 py-2 rounded-t-lg text-sm sm:text-base">
                 {sectionName}
               </h3>
 

@@ -67,8 +67,8 @@ const TraineeDataTable = ({
       return <Icon name="ArrowUpDown" size={16} className="text-muted-foreground" />;
     }
     return sortConfig?.direction === 'asc'
-      ? <Icon name="ArrowUp" size={16} className="text-foreground" />
-      : <Icon name="ArrowDown" size={16} className="text-foreground" />;
+      ? <Icon name="ArrowUp" size={16} className="text-card-foreground" />
+      : <Icon name="ArrowDown" size={16} className="text-card-foreground" />;
   };
 
   const getStatusBadge = (percentage) => {
@@ -137,7 +137,7 @@ const TraineeDataTable = ({
               <th className="px-6 py-4 text-left">
                 <button
                   onClick={() => handleSort('name')}
-                  className="flex items-center space-x-2 text-sm font-medium text-foreground hover:text-primary"
+                  className="flex items-center space-x-2 text-sm font-medium text-card-foreground hover:text-primary"
                 >
                   <span>Trainee Name</span>
                   {getSortIcon('name')}
@@ -146,7 +146,7 @@ const TraineeDataTable = ({
               <th className="px-6 py-4 text-left">
                 <button
                   onClick={() => handleSort('currentStep')}
-                  className="flex items-center space-x-2 text-sm font-medium text-foreground hover:text-primary"
+                  className="flex items-center space-x-2 text-sm font-medium text-card-foreground hover:text-primary"
                 >
                   <span>Current Syllabus</span>
                   {getSortIcon('currentStep')}
@@ -155,7 +155,7 @@ const TraineeDataTable = ({
               <th className="px-6 py-4 text-left">
                 <button
                   onClick={() => handleSort('completion')}
-                  className="flex items-center space-x-2 text-sm font-medium text-foreground hover:text-primary"
+                  className="flex items-center space-x-2 text-sm font-medium text-card-foreground hover:text-primary"
                 >
                   <span>Completion</span>
                   {getSortIcon('completion')}
@@ -164,14 +164,14 @@ const TraineeDataTable = ({
               <th className="px-6 py-4 text-left">
                 <button
                   onClick={() => handleSort('lastAssessment')}
-                  className="flex items-center space-x-2 text-sm font-medium text-foreground hover:text-primary"
+                  className="flex items-center space-x-2 text-sm font-medium text-card-foreground hover:text-primary"
                 >
                   <span>Last Assessment</span>
                   {getSortIcon('lastAssessment')}
                 </button>
               </th>
-              <th className="px-6 py-4 text-left">Score Status</th>
-              <th className="px-6 py-4 text-center">Actions</th>
+              <th className="px-6 py-4 text-left  text-sm font-medium text-card-foreground ">Score Status</th>
+              <th className="px-6 py-4 text-center text-sm font-medium text-card-foreground ">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -192,7 +192,7 @@ const TraineeDataTable = ({
                       </span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-foreground">{trainee?.name}</p>
+                      <p className="text-sm font-medium text-card-foreground">{trainee?.name}</p>
                       <p className="text-xs text-muted-foreground">{trainee?.email}</p>
                     </div>
                   </div>
@@ -204,7 +204,7 @@ const TraineeDataTable = ({
                         ? `Step ${trainee.subtopics.length} :${trainee.subtopics[trainee.subtopics.length - 1]} `
                         : "No Assessment Yet"}</p> */}
 
-                    <p className="text-sm font-medium text-foreground">{trainee?.currentStep}</p>
+                    <p className="text-sm font-medium text-card-foreground">{trainee?.currentStep}</p>
                     <p className="text-xs text-muted-foreground">{trainee?.stepDescription}</p>
                   </div>
                 </td>
@@ -216,7 +216,7 @@ const TraineeDataTable = ({
                         style={{ width: `${trainee?.completionPercentage}%` }}
                       />
                     </div>
-                    <span className="text-sm font-medium text-foreground">
+                    <span className="text-sm font-medium text-card-foreground">
                       {trainee?.completionPercentage}%
                     </span>
                   </div>
@@ -224,7 +224,7 @@ const TraineeDataTable = ({
                 </td>
                 <td className="px-6 py-4">
                   <div>
-                    <p className="text-sm text-foreground">{trainee?.lastAssessmentDate}</p>
+                    <p className="text-sm text-card-foreground">{trainee?.lastAssessmentDate}</p>
                     <p className="text-xs text-muted-foreground">Score: {trainee?.lastAssessmentScore}/100</p>
                   </div>
                 </td>
@@ -242,12 +242,13 @@ const TraineeDataTable = ({
                       title="View Profile"
                     /> */}
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="icon"
                       onClick={() => onAddAssessment(trainee?.traineeId)}
                       iconName="ClipboardCheck"
                       iconSize={16}
                       title="Add Assessment"
+                      className="text-black"
                     />
                     <Button
                       variant="ghost"
@@ -256,6 +257,7 @@ const TraineeDataTable = ({
                       iconName="Calendar"
                       iconSize={16}
                       title="Schedule Interview"
+                      className="text-black"
                     />
                     {/* <Button
                       variant="ghost"
@@ -291,7 +293,7 @@ const TraineeDataTable = ({
                   </span>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">{trainee?.name}</p>
+                  <p className="text-sm font-medium text-card-foreground">{trainee?.name}</p>
                   <p className="text-xs text-muted-foreground">{trainee?.email}</p>
                 </div>
               </div>
@@ -300,7 +302,7 @@ const TraineeDataTable = ({
             <div className="space-y-3">
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Current Step</p>
-                <p className="text-sm font-medium text-foreground">{trainee?.currentStep}</p>
+                <p className="text-sm font-medium text-card-foreground">{trainee?.currentStep}</p>
               </div>
 
               <div>
@@ -312,7 +314,7 @@ const TraineeDataTable = ({
                       style={{ width: `${trainee?.completionPercentage}%` }}
                     />
                   </div>
-                  <span className="text-sm font-medium text-foreground">
+                  <span className="text-sm font-medium text-card-foreground">
                     {trainee?.completionPercentage}%
                   </span>
                 </div>
@@ -324,7 +326,7 @@ const TraineeDataTable = ({
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-xs text-muted-foreground">Last Assessment</p>
-                  <p className="text-sm text-foreground">{trainee?.lastAssessmentDate}</p>
+                  <p className="text-sm text-card-foreground">{trainee?.lastAssessmentDate}</p>
                 </div>
                 <div>
                   {getInterviewStatusBadge(trainee?.interviewStatus)}
@@ -350,7 +352,7 @@ const TraineeDataTable = ({
                   iconName="ClipboardCheck"
                   iconPosition="left"
                   iconSize={16}
-                  className="flex-1"
+                  className="flex-1 text-black"
                 >
                   Assess
                 </Button>
@@ -361,7 +363,7 @@ const TraineeDataTable = ({
                   iconName="Calendar"
                   iconPosition="left"
                   iconSize={16}
-                  className="flex-1"
+                  className="flex-1 text-black"
                 >
                   Interview
                 </Button>

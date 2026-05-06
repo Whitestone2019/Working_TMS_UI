@@ -9,7 +9,7 @@ import FilterToolbar from './components/FilterToolbar';
 import TraineeDataTable from './components/TraineeDataTable';
 import AssessmentEntryModal from './components/AssessmentEntryModal';
 import TraineeSyllabusPage from './components/TraineeSyllabusPage';
-import { fetchFeedbackBySyllabusForManager,fetchAllTraineeSummaryAdmin,fetchAllDepartments, fetchCompletedSubTopics, fetchTraineeSummaryByManager,fetchManagerDelays } from '../../api_service';
+import { fetchFeedbackBySyllabusForManager, fetchAllTraineeSummaryAdmin, fetchAllDepartments, fetchCompletedSubTopics, fetchTraineeSummaryByManager, fetchManagerDelays } from '../../api_service';
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
@@ -17,8 +17,8 @@ const ManagerDashboard = () => {
   const [showAssessmentModal, setShowAssessmentModal] = useState(false);
   const [selectedTraineeForAssessment, setSelectedTraineeForAssessment] = useState(null);
   const [traineeInfo, setTraineeInfo] = useState(null);
-const [selectedTraineeId, setSelectedTraineeId] = useState(null);
-const [showDelayBox, setShowDelayBox] = useState(true);
+  const [selectedTraineeId, setSelectedTraineeId] = useState(null);
+  const [showDelayBox, setShowDelayBox] = useState(true);
 
 
   const [syllabusOptions, setSyllabusOptions] = useState([
@@ -26,8 +26,8 @@ const [showDelayBox, setShowDelayBox] = useState(true);
   ]);
 
   const [departmentOptions, setDepartmentOptions] = useState([
-  { value: 'all', label: 'All Departments' }
-]);
+    { value: 'all', label: 'All Departments' }
+  ]);
 
   const privilegedRoles = ["CEO", "CTO", "HR"];
 
@@ -51,92 +51,92 @@ const [showDelayBox, setShowDelayBox] = useState(true);
     fetchDepartments();
   }, []);
 
-const fetchDepartments = async () => {
-  try {
-    const res = await fetchAllDepartments();
-    console.log("depart",res);
-    //const list = res?.data || [];
-    const list = Array.isArray(res) ? res : res?.data || [];
+  const fetchDepartments = async () => {
+    try {
+      const res = await fetchAllDepartments();
+      console.log("depart", res);
+      //const list = res?.data || [];
+      const list = Array.isArray(res) ? res : res?.data || [];
 
-    const options = [
-      { value: 'all', label: 'All Departments' }
-    ];
+      const options = [
+        { value: 'all', label: 'All Departments' }
+      ];
 
-    list.forEach(dep => {
-      options.push({
-        value: dep.id,
-        label: dep.name
-      });
-    });
-
-    setDepartmentOptions(options);
-
-  } catch (err) {
-    console.error("Error fetching departments", err);
-  }
-};
-
-const fetchTrainees = async () => {
-  try {
-    const roleName = sessionStorage.getItem("roleName");
-    const userId = sessionStorage.getItem("userId");
-
-    if (!roleName) {
-      console.warn("Role not found in session");
-      return;
-    }
-
-    let response;
-
-    //  Role based API call
-    if (privilegedRoles.includes(roleName)) {
-      response = await fetchAllTraineeSummaryAdmin();
-    } else {
-      if (!userId) {
-        console.warn("UserId not found in session");
-        return;
-      }
-      response = await fetchTraineeSummaryByManager(userId);
-    }
-
-    const traineeList = Array.isArray(response?.data) ? response.data : [];
-
-    const transformedList = traineeList.map((trainee) => {
-      const subtopics = [];
-      let lastSubTopicName = "Not Started";
-      let lastStepNumber = -1;
-
-      trainee?.syllabusProgress?.forEach((syllabus) => {
-        syllabus?.subTopics?.forEach((sub) => {
-          subtopics.push(sub.name);
-
-          const isCompleted = sub?.stepProgress?.some(
-            (sp) => sp?.complete === true
-          );
-
-          if (isCompleted && sub.stepNumber > lastStepNumber) {
-            lastStepNumber = sub.stepNumber;
-            lastSubTopicName = sub.name;
-          }
+      list.forEach(dep => {
+        options.push({
+          value: dep.id,
+          label: dep.name
         });
       });
 
-      return {
-        ...trainee,
-        subtopics,
-        currentStep: lastSubTopicName,
-      };
-    });
+      setDepartmentOptions(options);
 
-    setTrainees(transformedList);
-    setFilteredTrainees(transformedList);
+    } catch (err) {
+      console.error("Error fetching departments", err);
+    }
+  };
 
-  } catch (err) {
-    console.error("Error fetching trainee summary:", err);
-    setTrainees([]);
-    setFilteredTrainees([]);
-  }
-};
+  const fetchTrainees = async () => {
+    try {
+      const roleName = sessionStorage.getItem("roleName");
+      const userId = sessionStorage.getItem("userId");
+
+      if (!roleName) {
+        console.warn("Role not found in session");
+        return;
+      }
+
+      let response;
+
+      //  Role based API call
+      if (privilegedRoles.includes(roleName)) {
+        response = await fetchAllTraineeSummaryAdmin();
+      } else {
+        if (!userId) {
+          console.warn("UserId not found in session");
+          return;
+        }
+        response = await fetchTraineeSummaryByManager(userId);
+      }
+
+      const traineeList = Array.isArray(response?.data) ? response.data : [];
+
+      const transformedList = traineeList.map((trainee) => {
+        const subtopics = [];
+        let lastSubTopicName = "Not Started";
+        let lastStepNumber = -1;
+
+        trainee?.syllabusProgress?.forEach((syllabus) => {
+          syllabus?.subTopics?.forEach((sub) => {
+            subtopics.push(sub.name);
+
+            const isCompleted = sub?.stepProgress?.some(
+              (sp) => sp?.complete === true
+            );
+
+            if (isCompleted && sub.stepNumber > lastStepNumber) {
+              lastStepNumber = sub.stepNumber;
+              lastSubTopicName = sub.name;
+            }
+          });
+        });
+
+        return {
+          ...trainee,
+          subtopics,
+          currentStep: lastSubTopicName,
+        };
+      });
+
+      setTrainees(transformedList);
+      setFilteredTrainees(transformedList);
+
+    } catch (err) {
+      console.error("Error fetching trainee summary:", err);
+      setTrainees([]);
+      setFilteredTrainees([]);
+    }
+  };
 
 
 
@@ -211,13 +211,13 @@ const fetchTrainees = async () => {
       return "not-started";
     };
 
-if (filters?.departmentId !== 'all') {
-  filtered = filtered.filter(trainee =>
-    trainee?.assignedDepartments?.some(
-      dep => dep?.departmentId === Number(filters.departmentId)
-    )
-  );
-}
+    if (filters?.departmentId !== 'all') {
+      filtered = filtered.filter(trainee =>
+        trainee?.assignedDepartments?.some(
+          dep => dep?.departmentId === Number(filters.departmentId)
+        )
+      );
+    }
 
     if (filters?.completionStatus !== 'all') {
       filtered = filtered?.filter(
@@ -299,14 +299,14 @@ if (filters?.departmentId !== 'all') {
   //   setSelectedTraineeForAssessment(trainee);
   //   setShowAssessmentModal(true);
   // };
-const handleAddAssessment = (traineeId) => {
-  const trainee = filteredTrainees?.find(
-    t => t?.traineeId === traineeId
-  );
+  const handleAddAssessment = (traineeId) => {
+    const trainee = filteredTrainees?.find(
+      t => t?.traineeId === traineeId
+    );
 
-  setSelectedTraineeForAssessment(trainee);
-  setShowAssessmentModal(true);
-};
+    setSelectedTraineeForAssessment(trainee);
+    setShowAssessmentModal(true);
+  };
 
   const handleScheduleInterview = (traineeId) => {
     navigate(`/interview-scheduling?trainee=${traineeId}`);
@@ -365,7 +365,7 @@ const handleAddAssessment = (traineeId) => {
 
     // Update trainee's last assessment data
     setTrainees(prev => prev?.map(trainee => {
-      if (trainee?.traineeId=== assessmentData?.trngid) {
+      if (trainee?.traineeId === assessmentData?.trngid) {
         return {
           ...trainee,
           lastAssessmentDate: assessmentData?.assessmentDate,
@@ -384,44 +384,44 @@ const handleAddAssessment = (traineeId) => {
   const handleLogout = () => {
     navigate('/');
   };
- const selectedTrainee = filteredTrainees.find(
-  t => String(t?.traineeId) === String(selectedTraineeId)
-);
-
-  
-
-// useEffect(() => {
-//   const managerId = sessionStorage.getItem("userId");
-
-//   const loadDelays = async () => {
-//     try {
-//       const response = await fetchManagerDelays(managerId);
-//       setDelayNotifications(response.data || []);
-//     } catch (error) {
-//       console.error("Error fetching manager delays:", error);
-//     }
-//   };
-
-//   loadDelays();
-// }, []);
+  const selectedTrainee = filteredTrainees.find(
+    t => String(t?.traineeId) === String(selectedTraineeId)
+  );
 
 
-const [delays, setDelays] = useState([]);
 
-useEffect(() => {
+  // useEffect(() => {
+  //   const managerId = sessionStorage.getItem("userId");
 
-   const managerId = sessionStorage.getItem("userId");
-  const loadDelays = async () => {
-    try {
-      const response = await fetchManagerDelays(managerId);
-      // console.log(response.data); // Yahan check karein 2 items hain ya nahi
-      setDelays(response.data); // Pura array set karein
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  loadDelays();
-}, []);
+  //   const loadDelays = async () => {
+  //     try {
+  //       const response = await fetchManagerDelays(managerId);
+  //       setDelayNotifications(response.data || []);
+  //     } catch (error) {
+  //       console.error("Error fetching manager delays:", error);
+  //     }
+  //   };
+
+  //   loadDelays();
+  // }, []);
+
+
+  const [delays, setDelays] = useState([]);
+
+  useEffect(() => {
+
+    const managerId = sessionStorage.getItem("userId");
+    const loadDelays = async () => {
+      try {
+        const response = await fetchManagerDelays(managerId);
+        // console.log(response.data); // Yahan check karein 2 items hain ya nahi
+        setDelays(response.data); // Pura array set karein
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadDelays();
+  }, []);
   return (
     <div className="min-h-screen bg-background">
       <Header
@@ -431,41 +431,41 @@ useEffect(() => {
         onLogout={handleLogout}
       />
       <main className="pt-16">
-      
 
-{showDelayBox && delays.length > 0 && (
-  <div className="max-w-7xl mx-auto px-6 mt-6">
-    <div className="relative bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-sm">
-      
-      {/* Cross Button */}
-      <button
-        onClick={() => setShowDelayBox(false)}
-        className="absolute top-2 right-3 text-red-600 hover:text-red-800 text-lg font-bold"
-      >
-        ×
-      </button>
 
-      <strong>⚠ Delay Alerts</strong>
+        {showDelayBox && delays.length > 0 && (
+          <div className="max-w-7xl mx-auto px-6 mt-6">
+            <div className="relative bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-sm">
 
-      <div className="mt-2 space-y-1">
-        {delays.map((item) => (
-          <div key={item.id}>
-            • <b>{item.traineeId}</b>: {item.delayDays} day(s) delay (Deadline: {new Date(item.deadlineDate).toLocaleDateString()})
+              {/* Cross Button */}
+              <button
+                onClick={() => setShowDelayBox(false)}
+                className="absolute top-2 right-3 text-red-600 hover:text-red-800 text-lg font-bold"
+              >
+                ×
+              </button>
+
+              <strong>⚠ Delay Alerts</strong>
+
+              <div className="mt-2 space-y-1">
+                {delays.map((item) => (
+                  <div key={item.id}>
+                    • <b>{item.traineeId}</b>: {item.delayDays} day(s) delay (Deadline: {new Date(item.deadlineDate).toLocaleDateString()})
+                  </div>
+                ))}
+              </div>
+
+            </div>
           </div>
-        ))}
-      </div>
-      
-    </div>
-  </div>
-)}
+        )}
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Breadcrumb Navigation */}
           <NavigationBreadcrumb userRole="manager" className="mb-6" />
 
           {/* Page Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Manager Dashboard</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-3xl font-bold text-card-foreground mb-2">Manager Dashboard</h1>
+            <p className="text-card-foreground">
               Comprehensive oversight of trainee progress with advanced filtering and reporting capabilities
             </p>
           </div>
@@ -495,10 +495,10 @@ useEffect(() => {
             onAddAssessment={handleAddAssessment}
             onScheduleInterview={handleScheduleInterview}
             onSort={handleSort}
-           
+
           />
 
-         {/* {selectedTraineeId && selectedTrainee && (
+          {/* {selectedTraineeId && selectedTrainee && (
         <TraineeSyllabusPage
           traineeId={selectedTraineeId}
           traineeName={`${selectedTrainee.firstname} ${selectedTrainee.lastname}`}
@@ -506,17 +506,17 @@ useEffect(() => {
         />
       )} */}
 
-{selectedTraineeId && selectedTrainee && (
-  <TraineeSyllabusPage
-    traineeId={selectedTraineeId}
-   traineeName={selectedTrainee?.name}
-    onClose={() => setSelectedTraineeId(null)}
-  />
-)}
+          {selectedTraineeId && selectedTrainee && (
+            <TraineeSyllabusPage
+              traineeId={selectedTraineeId}
+              traineeName={selectedTrainee?.name}
+              onClose={() => setSelectedTraineeId(null)}
+            />
+          )}
 
           {/* Assessment Entry Modal */}
           <AssessmentEntryModal
-          key={selectedTraineeForAssessment?.traineeId}  
+            key={selectedTraineeForAssessment?.traineeId}
             isOpen={showAssessmentModal}
             onClose={() => {
               setShowAssessmentModal(false);

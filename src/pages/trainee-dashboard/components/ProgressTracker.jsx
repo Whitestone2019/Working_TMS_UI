@@ -44,7 +44,7 @@ const ProgressTracker = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">
+          <h2 className="text-xl font-semibold text-black">
             Learning Progress
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -64,7 +64,7 @@ const ProgressTracker = ({
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-sm font-medium text-black">
             Overall Progress
           </span>
           <span className="text-sm text-muted-foreground">
@@ -127,7 +127,7 @@ const ProgressTracker = ({
               {/* Content */}
               <h3 className={`font-medium ${status === 'locked'
                 ? 'text-muted-foreground'
-                : 'text-foreground'}`}
+                : 'text-black'}`}
               >
                 {step.title}
               </h3>
@@ -163,7 +163,7 @@ const ProgressTracker = ({
                   <Button
                     fullWidth
                     size="sm"
-                    variant="outline"
+                    variant="default"
                     iconName="Eye"
                     onClick={(e) => {
                       e.stopPropagation();

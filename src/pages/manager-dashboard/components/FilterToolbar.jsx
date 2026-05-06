@@ -22,6 +22,11 @@ const FilterToolbar = ({
     { value: 'completed', label: 'Completed' }
   ];
 
+
+   const restrictedRoles = ["CEO", "CTO", "HR", "PM"];
+  const roleName = sessionStorage.getItem("roleName");
+  const isRestricted = restrictedRoles.includes(roleName);
+
   const handleInputChange = (field, value) => {
     onFilterChange({ ...filters, [field]: value });
   };
@@ -66,12 +71,14 @@ const FilterToolbar = ({
           <div className="space-y-2">
             <Input
               label="Date From"
+              className="bg-white text-black" 
               type="date"
               value={filters?.dateFrom}
               onChange={(e) => handleInputChange('dateFrom', e.target.value)}
             />
             <Input
               label="Date To"
+              className="bg-white text-black" 
               type="date"
               value={filters?.dateTo}
               onChange={(e) => handleInputChange('dateTo', e.target.value)}
@@ -81,24 +88,26 @@ const FilterToolbar = ({
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-1 lg:ml-6">
-          <Button variant="outline" onClick={onExportReports} iconName="Download" size="sm">
+          <Button variant="default" onClick={onExportReports} iconName="Download" size="sm">
             Export Reports
           </Button>
 
-          <Button variant="outline" onClick={onScheduleInterview} iconName="Calendar" size="sm">
+          <Button variant="default" onClick={onScheduleInterview} iconName="Calendar" size="sm">
             Schedule Interview
           </Button>
 
+ {!isRestricted && (
           <Button variant="default" onClick={onAddAssessment} iconName="Plus" size="sm">
             Add Assessment
           </Button>
+ )}
         </div>
       </div>
 
       {/* Results Count */}
       <div className="mt-4 pt-4 border-t border-border">
         <p className="text-sm text-muted-foreground">
-          Showing <span className="font-medium text-foreground">{resultsCount}</span> trainees
+          Showing <span className="font-medium text-card-foreground">{resultsCount}</span> trainees
         </p>
       </div>
     </div>

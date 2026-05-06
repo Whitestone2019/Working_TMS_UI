@@ -4115,3 +4115,3125 @@ const showWarning = async (msg) => {
 }
 
 export default TraineeTestPage;
+
+
+
+//21 April 2026 
+
+// import React, { useState } from 'react';
+// import { useLocation, useNavigate } from 'react-router-dom';
+// import Icon from '../AppIcon';
+// import Button from './Button';
+
+// const Header = ({ userRole = 'trainee', userName = 'User', onLogout }) => {
+//   const [isProfileOpen, setIsProfileOpen] = useState(false);
+//   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+//   const location = useLocation();
+//   const navigate = useNavigate();
+//   const roleName = sessionStorage.getItem("roleName") || "trainee";
+//   const lowerRole = roleName.toLowerCase();
+//   const privilegedRoles = ['ceo', 'cto', 'hr'];
+
+// const normalizedRole =
+//   privilegedRoles.includes(userRole?.toLowerCase())
+//     ? 'manager'
+//     : userRole?.toLowerCase();
+
+//   const navigationItems = [
+//     {
+//       label: 'Dashboard',
+//       path: userRole === 'manager' ? '/manager-dashboard' : '/trainee-dashboard',
+//       icon: 'LayoutDashboard',
+//       roles: ['trainee', 'manager']
+//     },
+//     {
+//       label: 'Learning',
+//       path: '/syllabus-content-viewer',
+//       icon: 'BookOpen',
+//       roles: ['trainee']
+//     },
+//     // {
+//     //   label: 'Progress',
+//     //   path: '/progress-reports',
+//     //   icon: 'TrendingUp',
+//     //   roles: ['trainee', 'manager']
+//     // },
+//     {
+//       label: 'Assessment',
+//       path: '/assessment-entry',
+//       icon: 'ClipboardCheck',
+//       roles: ['manager']
+//     },
+//     {
+//       label: 'Interviews',
+//       path: '/interview-scheduling',
+//       icon: 'Calendar',
+//       roles: ['manager']
+//     },
+//     {
+//       label: 'Syllabus',
+//       path: '/upload-syllabus',
+//       icon: 'BookOpen',
+//       roles: ['manager']
+//     },
+//     {
+//       label: 'Approval',
+//       path: '/trainee-steps',
+//       icon: 'BookOpen',
+//       roles: ['manager']
+//     },
+//     {
+//       label: 'Department',
+//       path: '/department',
+//       icon: 'Calendar',
+//       roles: ['manager']
+//     },
+//     {
+//       label: 'Assign Trainee',
+//       path: '/assign-trainee',
+//       icon: 'Calendar',
+//       roles: ['manager']
+//     },
+
+//   ];
+
+//   const visibleNavItems = navigationItems?.filter(item =>
+//     item?.roles?.includes(normalizedRole)
+//   )?.slice(0, 9);
+
+//   const moreItems = navigationItems?.filter(item =>
+//     item?.roles?.includes(normalizedRole)
+//   )?.slice(9);
+
+//   const handleNavigation = (path) => {
+//     navigate(path);
+//     setIsMobileMenuOpen(false);
+//   };
+
+//   const handleLogout = () => {
+//     setIsProfileOpen(false);
+//     if (onLogout) {
+//       onLogout();
+//     }
+//   };
+
+//   const isActivePath = (path) => {
+//     return location?.pathname === path;
+//   };
+
+//   return (
+//     <header className="fixed top-0 left-0 right-0 z-40 bg-surface border-b border-border">
+//       <div className="flex items-center justify-between h-16 px-6">
+//         {/* Logo Section */}
+//         <div className="flex items-center space-x-4">
+//           <div className="flex items-center space-x-3">
+//             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+//               <Icon name="GraduationCap" size={20} color="white" />
+//             </div>
+//             <div className="hidden sm:block">
+//               <h1 className="text-lg font-semibold text-foreground">TMS</h1>
+//               <p className="text-xs text-muted-foreground">Trainee Management</p>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Desktop Navigation */}
+//         <nav className="hidden lg:flex items-center space-x-1">
+//           {visibleNavItems?.map((item) => (
+//             <Button
+//               key={item?.path}
+//               variant={isActivePath(item?.path) ? "default" : "ghost"}
+//               size="sm"
+//               onClick={() => handleNavigation(item?.path)}
+//               iconName={item?.icon}
+//               iconPosition="left"
+//               iconSize={16}
+//               className="px-4"
+//             >
+//               {item?.label}
+//             </Button>
+//           ))}
+
+//           {moreItems?.length > 0 && (
+//             <div className="relative">
+//               <Button
+//                 variant="ghost"
+//                 size="sm"
+//                 iconName="MoreHorizontal"
+//                 iconPosition="left"
+//                 iconSize={16}
+//                 className="px-4"
+//               >
+//                 More
+//               </Button>
+//             </div>
+//           )}
+//         </nav>
+
+//         {/* User Profile & Mobile Menu */}
+//         <div className="flex items-center space-x-3">
+//           {/* Mobile Menu Button */}
+//           <Button
+//             variant="ghost"
+//             size="icon"
+//             className="lg:hidden"
+//             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+//             iconName={isMobileMenuOpen ? "X" : "Menu"}
+//             iconSize={20}
+//           >
+//           </Button>
+
+//           {/* User Profile Dropdown */}
+//           <div className="relative">
+//             <Button
+//               variant="ghost"
+//               size="sm"
+//               onClick={() => setIsProfileOpen(!isProfileOpen)}
+//               className="flex items-center space-x-2 px-3"
+//             >
+//               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+//                 <Icon name="User" size={16} color="white" />
+//               </div>
+//               <div className="hidden sm:block text-left">
+//                 <p className="text-sm font-medium text-foreground">{userName}</p>
+//                 <p className="text-xs text-muted-foreground capitalize">{userRole}</p>
+//               </div>
+//               <Icon name="ChevronDown" size={16} className="text-muted-foreground" />
+//             </Button>
+
+//             {/* Profile Dropdown Menu */}
+//             {isProfileOpen && (
+//               <div className="absolute right-0 mt-2 w-48 bg-popover border border-border rounded-lg elevation-2 z-50">
+//                 <div className="py-2">
+//                   <div className="px-4 py-2 border-b border-border">
+//                     <p className="text-sm font-medium text-foreground">{userName}</p>
+//                     <p className="text-xs text-muted-foreground capitalize">{userRole}</p>
+//                   </div>
+//                   <button
+//                     onClick={() => setIsProfileOpen(false)}
+//                     className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-muted transition-colors duration-150"
+//                   >
+//                     <Icon name="Settings" size={16} className="inline mr-2" />
+//                     Settings
+//                   </button>
+//                   <button
+//                     onClick={() => setIsProfileOpen(false)}
+//                     className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-muted transition-colors duration-150"
+//                   >
+//                     <Icon name="HelpCircle" size={16} className="inline mr-2" />
+//                     Help
+//                   </button>
+//                   <div className="border-t border-border mt-2 pt-2">
+//                     <button
+//                       onClick={handleLogout}
+//                       className="w-full px-4 py-2 text-left text-sm text-error hover:bg-muted transition-colors duration-150"
+//                     >
+//                       <Icon name="LogOut" size={16} className="inline mr-2" />
+//                       Sign Out
+//                     </button>
+//                   </div>
+//                 </div>
+//               </div>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+//       {/* Mobile Navigation Menu */}
+//       {isMobileMenuOpen && (
+//         <div className="lg:hidden bg-surface border-t border-border">
+//           <nav className="px-6 py-4 space-y-2 bg-gray-100 rounded-xl m-2">
+//             {navigationItems?.filter(item => item?.roles?.includes(userRole))?.map((item) => (
+//               <Button
+//                 key={item?.path}
+//                 variant={isActivePath(item?.path) ? "default" : "ghost"}
+//                 size="sm"
+//                 onClick={() => handleNavigation(item?.path)}
+//                 iconName={item?.icon}
+//                 iconPosition="left"
+//                 iconSize={16}
+//                 fullWidth
+//                 className="justify-start"
+//               >
+//                 {item?.label}
+//               </Button>
+//             ))}
+//           </nav>
+//         </div>
+//       )}
+//       {/* Overlay for mobile menu */}
+//       {isMobileMenuOpen && (
+//         <div
+//           className="fixed z-10 bg-black bg-opacity-50 z-30 lg:hidden"
+//           onClick={() => setIsMobileMenuOpen(false)}
+//         />
+//       )}
+//     </header>
+//   );
+// };
+
+// export default Header;
+
+// import React, { useState, useMemo } from "react";
+// import { useLocation, useNavigate } from "react-router-dom";
+// import Icon from "../AppIcon";
+// import Button from "./Button";
+
+// const Header = ({ userName = "User", onLogout }) => {
+//   const location = useLocation();
+//   const navigate = useNavigate();
+
+//   const [isProfileOpen, setIsProfileOpen] = useState(false);
+//   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+//   /* ================= ROLE HANDLING ================= */
+
+//   const roleName = sessionStorage.getItem("roleName") || "SAS";
+
+//   const cleanRole = roleName.trim().toUpperCase();
+
+//   const managerRoles = ["MANAGER", "CEO", "CTO", "HR","PM","TL"];
+//   const traineeRoles = ["SAS", "AS", "ACC", "JA", "SA"];
+
+//   const normalizedRole = useMemo(() => {
+//     if (managerRoles.includes(cleanRole)) return "manager";
+//     if (traineeRoles.includes(cleanRole)) return "trainee";
+//     return "trainee"; // default safety
+//   }, [cleanRole]);
+
+//   /* ================= NAVIGATION ITEMS ================= */
+
+//   const navigationItems = [
+//     {
+//       label: "Dashboard",
+//       path:
+//         normalizedRole === "manager"
+//           ? "/manager-dashboard"
+//           : "/trainee-dashboard",
+//       icon: "LayoutDashboard",
+//       roles: ["trainee", "manager"],
+//     },
+//     {
+//       label: "Learning",
+//       path: "/syllabus-content-viewer",
+//       icon: "BookOpen",
+//       roles: ["trainee"],
+//     },
+//      {
+//       label: "Test",
+//       path: "/trainee-assessment-list",
+//       icon: "BookOpen",
+//       roles: ["trainee"],
+//     },
+//    {
+//   label: "Assessment",
+//   path: "/assessment-entry",
+//   icon: "ClipboardCheck",
+//   roles: cleanRole === "TL" ? ["manager"] : [],
+// },
+//     {
+//       label: "Interviews",
+//       path: "/interview-scheduling",
+//       icon: "Calendar",
+//       roles: ["manager"],
+//     },
+//     {
+//       label: "Syllabus",
+//       path: "/upload-syllabus",
+//       icon: "BookOpen",
+//       roles: ["manager"],
+//     },
+//     {
+//       label: "Approval",
+//       path: "/trainee-steps",
+//       icon: "CheckCircle",
+//       roles: ["manager"],
+//     },
+//     {
+//       label: "Department",
+//       path: "/department",
+//       icon: "Building",
+//       roles: ["manager"],
+//     },
+//     {
+//       label: "Assign Trainee",
+//       path: "/assign-trainee",
+//       icon: "UserPlus",
+//       roles: ["manager"],
+//     },
+//     {
+//       label: "Assessment Test",
+//       path: "/create-question",
+//       icon: "UserPlus",
+//       roles: ["manager"],
+//     },
+
+//   ];
+
+//   const visibleNavItems = navigationItems.filter((item) =>
+//     item.roles.includes(normalizedRole)
+//   );
+
+//   /* ================= FUNCTIONS ================= */
+
+//   const handleNavigation = (path) => {
+//     navigate(path);
+//     setIsMobileMenuOpen(false);
+//   };
+
+//   const handleLogoutClick = () => {
+//     setIsProfileOpen(false);
+//     if (onLogout) onLogout();
+//   };
+
+//   const isActivePath = (path) => location.pathname === path;
+
+//   /* ================= UI ================= */
+
+//   return (
+//     <header className="fixed top-0 left-0 right-0 z-40 bg-surface border-b border-border">
+//       <div className="flex items-center justify-between h-16 px-6">
+
+//         {/* Logo */}
+//         <div className="flex items-center space-x-3">
+//           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+//             <Icon name="GraduationCap" size={20} color="white" />
+//           </div>
+//           <div className="hidden sm:block">
+//             <h1 className="text-lg font-semibold text-foreground">TMS</h1>
+//             <p className="text-xs text-muted-foreground">
+//               Trainee Management
+//             </p>
+//           </div>
+//         </div>
+
+//         {/* Desktop Navigation */}
+//         <nav className="hidden lg:flex items-center space-x-1">
+//           {visibleNavItems.map((item) => (
+//             <Button
+//               key={item.path}
+//               variant={isActivePath(item.path) ? "default" : "ghost"}
+//               size="sm"
+//               onClick={() => handleNavigation(item.path)}
+//               iconName={item.icon}
+//               iconPosition="left"
+//               iconSize={16}
+//               className="px-4"
+//             >
+//               {item.label}
+//             </Button>
+//           ))}
+//         </nav>
+
+//         {/* Profile Section */}
+//         <div className="flex items-center space-x-3">
+
+//           {/* Mobile Menu Toggle */}
+//           <Button
+//             variant="ghost"
+//             size="icon"
+//             className="lg:hidden"
+//             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+//             iconName={isMobileMenuOpen ? "X" : "Menu"}
+//             iconSize={20}
+//           />
+
+//           {/* Profile Dropdown */}
+//           <div className="relative">
+//             <Button
+//               variant="ghost"
+//               size="sm"
+//               onClick={() => setIsProfileOpen(!isProfileOpen)}
+//               className="flex items-center space-x-2 px-3"
+//             >
+//               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+//                 <Icon name="User" size={16} color="white" />
+//               </div>
+
+//               <div className="hidden sm:block text-left">
+//                 <p className="text-sm font-medium text-foreground">
+//                   {userName}
+//                 </p>
+//                 <p className="text-xs text-muted-foreground capitalize">
+//                   {roleName}
+//                 </p>
+//               </div>
+
+//               <Icon name="ChevronDown" size={16} />
+//             </Button>
+
+//             {isProfileOpen && (
+//               <div className="absolute right-0 mt-2 w-48 bg-popover border border-border rounded-lg shadow-lg z-50">
+//                 <div className="py-2">
+//                   <div className="px-4 py-2 border-b border-border">
+//                     <p className="text-sm font-medium">{userName}</p>
+//                     <p className="text-xs text-muted-foreground capitalize">
+//                       {roleName}
+//                     </p>
+//                   </div>
+
+//                   <button
+//                     onClick={handleLogoutClick}
+//                     className="w-full px-4 py-2 text-left text-sm text-error hover:bg-muted"
+//                   >
+//                     <Icon name="LogOut" size={16} className="inline mr-2" />
+//                     Sign Out
+//                   </button>
+//                 </div>
+//               </div>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Mobile Navigation */}
+//       {isMobileMenuOpen && (
+//         <div className="lg:hidden bg-surface border-t border-border">
+//           <nav className="px-6 py-4 space-y-2">
+//             {visibleNavItems.map((item) => (
+//               <Button
+//                 key={item.path}
+//                 variant={isActivePath(item.path) ? "default" : "ghost"}
+//                 size="sm"
+//                 onClick={() => handleNavigation(item.path)}
+//                 iconName={item.icon}
+//                 iconPosition="left"
+//                 iconSize={16}
+//                 fullWidth
+//                 className="justify-start"
+//               >
+//                 {item.label}
+//               </Button>
+//             ))}
+//           </nav>
+//         </div>
+//       )}
+//     </header>
+//   );
+// };
+
+// export default Header;
+
+ {/* {assessment?.recommendations && (
+              <div>
+                <h4 className="font-semibold text-foreground mb-3 flex items-center">
+                  <Icon name="Lightbulb" size={16} className="mr-2 text-primary" />
+                  Recommendations
+                </h4>
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+                  <p className="text-sm text-foreground">{assessment?.recommendations}</p>
+                </div>
+              </div>
+            )} */}
+
+
+             {/* General Remarks */}
+          {/* {assessment?.remarks && (
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center">
+                <Icon name="MessageSquare" size={20} className="mr-2" />
+                General Remarks
+              </h3>
+              <div className="bg-muted/50 rounded-lg p-4">
+                <p className="text-foreground leading-relaxed">{assessment?.remarks}</p>
+              </div>
+            </div>
+          )} */}
+
+
+            // Reschedule interview
+          //   const handleRescheduleInterview = (interview) => {
+          //     if (isRestricted) {
+          //       alert("You are not authorized to reschedule interviews.");
+          //       return;
+          //     }
+          //     console.log('Rescheduling interview:', interview);
+          //     // if (!interview || !interview[0].interviewSchedule) return;
+          //     const schedule = interview.interviewSchedule || interview[0]?.interviewSchedule;
+          
+          //     if (!schedule) {
+          //     console.error("Schedule data missing!");
+          //     return;
+          //   }
+          
+          //     // const { date, time } = interview[0].interviewSchedule;
+          //     if (!interview?.interviewSchedule) return;
+          
+          // const { date, time } = interview.interviewSchedule;
+          
+          
+          //     // Ensure we have a valid date object
+          //     const interviewDate = date ? new Date(date) : null;
+          
+          //     // Format time to HH:MM
+          //     const interviewTime = time ? time.slice(0, 5) : null;
+          
+          //     //const traineeIds = interview.trainees?.map(t => t.trngid) || [];
+              
+          
+          //     console.log("Formatted Interview Date and Time:", interviewDate, interviewTime);
+          //     setSelectedDate(interviewDate);
+          //     setSelectedTime(interviewTime);
+          //     //setSelectedTrainees(traineeIds);
+          
+          
+          //     // const traineeIds = interview
+          //     //   .map(item => item?.user?.trngid)
+          //     //   .filter(Boolean);
+          //     // setSelectedTrainees(traineeIds);
+          //     const traineeIds = interview?.trainees?.map(t => t.id) || [];
+          //  setSelectedTrainees(traineeIds);
+                
+          
+             
+          
+          //     console.log(interview)
+          //     console.log("fddddddd", interview?.interviewSchedule)
+          //     //setFormdata(interview[0]?.interviewSchedule);
+          //     //setFormdata(interview?.interviewSchedule);
+          //     setFormdata({
+          //   ...interview.interviewSchedule,
+          //   scheduleId: interview.interviewSchedule.scheduleId
+          // });
+          //     setActiveView('calendar');
+          
+          //     console.log("Rescheduling interview:", {
+          //       interviewDate,
+          //       interviewTime,
+          //       selectedTrainees
+          //     });
+          //   };
+          
+          // const handleRescheduleInterview = (interview) => {
+          //     // interview ab aggregated object hai jisme 'trainees' array hai
+          //     const schedule = interview.interviewSchedule;
+              
+          //     const interviewDate = schedule.date ? new Date(schedule.date) : null;
+          //     const interviewTime = schedule.time ? schedule.time.slice(0, 5) : null;
+          
+          //     // Humne loadAllSchedules mein trainees array pehle hi bhar diya hai
+          //     const traineeIds = interview.map(item => item.user?.trngid).filter(id => id);
+              
+          //     console.log("Setting Trainee IDs:", traineeIds);
+              
+          //     setSelectedDate(interviewDate);
+          //     setSelectedTime(interviewTime);
+          //     setSelectedTrainees(traineeIds); 
+          
+          //     // Pure form ko reset/set karna
+          //     setFormdata({
+          //         ...schedule,
+          //         scheduleId: schedule.scheduleId,
+          //         traineeIds: traineeIds // Isse SchedulingForm ko fresh list milegi
+          //     });
+              
+          //     setActiveView('calendar');
+          // };
+          
+          
+          // const handleRescheduleInterview = (interview) => {
+          //     // 1. Check if interview exists
+          //     if (!interview) return;
+          
+          //     // 2. Extract the schedule
+          //     const schedule = interview.interviewSchedule;
+              
+          //     // 3. Extract Trainee ID
+          //     // Since 'interview' is the object, we get the ID from interview.user
+          //     // We put it in an array [id] because your form expects a list (traineeIds)
+          //    // const traineeId = interview.user?.trngid;
+             
+          //     //const traineeIds = traineeId ? [traineeId] : [];
+          
+          //     const traineeIds = interviews
+          //     .filter(i => i.roleRvsp?.toLowerCase() === 'trainee')
+          //     .map(i => i.user?.trngid)
+          //     .filter(Boolean);
+          
+          //   console.log("All Trainee IDs:", traineeIds);
+          
+          
+          //     // 4. Format Date and Time
+          //     const interviewDate = schedule?.date ? new Date(schedule.date) : null;
+          //     const interviewTime = schedule?.time ? schedule.time.slice(0, 5) : null;
+          
+          //     console.log("Setting Trainee IDs:", traineeIds);
+          
+          //     // 5. Update States
+          //     setSelectedDate(interviewDate);
+          //     setSelectedTime(interviewTime);
+          //     setSelectedTrainees(traineeIds); 
+          
+          //     // 6. Update Form Data
+          //     setFormdata({
+          //         ...schedule,
+          //         scheduleId: schedule?.scheduleId,
+          //         traineeIds: traineeIds 
+          //     });
+          
+          //     setActiveView('calendar');
+          // };
+
+
+          
+          
+          // import React, { useState, useEffect } from "react";
+          // import Button from "../../components/ui/Button";
+          // import Input from "../../components/ui/Input";
+          // import Select from "../../components/ui/Select";
+          // import Header from "../../components/ui/Header";
+          // import { Trash2 } from "lucide-react";
+          
+          // import {
+          //   createAssessmentforTest,
+          //   getAllAssessmentsforTest,
+          //   deleteAssessmentApiforTest,
+          //   getDepartmentsWithSyllabus
+          // } from "../../api_service";
+          
+          // function CreateQuestion() {
+          
+          //   const [departments, setDepartments] = useState([]);
+          //   const [syllabus, setSyllabus] = useState([]);
+          //   const [selectedSyllabus, setSelectedSyllabus] = useState([]);
+          
+          //   const [title, setTitle] = useState("");
+          //   const [time, setTime] = useState("");
+          //   const [department, setDepartment] = useState([]);
+          
+          //   const [section, setSection] = useState("");
+          //   const [globalType, setGlobalType] = useState("MCQ");
+          
+          //   const [uploadedAssessments, setUploadedAssessments] = useState([]);
+          //   const [previewData, setPreviewData] = useState(null);
+          
+          //   const [questions, setQuestions] = useState([
+          //     {
+          //       question: "",
+          //       type: "MCQ",
+          //       options: ["", "", "", ""],
+          //       correctAnswer: ""
+          //     }
+          //   ]);
+          
+          //   useEffect(() => {
+          //     fetchDepartments();
+          //     fetchAssessments();
+          //   }, []);
+          
+          //   const fetchDepartments = async () => {
+          //     const res = await getDepartmentsWithSyllabus();
+          //     setDepartments(res);
+          
+          //     const all = res.flatMap(d =>
+          //       d.syllabus.map(s => ({
+          //         label: `${d.departmentName} - ${s.title}`,
+          //         value: s.id
+          //       }))
+          //     );
+          
+          //     setSyllabus([...new Map(all.map(i => [i.value, i])).values()]);
+          //   };
+          
+          //   const fetchAssessments = async () => {
+          //     const res = await getAllAssessmentsforTest();
+          //     setUploadedAssessments(res);
+          //   };
+          
+          //   /* ---------------- QUESTION ---------------- */
+          
+          //   const handleQuestionChange = (value, index) => {
+          //     const updated = [...questions];
+          //     updated[index].question = value;
+          //     setQuestions(updated);
+          //   };
+          
+          //   const handleOptionChange = (value, qIndex, optIndex) => {
+          //     const updated = [...questions];
+          //     updated[qIndex].options[optIndex] = value;
+          //     setQuestions(updated);
+          //   };
+          
+          //   const handleCorrectAnswer = (value, index) => {
+          //     const updated = [...questions];
+          //     updated[index].correctAnswer = value;
+          //     setQuestions(updated);
+          //   };
+          
+          //   const addQuestion = () => {
+          //     let newQ = {
+          //       question: "",
+          //       type: globalType,
+          //       options: globalType === "MCQ" ? ["", "", "", ""] : [],
+          //       correctAnswer: ""
+          //     };
+          //     setQuestions([...questions, newQ]);
+          //   };
+          
+          //   /* ---------------- SAVE ---------------- */
+          
+          //   const saveQuestions = async () => {
+          //     const data = {
+          //       departmentIds: department,
+          //       syllabusIds: selectedSyllabus,
+          //       title,
+          //       time,
+          //       section,
+          //       questions
+          //     };
+          
+          //     await createAssessmentforTest(data);
+          //     alert("Saved!");
+          //     fetchAssessments();
+          //   };
+          
+          //   return (
+          //     <div className="min-h-screen bg-gray-100">
+          //       <Header userName="User" userRole="manager" />
+          
+          //       {/* CENTER CONTAINER */}
+          //       <div className="pt-24 px-10 flex justify-center">
+          //         <div className="grid lg:grid-cols-2 gap-6 w-full max-w-6xl">
+          
+          //           {/* FORM CARD */}
+          //           <div className="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 space-y-5">
+          
+          //             <h2 className="text-xl font-bold">Create Assessment</h2>
+          
+          //             {/* ROW 1 */}
+          //             <div className="grid grid-cols-2 gap-4">
+          //               <div>
+          //                 <label className="text-sm">Title</label>
+          //                 <Input placeholder="Enter title"
+          //                   value={title}
+          //                   onChange={(e) => setTitle(e.target.value)} />
+          //               </div>
+          
+          //               <div>
+          //                 <label className="text-sm">Time</label>
+          //                 <Input type="number" placeholder="Minutes"
+          //                   value={time}
+          //                   onChange={(e) => setTime(e.target.value)} />
+          //               </div>
+          //             </div>
+          
+          //             {/* ROW 2 */}
+          //             <div className="grid grid-cols-2 gap-4">
+          //               <div>
+          //                 <label className="text-sm">Department</label>
+          //                 <Select multiple value={department}
+          //                   onChange={setDepartment}
+          //                   options={departments.map(d => ({
+          //                     label: d.departmentName,
+          //                     value: d.departmentId
+          //                   }))} />
+          //               </div>
+          
+          //               <div>
+          //                 <label className="text-sm">Syllabus</label>
+          //                 <Select multiple value={selectedSyllabus}
+          //                   onChange={setSelectedSyllabus}
+          //                   options={syllabus} />
+          //               </div>
+          //             </div>
+          
+          //             {/* ROW 3 */}
+          //             <div className="grid grid-cols-2 gap-4">
+          //               <Select label="Section" value={section}
+          //                 onChange={setSection}
+          //                 options={[
+          //                   { label: "Quant", value: "Quant" },
+          //                   { label: "Verbal", value: "Verbal" }
+          //                 ]} />
+          
+          //               <Select label="Type" value={globalType}
+          //                 onChange={setGlobalType}
+          //                 options={[
+          //                   { label: "MCQ", value: "MCQ" },
+          //                   { label: "Text", value: "TEXT" },
+          //                   { label: "Coding", value: "CODING" }
+          //                 ]} />
+          //             </div>
+          
+          //             {/* QUESTIONS */}
+          //             {questions.map((q, index) => (
+          //               <div key={index} className="bg-gray-50 p-4 rounded-xl">
+          
+          //                 <textarea
+          //                   className="w-full border p-3 rounded-lg resize-none"
+          //                   rows={3}
+          //                   placeholder={`Question ${index + 1}`}
+          //                   value={q.question}
+          //                   onChange={(e) =>
+          //                     handleQuestionChange(e.target.value, index)}
+          //                 />
+          
+          //                 {/* MCQ */}
+          //                 {globalType === "MCQ" && (
+          //                   <div className="grid grid-cols-2 gap-3 mt-3">
+          //                     {q.options.map((opt, i) => (
+          //                       <div key={i} className="flex gap-2">
+          //                         <input type="radio"
+          //                           checked={q.correctAnswer === String(i)}
+          //                           onChange={() =>
+          //                             handleCorrectAnswer(String(i), index)}
+          //                         />
+          //                         <Input placeholder={`Option ${i + 1}`}
+          //                           value={opt}
+          //                           onChange={(e) =>
+          //                             handleOptionChange(e.target.value, index, i)} />
+          //                       </div>
+          //                     ))}
+          //                   </div>
+          //                 )}
+          
+          //                 {/* TEXT / CODING */}
+          //                 {globalType !== "MCQ" && (
+          //                   <textarea
+          //                     className="w-full border p-3 mt-3 rounded-lg"
+          //                     placeholder="Answer"
+          //                     value={q.correctAnswer}
+          //                     onChange={(e) =>
+          //                       handleCorrectAnswer(e.target.value, index)}
+          //                   />
+          //                 )}
+          
+          //               </div>
+          //             ))}
+          
+          //             <div className="flex gap-3">
+          //               <Button onClick={addQuestion}>+ Add</Button>
+          //               <Button onClick={saveQuestions}>Save</Button>
+          //             </div>
+          
+          //           </div>
+          
+          //           {/* RIGHT CARD */}
+          //           <div className="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
+          
+          //             <h2 className="font-bold mb-4">Assessments</h2>
+          
+          //             {uploadedAssessments.map((item, i) => (
+          //               <div key={i} className="border p-4 rounded-xl mb-3">
+          
+          //                 <h3 className="font-semibold">{item.title}</h3>
+          
+          //                 <div className="flex gap-2 mt-3">
+          
+          //                   <Button
+          //                     className="bg-blue-500 text-white hover:bg-blue-600"
+          //                     onClick={() => setPreviewData(item)}
+          //                   >
+          //                     Preview
+          //                   </Button>
+          
+          //                   <Button className="bg-green-500 text-white hover:bg-green-600">
+          //                     Edit
+          //                   </Button>
+          
+          //                   <Button
+          //                     className="bg-red-500 text-white hover:bg-red-600 flex items-center gap-1"
+          //                     onClick={() => deleteAssessmentApiforTest(item.id)}
+          //                   >
+          //                     <Trash2 size={16} />
+          //                     Delete
+          //                   </Button>
+          
+          //                 </div>
+          
+          //               </div>
+          //             ))}
+          
+          //           </div>
+          
+          //         </div>
+          //       </div>
+          
+          //       {/* PREVIEW MODAL */}
+          //       {previewData && (
+          //         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
+          
+          //           <div className="bg-white p-6 rounded-2xl w-[520px] max-h-[80vh] overflow-y-auto shadow-2xl">
+          
+          //             <h2 className="text-xl font-bold mb-4 text-blue-600">
+          //               {previewData.title}
+          //             </h2>
+          
+          //             {previewData.questions?.map((q, i) => (
+          //               <div key={i} className="mb-4 p-3 bg-gray-50 rounded-lg">
+          //                 <p className="font-medium">{q.question}</p>
+          //               </div>
+          //             ))}
+          
+          //             <Button
+          //               className="mt-4 bg-gray-800 text-white"
+          //               onClick={() => setPreviewData(null)}
+          //             >
+          //               Close
+          //             </Button>
+          
+          //           </div>
+          
+          //         </div>
+          //       )}
+          
+          //     </div>
+          //   );
+          // }
+          
+          // export default CreateQuestion;
+          // Working
+
+
+          // import React, { useState, useEffect } from "react";
+          // import Header from "../../../components/ui/Header";
+          // import { useNavigate } from 'react-router-dom';
+          // import NavigationBreadcrumb from "../../../components/ui/NavigationBreadcrumb";
+          // import Button from "../../../components/ui/Button";
+          // import Input from "../../../components/ui/Input";
+          // import Icon from "../../../components/AppIcon";
+          // import Select from "../../../components/ui/Select";
+          // import '../../../App.css'
+          // import { uploadSyllabusAPI, getAllSyllabusAPI, updateSyllabusAPI, getAllTrainers, deleteSubTopicAPI, deleteSyllabusAPI } from "../../../api_service";
+          // import { fetchAllDepartments } from "../../../api_service";
+          
+          
+          
+          // const UploadSyllabus = ({ onCancel }) => {
+          //     const [formData, setFormData] = useState({
+          //         title: "",
+          //         topic: "",
+          //         durationInDays: "",
+          //         departmentIds: [],     // NEW
+          //         //trainerIds: [], 
+          //         trainerId: "",
+          
+          //         subTopics: [{ name: "", description: "", file: null, managerId: "" }],
+          //     });
+          //     const navigate = useNavigate();
+          //     const [errors, setErrors] = useState({});
+          //     const [loading, setLoading] = useState(false);
+          //     const [syllabusList, setSyllabusList] = useState([]);
+          //     const [editingId, setEditingId] = useState(null);
+          //     const [trainerList, setTrainerList] = useState([]);
+          //     const [refreshKey, setRefreshKey] = useState(0);
+          //     const [departmentList, setDepartmentList] = useState([]);
+          //     const restrictedRoles = ["CEO", "CTO", "HR", "PM"];
+          //     const roleName = sessionStorage.getItem("roleName");
+          //     const isRestricted = restrictedRoles.includes(roleName);
+          
+          
+          //     useEffect(() => {
+          //         console.log("Updated Trainer List:", trainerList);
+          //     }, [trainerList]);
+          //     const loadAll = async () => {
+          //         try {
+          //             const res = await getAllSyllabusAPI();
+          //             setSyllabusList(res.data?.data || []);
+          //         } catch (err) {
+          //             console.error("Failed to fetch syllabus", err);
+          //         }
+          //     };
+          
+          //     const loadTrainers = async () => {
+          //         try {
+          //             const res = await getAllTrainers();
+          //             console.log("Trainers", res.data);
+          //             setTrainerList(res.data || []);
+          //         } catch (err) {
+          //             console.error("Failed to fetch trainers", err);
+          //         }
+          //     };
+          //     // const trainerOptions = Array.isArray(trainerList)
+          //     //     ? trainerList.map((t) => ({ 
+          //     //         value: t.trngid,
+          //     //         label: `${t.firstname} ${t.lastname}`
+          //     //     }))
+          //     //     : [];
+          //     const trainerOptions = trainerList.map(t => ({
+          //         value: t.trngid,
+          //         label: `${t.firstname} ${t.lastname}`
+          //     }));
+          
+          
+          
+          //     const loadDepartments = async () => {
+          //         try {
+          //             const managerId = sessionStorage.getItem("userId");
+          //             const res = await fetchAllDepartments();
+          //             setDepartmentList(res || []);
+          //         } catch (err) {
+          //             console.error("Failed to fetch departments", err);
+          //         }
+          //     };
+          
+          //     useEffect(() => {
+          //         loadDepartments();
+          //     }, []);
+          
+          
+          
+          
+          //     useEffect(() => {
+          //         loadAll();
+          //     }, [refreshKey]);
+          
+          //     useEffect(() => {
+          //         loadTrainers();
+          //     }, []);
+          
+          //     useEffect(() => {
+          //         console.log("Updated Trainer List:", trainerList);
+          //     }, [trainerList]);
+          
+          //     const triggerReload = () => {
+          //         setRefreshKey(prev => prev + 1);
+          //     };
+          
+          //     const handleChange = (field, value) => {
+          //         setFormData((prev) => ({ ...prev, [field]: value }));
+          //         if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
+          //     };
+          
+          //     const handleSubTopicChange = (index, field, value) => {
+          //         const updated = [...formData.subTopics];
+          //         updated[index][field] = value;
+          //         setFormData((prev) => ({ ...prev, subTopics: updated }));
+          //     };
+          
+          //     const addSubTopic = () => {
+          //         setFormData((prev) => ({
+          //             ...prev,
+          //             subTopics: [...prev.subTopics, { name: "", description: "", file: null, managerId: "" }],
+          //         }));
+          //     };
+          
+          
+          
+          //     const handleDeleteSyllabus = async (syllabusId) => {
+          //         if (!window.confirm("This will permanently delete this syllabus and all its subtopics. Continue?")) return;
+          
+          //         try {
+          //             await deleteSyllabusAPI(syllabusId);
+          //             alert("Syllabus deleted successfully!");
+          //             triggerReload();
+          
+          //         } catch (err) {
+          //             console.error(err);
+          //             alert("Failed to delete syllabus");
+          
+          //         }
+          //     };
+          
+          
+          
+          //     const deleteSubTopic = async (index, subTopicId) => {
+          //         if (!window.confirm("This will permanently delete this subtopic. Continue?")) return;
+          
+          //         try {
+          //             if (subTopicId) {
+          //                 await deleteSubTopicAPI(subTopicId);
+          //                 alert("Subtopic deleted successfully from server!");
+          //                 triggerReload();
+          //             }
+          //             const updated = [...formData.subTopics];
+          //             updated.splice(index, 1);
+          //             setFormData(prev => ({ ...prev, subTopics: updated }));
+          //         } catch (err) {
+          //             console.error(err);
+          //             alert("Failed to delete subtopic");
+          //         }
+          //     }
+          
+          
+          
+          //     console.log(trainerList)
+          //     const interviewerOptions = Array.isArray(trainerList)
+          //         ? (trainerList).map((t) => ({
+          //             value: t.trngid,
+          //             label: `${t.firstname} ${t.lastname}${t.role.roleName ? " - " + t.role.roleName : ""}`,
+          //         }))
+          //         : [];
+          
+          //     const validateForm = () => {
+          //         const newErrors = {};
+          //         if (!formData.title.trim()) newErrors.title = "Title is required";
+          //         if (!formData.topic.trim()) newErrors.topic = "Topic is required";
+          
+          //         formData.subTopics.forEach((sub, i) => {
+          //             if (!sub.name.trim()) newErrors[`subname${i}`] = "Subtopic name required";
+          //             if (!sub.description.trim()) newErrors[`subdesc${i}`] = "Description required";
+          //             if (!editingId && !sub.file) newErrors[`subfile${i}`] = "File required";
+          //         });
+          
+          //         setErrors(newErrors);
+          //         return Object.keys(newErrors).length === 0;
+          //     };
+          
+          //     const handleLogout = () => {
+          //         navigate('/');
+          //     };
+          
+          
+          
+          
+          //     const handleSubmit = async () => {
+          //         if (!validateForm()) return;
+          //         setLoading(true);
+          
+          //         try {
+          
+          //             // const syllabusJson = {
+          //             //     title: formData.title,
+          //             //     topic: formData.topic,
+          //             //     durationInDays: Number(formData.durationInDays),
+          
+          //             //     subTopics: formData.subTopics.map(st => ({
+          //             //         id: st.id,
+          //             //         name: st.name,
+          //             //         description: st.description,
+          //             //         filePath: typeof st.file === "string" ? st.file : null,
+          
+          //             //         manager: st.managerId ? { trngid: st.managerId } : null
+          //             //     }))
+          
+          //             // };
+          
+          //             const syllabusJson = {
+          //                 title: formData.title,
+          //                 topic: formData.topic,
+          //                 durationInDays: Number(formData.durationInDays),
+          
+          //                 departments: formData.departmentIds.map(id => ({ id })),
+          
+          //                 // trainers: formData.trainerIds.map(id => ({
+          //                 //     trngid: id
+          //                 // })),
+          //                 // trainers: formData.trainerId
+          //                 // ? [{ trngid: formData.trainerId }]
+          //                 // : [],
+          //                 manager: formData.trainerId
+          //                     ? { trngid: formData.trainerId }
+          //                     : null,
+          
+          
+          //                 subTopics: formData.subTopics.map(st => ({
+          //                     id: st.id,
+          //                     name: st.name,
+          //                     description: st.description,
+          //                     filePath: typeof st.file === "string" ? st.file : null
+          //                 }))
+          //             };
+          
+          //             console.log("Prepared Syllabus JSON:", syllabusJson);
+          
+          
+          //             const fd = new FormData();
+          //             fd.append("syllabus", JSON.stringify(syllabusJson));
+          
+          
+          //             formData.subTopics.forEach((sub) => {
+          //                 if (sub.file instanceof File) {
+          //                     fd.append("files", sub.file);
+          //                 } else {
+          //                     fd.append("files", new Blob(), "empty.txt");
+          //                 }
+          //             });
+          
+          //             console.log(fd)
+          //             // Send to backend
+          //             const res = editingId
+          //                 ? await updateSyllabusAPI(editingId, fd)
+          //                 : await uploadSyllabusAPI(fd);
+          
+          //             if (editingId) {
+          //                 setSyllabusList(prev => prev.map(it => it.id === editingId ? res.data : it));
+          //                 alert("Updated Successfully!");
+          
+          //             } else {
+          //                 setSyllabusList(prev => [...prev, res.data]);
+          //                 alert("Uploaded Successfully!");
+          
+          //             }
+          
+          //             triggerReload();
+          
+          
+          
+          //             setEditingId(null);
+          
+          //         } catch (err) {
+          //             console.error("Upload error", err);
+          //             alert(err?.response?.data || err.message || "Upload failed");
+          //         } finally {
+          //             setLoading(false);
+          //         }
+          //     };
+          
+          //     console.log("Trainer List:", trainerList);
+          
+          
+          
+          //     //  UPDATED EDIT LOGIC
+          //     const editSyllabus = (item) => {
+          //         setEditingId(item.id);
+          
+          //         setFormData({
+          //             title: item.title,
+          //             topic: item.topic,
+          //             durationInDays: item.durationInDays,
+          
+          //             //  FIX: Add these
+          //             departmentIds: item.departments
+          //                 ? item.departments.map(d => d.id)
+          //                 : [],
+          
+          //             // trainerIds: item.trainers
+          //             //     ? item.trainers.map(t => t.trngid)
+          //             //     : [],
+          //             //     trainerId: item.trainers && item.trainers.length > 0
+          //             // ? item.trainers[0].trngid
+          //             // : "",
+          
+          //             trainerId: item.manager ? item.manager.trngid : "",
+          
+          //             subTopics: (item.subTopics && item.subTopics.length > 0)
+          //                 ? item.subTopics.map(sub => ({
+          //                     id: sub.id,
+          //                     name: sub.name,
+          //                     description: sub.description,
+          //                     file: sub.filePath || null,
+          //                     managerId: sub.manager ? sub.manager.trngid : ""
+          //                 }))
+          //                 : [{ name: "", description: "", file: null, managerId: "" }]
+          //         });
+          //     };
+          
+          
+          //     // ... inside your return statement ...
+          
+          //     {/* RIGHT LIST - Updated with visible Date */ }
+          //     <div className="bg-white/70 p-6 shadow-xl rounded-2xl border border-blue-200 h-fit sticky top-24">
+          //         <h2 className="text-2xl font-bold text-blue-700 mb-4 flex items-center gap-2">
+          //             <Icon name="List" size={24} className="text-blue-700" />
+          //             Syllabus List
+          //         </h2>
+          
+          //         {syllabusList.length === 0 ? (
+          //             <p className="text-gray-500">No syllabus uploaded yet.</p>
+          //         ) : (
+          //             <ul className="space-y-3">
+          //                 {syllabusList.map((item) => (
+          //                     <li
+          //                         key={item.id}
+          //                         className="p-4 bg-blue-50 rounded-lg border border-blue-100 cursor-pointer hover:bg-blue-100 relative group transition-all"
+          //                         onClick={() => {
+          //                             if (!isRestricted) editSyllabus(item);
+          //                         }}
+          //                     >
+          //                         <div className="pr-10">
+          //                             <h4 className="font-semibold text-blue-900">{item.title}</h4>
+          //                             <p className="text-sm text-gray-600">{item.topic}</p>
+          
+          //                             {/* VISIBLE DATE */}
+          //                             <div className="flex items-center gap-1 mt-2 text-[11px] text-gray-400 font-medium">
+          //                                 <Icon name="Calendar" size={12} />
+          //                                 <span>
+          //                                     {item.createdAt
+          //                                         ? new Date(item.createdAt).toLocaleDateString('en-GB', {
+          //                                             day: '2-digit',
+          //                                             month: 'short',
+          //                                             year: 'numeric'
+          //                                         })
+          //                                         : "N/A"}
+          //                                 </span>
+          //                             </div>
+          //                         </div>
+          //                         {!isRestricted && (
+          //                             <button
+          //                                 onClick={(e) => {
+          //                                     e.stopPropagation();
+          //                                     handleDeleteSyllabus(item.id);
+          //                                 }}
+          //                                 className="absolute top-4 right-4 text-red-400 hover:text-red-600 transition-colors"
+          //                             >
+          //                                 <Icon name="Trash2" size={18} />
+          //                             </button>
+          //                         )}
+          //                     </li>
+          //                 ))}
+          //             </ul>
+          //         )}
+          //     </div>
+          //     return (
+          //         <div className="min-h-screen bg-blue-50">
+          //             <Header
+          
+          //                 userName={sessionStorage.getItem("userName") || "User"}
+          //                 userRole="manager"
+          //                 onLogout={handleLogout}
+          //             />
+          //             <main className="pt-20 max-w-7xl mx-auto px-4">
+          //                 <NavigationBreadcrumb userRole="manager" />
+          
+          //                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
+          
+          //                     <div className="bg-white/50 backdrop-blur-lg shadow-xl rounded-2xl border border-blue-200 sticky top-24 max-h-[calc(100vh-120px)] flex flex-col">
+          
+          
+          //                         <div className="p-8 border-b bg-blue-100 rounded-t-2xl flex-none">
+          
+          //                             <h2 className="text-3xl font-bold text-black">
+          //                                 <Icon name="BookOpen" size={28} className="inline mr-2 text-blue-700" />
+          //                                 {editingId ? "Edit Syllabus" : "Upload Syllabus"}
+          //                             </h2>
+          //                         </div>
+          
+          
+          //                         <div className="custom-scrollbar p-8 space-y-8 flex-1 flex flex-col overflow-y-auto">
+          
+          //                             <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
+          //                                 <Input
+          //                                     label="Title"
+          //                                     disabled={isRestricted}
+          //                                     placeholder="Enter syllabus title"
+          //                                     value={formData.title}
+          //                                     onChange={(e) => handleChange("title", e.target.value)}
+          //                                     error={errors.title}
+          //                                 />
+          
+          //                                 <Input
+          //                                     label="Topic"
+          //                                     disabled={isRestricted}
+          //                                     placeholder="Enter main topic"
+          //                                     value={formData.topic}
+          //                                     onChange={(e) => handleChange("topic", e.target.value)}
+          //                                     error={errors.topic}
+          //                                 />
+          //                                 <Input
+          //                                     label="Duration (in Days)"
+          //                                     disabled={isRestricted}
+          //                                     placeholder="Enter number of days e.g. 1, 2, 3"
+          //                                     value={formData.durationInDays}
+          //                                     onChange={(e) => handleChange("durationInDays", e.target.value)}
+          //                                 />
+          //                                 {/* Department Multi Select */}
+          //                                 {/* <div>
+          //     <label className="block text-sm font-medium mb-2">
+          //         Syllabus Departments
+          //     </label>
+          
+          //     <div className="grid grid-cols-2 gap-2 border p-3 rounded-xl bg-white">
+          //         {departmentList.map((dept) => (
+          //             <label key={dept.id} className="flex items-center gap-2 cursor-pointer">
+          //                 <input
+          //                     type="checkbox"
+          //                     checked={formData.departmentIds.includes(dept.id)}
+          //                     onChange={() => {
+          //                         if (formData.departmentIds.includes(dept.id)) {
+          //                             handleChange(
+          //                                 "departmentIds",
+          //                                 formData.departmentIds.filter(id => id !== dept.id)
+          //                             );
+          //                         } else {
+          //                             handleChange(
+          //                                 "departmentIds",
+          //                                 [...formData.departmentIds, dept.id]
+          //                             );
+          //                         }
+          //                     }}
+          //                     className="accent-blue-600"
+          //                 />
+          //                 {dept.name}
+          //             </label>
+          //         ))}
+          //     </div>
+          // </div> */}
+          //                                 <div>
+          //                                     <label className="block text-sm font-medium mb-2">
+          //                                         Select Departments
+          //                                     </label>
+          
+          //                                     <Select
+          //                                         options={departmentList.map(d => ({
+          //                                             value: d.id,
+          //                                             label: d.name
+          //                                         }))}
+          //                                         disabled={isRestricted}
+          //                                         value={formData.departmentIds}
+          //                                         onChange={(value) => handleChange("departmentIds", value)}
+          //                                         multiple
+          //                                         searchable
+          //                                     />
+          //                                     {formData.departmentIds.length > 0 && (
+          //                                         <div className="flex flex-wrap gap-2 mt-2">
+          //                                             {departmentList
+          //                                                 .filter(d => formData.departmentIds.includes(d.id))
+          //                                                 .map(d => (
+          //                                                     <span
+          //                                                         key={d.id}
+          //                                                         className="px-3 py-1 text-xs bg-blue-200 text-blue-800 rounded-full"
+          //                                                     >
+          //                                                         {d.name}
+          //                                                     </span>
+          //                                                 ))}
+          //                                         </div>
+          //                                     )}
+          
+          //                                 </div>
+          
+          
+          //                                 <div className="col-span-1 md:col-span-2 flex flex-col">
+          //                                     <Select
+          //                                         label="Select Trainers"
+          //                                         disabled={isRestricted}
+          //                                         options={trainerOptions}
+          //                                         value={formData.trainerId}
+          //                                         onChange={(value) => handleChange("trainerId", value)}
+          //                                         //multiple
+          //                                         searchable
+          //                                     />
+          
+          //                                     {/* {formData.trainerIds.length > 0 && (
+          //     <div className="flex flex-wrap gap-2 mt-2">
+          //       {trainerList
+          //         .filter(t => formData.trainerIds.includes(t.trngid))
+          //         .map(t => (
+          //           <span
+          //             key={t.trngid}
+          //             className="inline-flex items-center px-3 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full"
+          //           >
+          //             {t.firstname} {t.lastname}
+          //           </span>
+          //         ))}
+          //     </div>
+          //   )} */}
+          //                                 </div>
+          
+          
+          //                             </div>
+          
+          
+          //                             <div className="space-y-6 flex-1 overflow-y-auto pr-3 custom-scrollbar min-h-[200px]">
+          
+          
+          
+          
+          //                                 <h3 className="text-xl font-semibold text-blue-700">Subtopics</h3>
+          
+          //                                 {formData.subTopics.map((sub, index) => (
+          //                                     <div key={index} className="border p-5 rounded-xl bg-white shadow relative">
+          
+          //                                         {!isRestricted && (
+          //                                             <button
+          //                                                 onClick={() => deleteSubTopic(index, sub.id)}
+          //                                                 className="absolute top-3 right-3 text-red-500 hover:text-red-700"
+          //                                             >
+          //                                                 <Icon name="Trash2" size={22} />
+          //                                             </button>
+          //                                         )}
+          
+          
+          //                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
+          //                                             <Input
+          //                                                 label={`Subtopic ${index + 1}`}
+          //                                                 placeholder="Enter subtopic name"
+          //                                                 disabled={isRestricted}
+          //                                                 value={sub.name}
+          //                                                 onChange={(e) =>
+          //                                                     handleSubTopicChange(index, "name", e.target.value)
+          //                                                 }
+          //                                                 error={errors[`subname${index}`]}
+          //                                             />
+          
+          //                                             <div>
+          //                                                 <label className="text-sm font-medium text-gray-700 mb-1 block">
+          //                                                     Upload File {!editingId && "*"}
+          //                                                 </label>
+          
+          //                                                 <label className="cursor-pointer block border border-dashed border-blue-400 rounded-xl p-5 bg-white hover:bg-blue-50 transition shadow-sm overflow-hidden">
+          //                                                     <div className="flex items-center gap-3">
+          //                                                         <Icon name="UploadCloud" size={24} className="text-blue-600" />
+          //                                                         <span className="text-gray-700 truncate block max-w-full">
+          //                                                             {sub.file instanceof File
+          //                                                                 ? sub.file.name
+          //                                                                 : sub.file
+          //                                                                     ? sub.file.split("/").pop()
+          //                                                                     : "Choose file"}
+          //                                                         </span>
+          //                                                     </div>
+          
+          //                                                     <input
+          //                                                         type="file"
+          //                                                         disabled={isRestricted}
+          //                                                         className="hidden"
+          //                                                         onChange={(e) =>
+          //                                                             handleSubTopicChange(index, "file", e.target.files[0])
+          //                                                         }
+          //                                                     />
+          //                                                 </label>
+          
+          //                                                 {errors[`subfile${index}`] && (
+          //                                                     <p className="text-sm text-red-500 mt-1">
+          //                                                         {errors[`subfile${index}`]}
+          //                                                     </p>
+          //                                                 )}
+          //                                             </div>
+          
+          
+          //                                         </div>
+          
+          //                                         <div className="mt-5">
+          //                                             <label className="text-sm font-medium text-gray-700 mb-1 block">
+          //                                                 Description *
+          //                                             </label>
+          
+          //                                             <textarea
+          //                                                 className="w-full h-24 px-4 py-3 rounded-xl border border-blue-300 bg-white shadow-sm"
+          //                                                 placeholder="Enter subtopic description..."
+          //                                                 disabled={isRestricted}
+          //                                                 value={sub.description}
+          //                                                 onChange={(e) =>
+          //                                                     handleSubTopicChange(index, "description", e.target.value)
+          //                                                 }
+          //                                             />
+          //                                             <div>
+          //                                                 <br></br>
+          
+          //                                                 {/* <Select
+          //                                                     label="Select Interviewer"
+          //                                                     required
+          //                                                     options={interviewerOptions}
+          //                                                     value={sub.managerId}
+          //                                                     onChange={(value) => handleSubTopicChange(index, "managerId", value)}
+          //                                                     searchable
+          //                                                 /> */}
+          
+          //                                             </div>
+          
+          
+          
+          
+          
+          //                                             {errors[`subdesc${index}`] && (
+          //                                                 <p className="text-sm text-red-500 mt-1">
+          //                                                     {errors[`subdesc${index}`]}
+          //                                                 </p>
+          //                                             )}
+          //                                         </div>
+          //                                     </div>
+          //                                 ))}
+          //                                 {!isRestricted && (
+          //                                     <Button
+          //                                         variant="default"
+          //                                         onClick={addSubTopic}
+          //                                         iconName="Plus"
+          //                                         className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl"
+          //                                     >
+          //                                         Add Subtopic
+          //                                     </Button>
+          //                                 )}
+          //                             </div>
+          
+          
+          //                             <div className="pt-6 border-t flex flex-col sm:flex-row gap-4 flex-none">
+          //                                 {!isRestricted && (
+          //                                     <button
+          //                                         onClick={handleSubmit}
+          //                                         className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl"
+          //                                     >
+          //                                         {loading ? (editingId ? "Updating..." : "Uploading...") :
+          //                                             editingId ? "Update Syllabus" : "Upload Syllabus"}
+          //                                     </button>
+          //                                 )}
+          //                                 {!isRestricted && (
+          //                                     <Button
+          //                                         variant="ghost"
+          //                                         onClick={onCancel}
+          //                                         iconName="X"
+          //                                         className="flex-1 text-gray-600 hover:bg-gray-100 py-3 rounded-xl"
+          //                                     >
+          //                                         Cancel
+          //                                     </Button>
+          //                                 )}
+          //                             </div>
+          //                         </div>
+          //                     </div>
+          
+          
+          //                     <div className="bg-white/70 p-6 shadow-xl rounded-2xl border border-blue-200 h-fit sticky top-24">
+          //                         <h2 className="text-2xl font-bold text-blue-700 mb-4 flex items-center gap-2">
+          //                             <Icon name="List" size={24} className="text-blue-700" />
+          //                             Syllabus List
+          //                         </h2>
+          
+          //                         {syllabusList.length === 0 ? (
+          //                             <p className="text-gray-500">No syllabus uploaded yet.</p>
+          //                         ) : (
+          //                             <ul className="space-y-3">
+          //                                 {syllabusList.map((item) => (
+          //                                     <li
+          //                                         key={item.id}
+          //                                         className="p-4 bg-blue-50 rounded-lg border border-blue-100 cursor-pointer hover:bg-blue-100 relative group transition-all"
+          //                                         onClick={() => editSyllabus(item)}
+          //                                     >
+          //                                         <div className="pr-10">
+          //                                             <h4 className="font-semibold text-blue-900">{item.title}</h4>
+          //                                             <p className="text-sm text-gray-600">{item.topic}</p>
+          
+          
+          //                                         </div>
+          
+          //                                         <button
+          //                                             onClick={(e) => {
+          //                                                 e.stopPropagation();
+          //                                                 handleDeleteSyllabus(item.id);
+          //                                             }}
+          //                                             className="absolute top-4 right-4 text-red-400 hover:text-red-600 transition-colors"
+          //                                         >
+          //                                             <Icon name="Trash2" size={18} />
+          //                                         </button>
+          //                                     </li>
+          //                                 ))}
+          //                             </ul>
+          //                         )}
+          //                     </div>
+          //                 </div>
+          //             </main>
+          //         </div>
+          //     );
+          // };
+          
+          // export default UploadSyllabus;
+
+          // import React, { useEffect, useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { fetchAllTraineeSummaryAdmin, fetchTraineeSummaryByManager } from "../../../api_service";
+// import Header from "../../../components/ui/Header";
+
+// export default function TrainerEvaluationPage() {
+//   const [trainees, setTrainees] = useState([]);
+//   const [assessments, setAssessments] = useState([]);
+//   const [selectedTrainee, setSelectedTrainee] = useState(null);
+//   const [selectedAssessment, setSelectedAssessment] = useState(null);
+
+//   const navigate=useNavigate();
+
+//   const privilegedRoles = ["ADMIN", "SUPER_ADMIN"];
+
+  
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       const roleName = sessionStorage.getItem("roleName");
+//       const userId = sessionStorage.getItem("userId");
+
+//       let res;
+//       if (privilegedRoles.includes(roleName)) {
+//         res = await fetchAllTraineeSummaryAdmin();
+//       } else {
+//         res = await fetchTraineeSummaryByManager(userId);
+//       }
+
+//       const normalized = (res?.data || []).map((t) => ({
+//         trngid: t.traineeId,
+//         name: t.name
+//       }));
+
+//       setTrainees(normalized);
+//     };
+
+//     fetchData();
+//   }, []);
+
+//   const handleTraineeClick = async (trainee) => {
+//     setSelectedTrainee(trainee);
+//     setSelectedAssessment(null);
+
+
+
+//     try {
+//       const res = await fetch(
+//         `http://localhost:8080/api/assessmenttest/trainee/${trainee.trngid}/assessments`
+//       );
+//       const data = await res.json();
+//       setAssessments(data);
+//     } catch (err) {
+//       console.error("API Error:", err);
+//       alert("Failed to fetch assessments");
+//     }
+//   };
+
+//   const handleAssessmentClick = (attemptId) => {
+//   navigate(`/evaluation/${attemptId}`);
+// };
+
+//   return (
+//     <div className="min-h-screen bg-blue-50">
+//       <Header userName="User" userRole="manager" />
+
+//       <div className="pt-20 flex">
+
+//         {/* TRAINEES */}
+//         <div className="w-1/3 p-6">
+//           <h2 className="text-xl font-bold text-blue-700 mb-4">Trainees</h2>
+
+//           {trainees.map((t) => (
+//             <div
+//               key={t.trngid}
+//               onClick={() => handleTraineeClick(t)}
+//               className={`p-4 mb-2 rounded-xl cursor-pointer ${
+//                 selectedTrainee?.trngid === t.trngid
+//                   ? "bg-blue-600 text-white"
+//                   : "bg-white hover:bg-blue-100"
+//               }`}
+//             >
+//               {t.name}
+//             </div>
+//           ))}
+//         </div>
+
+//         {/* RIGHT SIDE */}
+//         <div className="w-2/3 p-6">
+
+//           {/* ASSESSMENT CARDS */}
+//           {!selectedAssessment && (
+//             <div className="grid grid-cols-2 gap-4">
+//               {assessments.map((a, index) => (
+//                 <div
+//                   key={index}
+//                   className="p-5 bg-white rounded-2xl shadow-lg"
+//                 >
+//                   <h3 className="text-lg font-bold text-blue-700">
+//                     {a.assessmentTitle}
+//                   </h3>
+
+//                   <p className="text-sm text-gray-500">
+//                     ID: {a.assessmentId}
+//                   </p>
+
+//                   <p className="text-sm mt-2">
+//                     Questions: {a.questions.length}
+//                   </p>
+
+//                 <button
+//   onClick={() => {
+//     console.log("Clicked attemptId:", a?.attemptId);
+//     if (!a?.attemptId) {
+//       alert("Attempt ID missing!");
+//       return;
+//     }
+//     handleAssessmentClick(a.attemptId);
+//   }}
+//   className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+// >
+//   Evaluate
+// </button>
+//                 </div>
+//               ))}
+//             </div>
+//           )}
+
+//           {/* DETAILS VIEW */}
+         
+
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+// import React, { useEffect, useState } from "react";
+// import { useParams, useNavigate } from "react-router-dom";
+// import Header from "../../../components/ui/Header";
+// import NavigationBreadcrumb from "../../../components/ui/NavigationBreadcrumb";
+// import Icon from "../../../components/ui/../AppIcon";
+// import axios from "axios";
+// import { submitAssessment,checkAssessmentAttempt} from "../../../api_service";
+
+// function TraineeTestPage() {
+//   const { assessmentId } = useParams();
+//   const navigate = useNavigate();
+
+//   const [assessment, setAssessment] = useState(null);
+//   const [answers, setAnswers] = useState({});
+//   const [visited, setVisited] = useState({});
+
+//   const [activeSection, setActiveSection] = useState(0);
+//   const [activeQuestion, setActiveQuestion] = useState(0);
+
+//   const [timeLeft, setTimeLeft] = useState(0);
+//   const [sectionTimers, setSectionTimers] = useState({});
+//   const [submitted, setSubmitted] = useState(false);
+
+//   const traineeId = sessionStorage.getItem("empid");
+//   // const trainerIds = sessionStorage.getItem("trainerIds") || "[]";
+//   const trainerIds = JSON.parse(sessionStorage.getItem("trainerIds") || "[]");
+// const trainerIdsStr = trainerIds.map((id) => id.toString());
+// const playBeep = () => {
+//   const context = new AudioContext();
+//   const oscillator = context.createOscillator();
+//   oscillator.type = "square";
+//   oscillator.frequency.setValueAtTime(440, context.currentTime);
+//   oscillator.connect(context.destination);
+//   oscillator.start();
+//   oscillator.stop(context.currentTime + 0.1);
+// };
+// const alertAudio = new Audio("https://www.soundjay.com/buttons/sounds/beep-07.mp3");
+
+  
+//   useEffect(() => {
+//   const fetchAssessment = async () => {
+//     try {
+//       // Check if already submitted
+//       const checkRes = await checkAssessmentAttempt(assessmentId, traineeId);
+//       if (checkRes.data === true) {
+//         alert("You have already submitted this assessment!");
+//         navigate("/trainee-assessment-list");
+//         return;
+//       }
+
+//       // Fetch assessment data
+//       const res = await axios.get(
+//         `http://localhost:8080/api/assessment/test/${assessmentId}`
+//       );
+//       setAssessment(res.data);
+
+//       const totalTime = res.data.sections.reduce(
+//         (sum, sec) => sum + Number(sec.time),
+//         0
+//       );
+//       setTimeLeft(totalTime * 60);
+
+//       const secTimers = {};
+//       res.data.sections.forEach((sec) => {
+//         secTimers[sec.id] = Number(sec.time) * 60;
+//       });
+//       setSectionTimers(secTimers);
+//     } catch (err) {
+//       console.error(err);
+//       alert("Failed to load assessment.");
+//     }
+//   };
+
+//   fetchAssessment();
+// }, [assessmentId, traineeId, navigate]);
+//   /* ---------------- TIMER ---------------- */
+//   useEffect(() => {
+//     if (!assessment || submitted) return;
+
+//     const timer = setInterval(() => {
+//       setTimeLeft((prev) => {
+//         if (prev <= 1) {
+//           handleSubmit();
+//           return 0;
+//         }
+//         return prev - 1;
+//       });
+
+//       setSectionTimers((prev) => {
+//         const updated = { ...prev };
+//         const currentSec = assessment.sections[activeSection];
+
+//         if (currentSec && updated[currentSec.id] > 0) {
+//           updated[currentSec.id] -= 1;
+//         }
+
+//         return updated;
+//       });
+//     }, 1000);
+
+//     return () => clearInterval(timer);
+//   }, [assessment, activeSection, submitted]);
+
+//   /* ---------------- ANSWER ---------------- */
+//   const handleAnswer = (qId, value) => {
+//     if (submitted) return;
+
+//     setAnswers((prev) => ({
+//       ...prev,
+//       [qId]: value,
+//     }));
+
+//     setVisited((prev) => ({
+//       ...prev,
+//       [qId]: true,
+//     }));
+//   };
+
+//   const handleQuestionClick = (qId, index) => {
+//     setActiveQuestion(index);
+
+//     setVisited((prev) => ({
+//       ...prev,
+//       [qId]: true,
+//     }));
+//   };
+
+//   /* ---------------- SUBMIT ---------------- */
+//   // const handleSubmit = async () => {
+//   //   if (submitted) return;
+
+//   //   setSubmitted(true);
+
+//   //   try {
+//   //     await submitAssessment(assessmentId, {
+//   //       traineeId,
+//   //       trainerIds,
+//   //       answers,
+//   //     });
+
+//   //     alert("Submitted!");
+//   //     navigate("/trainee-assessment-list");
+//   //   } catch (err) {
+//   //     setSubmitted(false);
+//   //   }
+//   // };
+
+
+//   const handleSubmit = async () => {
+//   const alreadySubmitted = sessionStorage.getItem(`submitted_${assessmentId}`);
+//   if (submitted || alreadySubmitted === "true") return;
+
+//   setSubmitted(true);
+//   sessionStorage.setItem(`submitted_${assessmentId}`, "true");
+
+//   try {
+//     const traineeIdStr = traineeId.toString();
+//     const trainerIdsArr = JSON.parse(sessionStorage.getItem("trainerIds") || "[]");
+//     const trainerIdsStr = trainerIdsArr.map((id) => id.toString());
+
+//     // GROUP ANSWERS BY SECTION
+//     const formattedSections = assessment.sections.map((section) => ({
+//       sectionId: section.id,
+//       sectionName: section.sectionName,
+//        timeSpent: Number(section.time) * 60 - (sectionTimers[section.id] || 0),
+//       questions: section.questions.map((q) => ({
+//         questionId: q.id,
+//         answer: answers[q.id] !== undefined ? answers[q.id].toString() : "",
+//       })),
+//     }));
+
+//     await submitAssessment(assessmentId, {
+//       traineeId: traineeIdStr,
+//       trainerIds: trainerIdsStr,
+//       answers: formattedSections,
+//     });
+
+//     alert("Test Submitted Successfully!");
+//     navigate("/trainee-assessment-list");
+//   } catch (err) {
+//     console.error("Submission error:", err);
+//     setSubmitted(false);
+//     sessionStorage.removeItem(`submitted_${assessmentId}`);
+//     alert("Submission failed. Please try again.");
+//   }
+// };
+//   /* ---------------- RESTRICTIONS ---------------- */
+
+//   const forceSubmitAndExit = () => {
+//     if (!submitted) {
+//       alert("Test submitted due to restricted action!");
+//       handleSubmit();
+//       navigate("/trainee-assessment-list");
+//     }
+//   };
+
+//  useEffect(() => {
+//   const forceSubmitAndExit = () => {
+//     if (!submitted) {
+//       alert("Test submitted due to restricted action!");
+//        alertAudio.play().catch(() => {}); // play alert
+//       handleSubmit();
+//       navigate("/trainee-assessment-list");
+//     }
+//   };
+
+//   const handleVisibility = () => { if(document.hidden) forceSubmitAndExit(); };
+//   const handleBlur = () => { forceSubmitAndExit(); };
+//   const preventRightClick = (e) => { e.preventDefault(); alertAudio.play().catch(() => {});; };
+//   const handleKey = (e) => {
+//     // Block Ctrl/Cmd + C/X/V, ESC, Tab switching
+//     if (
+//       e.ctrlKey || e.metaKey || 
+//       e.key === "Escape" || 
+//       e.key === "Tab"
+//     ) {
+//       e.preventDefault();
+//       forceSubmitAndExit();
+//       alertAudio.play().catch(() => {});
+//     }
+//   };
+//   const handleBeforeUnload = (e) => {
+//     if (!submitted) {
+//       handleSubmit();
+//       e.preventDefault();
+//       e.returnValue = "";
+//        alertAudio.play().catch(() => {});
+//     }
+//   };
+
+//   document.addEventListener("visibilitychange", handleVisibility);
+//   window.addEventListener("blur", handleBlur);
+//   document.addEventListener("contextmenu", preventRightClick);
+//   window.addEventListener("keydown", handleKey);
+//   window.addEventListener("beforeunload", handleBeforeUnload);
+
+//   // Fullscreen enforcement
+//   document.documentElement.requestFullscreen?.();
+//   const handleFullScreenChange = () => { if(!document.fullscreenElement) forceSubmitAndExit(); };
+//   document.addEventListener("fullscreenchange", handleFullScreenChange);
+
+//   return () => {
+//     document.removeEventListener("visibilitychange", handleVisibility);
+//     window.removeEventListener("blur", handleBlur);
+//     document.removeEventListener("contextmenu", preventRightClick);
+//     window.removeEventListener("keydown", handleKey);
+//     window.removeEventListener("beforeunload", handleBeforeUnload);
+//     document.removeEventListener("fullscreenchange", handleFullScreenChange);
+//   };
+// }, [submitted]);
+
+//   useEffect(() => {
+//     const enterFullScreen = () => {
+//       document.documentElement.requestFullscreen();
+//     };
+
+//     enterFullScreen();
+
+//     const handleFullScreenChange = () => {
+//       if (!document.fullscreenElement && !submitted) {
+//         forceSubmitAndExit();
+//       }
+//     };
+
+//     document.addEventListener("fullscreenchange", handleFullScreenChange);
+
+//     return () => {
+//       document.removeEventListener("fullscreenchange", handleFullScreenChange);
+//     };
+//   }, []);
+
+//   /* ---------------- UI ---------------- */
+
+//   if (!assessment) return <p className="p-10">Loading...</p>;
+
+//   // const currentSection = assessment.sections[activeSection];
+//   // const currentQuestion = currentSection.questions[activeQuestion];
+//   if (!assessment || !assessment.sections || assessment.sections.length === 0) {
+//   return <p className="p-10">No assessment data available.</p>;
+// }
+
+// const currentSection = assessment.sections[activeSection];
+// const currentQuestion =
+//   currentSection && currentSection.questions && currentSection.questions.length > 0
+//     ? currentSection.questions[activeQuestion]
+//     : null;
+
+// if (!currentQuestion) {
+//   return <p className="p-10">No questions available in this section.</p>;
+// }
+
+//   const minutes = Math.floor(timeLeft / 60);
+//   const seconds = timeLeft % 60;
+
+//   const secTime = sectionTimers[currentSection.id] || 0;
+//   const secMin = Math.floor(secTime / 60);
+//   const secSec = secTime % 60;
+
+//   return (
+//     <div className="min-h-screen bg-blue-50">
+//       <Header userName="Trainee" userRole="trainee" testMode={true} />
+
+//       <main className="pt-20 max-w-7xl mx-auto px-4">
+//         <NavigationBreadcrumb userRole="trainee" />
+
+//         <div className="mt-6 bg-white p-6 rounded-2xl shadow">
+
+//           {/* HEADER */}
+//           <div className="flex justify-between mb-6">
+//             <h2 className="text-2xl font-bold flex items-center gap-2">
+//               <Icon name="ClipboardList" />
+//               {assessment.title}
+//             </h2>
+
+//             <div className="text-red-500 font-bold">
+//               {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+//             </div>
+//           </div>
+
+//           <div className="grid grid-cols-12 gap-6">
+
+//             {/* LEFT SECTIONS */}
+//             <div className="col-span-2 bg-gray-100 p-4 rounded-xl">
+//               {assessment.sections.map((sec, i) => (
+//                 <div
+//                   key={sec.id}
+//                   onClick={() => {
+//                     setActiveSection(i);
+//                     setActiveQuestion(0);
+//                   }}
+//                   className={`p-2 mb-2 cursor-pointer rounded ${
+//                     activeSection === i
+//                       ? "bg-blue-500 text-white"
+//                       : "bg-white"
+//                   }`}
+//                 >
+//                   {sec.sectionName}
+//                 </div>
+//               ))}
+//             </div>
+
+//             {/* QUESTION */}
+//             <div className="col-span-7 bg-white p-6 rounded-xl border">
+
+//               <div className="flex justify-between mb-4">
+//                 <h3 className="font-semibold">
+//                   Q{activeQuestion + 1}. {currentQuestion.question}
+//                 </h3>
+
+//                 {/* ✅ SECTION TIMER RIGHT */}
+//                 <span className="text-red-500 text-sm">
+//                   ⏱ {secMin}:{secSec < 10 ? `0${secSec}` : secSec}
+//                 </span>
+//               </div>
+
+//               {/* ✅ MCQ 2 PER ROW */}
+//               {currentSection.type === "MCQ" && (
+//                 <div className="grid grid-cols-2 gap-3">
+//                   {currentQuestion.options.map((opt, i) => (
+//                     <label
+//                       key={i}
+//                       className="border p-2 rounded cursor-pointer"
+//                     >
+//                       <input
+//                         type="radio"
+//                         name={currentQuestion.id}
+//                         checked={answers[currentQuestion.id] === i}
+//                         onChange={() =>
+//                           handleAnswer(currentQuestion.id, i)
+//                         }
+//                         className="mr-2"
+//                       />
+//                       {opt}
+//                     </label>
+//                   ))}
+//                 </div>
+//               )}
+
+//               {/* TEXT */}
+//               {currentSection.type === "TEXT" && (
+//                 <input
+//                   className="border p-2 w-full"
+//                   value={answers[currentQuestion.id] || ""}
+//                   onChange={(e) =>
+//                     handleAnswer(currentQuestion.id, e.target.value)
+//                   }
+//                 />
+//               )}
+
+//               {/* CODING */}
+//               {currentSection.type === "CODING" && (
+//                 <textarea
+//                   className="w-full h-40 p-3 bg-black text-green-400 font-mono rounded"
+//                   value={answers[currentQuestion.id] || ""}
+//                   onChange={(e) =>
+//                     handleAnswer(currentQuestion.id, e.target.value)
+//                   }
+//                 />
+//               )}
+
+//               {/* NAV */}
+//               <div className="flex justify-between mt-6">
+//                 <button
+//                   disabled={activeQuestion === 0}
+//                   onClick={() =>
+//                     setActiveQuestion((prev) => prev - 1)
+//                   }
+//                   className="bg-gray-300 px-4 py-2 rounded"
+//                 >
+//                   Prev
+//                 </button>
+
+//                 <button
+//                   disabled={
+//                     activeQuestion ===
+//                     currentSection.questions.length - 1
+//                   }
+//                   onClick={() =>
+//                     setActiveQuestion((prev) => prev + 1)
+//                   }
+//                   className="bg-blue-500 text-white px-4 py-2 rounded"
+//                 >
+//                   Next
+//                 </button>
+//               </div>
+//             </div>
+
+//             {/* RIGHT PALETTE */}
+//             <div className="col-span-3 bg-gray-100 p-4 rounded-xl">
+//               <div className="grid grid-cols-5 gap-2">
+//                 {currentSection.questions.map((q, i) => {
+//                   const isAnswered =
+//                     answers[q.id] !== undefined &&
+//                     answers[q.id] !== "";
+
+//                   const isVisited = visited[q.id];
+
+//                   let color = "bg-gray-300";
+//                   if (isAnswered) color = "bg-green-500 text-white";
+//                   else if (isVisited) color = "bg-red-500 text-white";
+
+//                   return (
+//                     <div
+//                       key={q.id}
+//                       onClick={() => handleQuestionClick(q.id, i)}
+//                       className={`p-2 text-center rounded cursor-pointer ${color}`}
+//                     >
+//                       {i + 1}
+//                     </div>
+//                   );
+//                 })}
+//               </div>
+//             </div>
+
+//           </div>
+
+//           {/* SUBMIT */}
+//           <div className="text-center mt-6">
+//             <button
+//               onClick={handleSubmit}
+//               className="bg-blue-600 text-white px-6 py-3 rounded-xl"
+//             >
+//               Submit Test
+//             </button>
+//           </div>
+
+//         </div>
+//       </main>
+//     </div>
+//   );
+// }
+
+// export default TraineeTestPage;
+
+
+// import React, { useEffect, useState } from "react";
+// import { useParams, useNavigate } from "react-router-dom"; // ✅ add navigate
+// import Header from "../../../components/ui/Header";
+
+// export default function EvaluationDetailsPage() {
+//   const { attemptId } = useParams();
+//   const navigate = useNavigate(); // ✅ init navigate
+
+//   const [data, setData] = useState(null);
+//   const [marks, setMarks] = useState({});
+//   const [review, setReview] = useState("");
+//   const [activeSection, setActiveSection] = useState("");
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         const res = await fetch(
+//           `http://localhost:8080/api/assessmenttest/attempt/${attemptId}`
+//         );
+//         const result = await res.json();
+//         setData(result);
+//       } catch (err) {
+//         console.error(err);
+//       }
+//     };
+//     fetchData();
+//   }, [attemptId]);
+
+//   const questions = data?.questions || [];
+
+//   const grouped = {};
+//   questions.forEach((q, index) => {
+//     if (!grouped[q.section]) grouped[q.section] = [];
+//     grouped[q.section].push({ ...q, index });
+//   });
+
+//   const sections = Object.keys(grouped);
+
+//   useEffect(() => {
+//     if (sections.length > 0 && !activeSection) {
+//       setActiveSection(sections[0]);
+//     }
+//   }, [sections]);
+
+//   if (!data) return <div className="p-10">Loading...</div>;
+
+//   // const handleMarksChange = (index, value) => {
+//   //   setMarks((prev) => ({
+//   //     ...prev,
+//   //     [index]: Number(value)
+//   //   }));
+//   // };
+
+
+//   const handleMarksChange = (questionId, value) => {
+//   setMarks((prev) => ({
+//     ...prev,
+//     [questionId]: Number(value)
+//   }));
+// };
+//   let total = 0;
+//   let maxTotal = 0;
+
+// //   questions.forEach((q, index) => {
+// //   const isMCQ = q.options && q.options.length > 0;
+
+// //   if (isMCQ) {
+// //     maxTotal += 1;
+// //     if (q.selectedAnswer === q.correctAnswer) total += 1;
+// //   } else if (q.section === "Coding") {
+// //     maxTotal += 10;
+// //     total += marks[q.questionId] || 0;
+// //   } else {
+// //     // Text question
+// //     maxTotal += 5;
+// //     total += marks[q.questionId] || 0;
+// //   }
+// // });
+
+
+
+
+
+// // questions.forEach((q) => {
+// //   //const isMCQ = q.options && q.options.length > 0;
+// //   const isMCQ = q.sectionType === "MCQ";
+
+
+// //   if (isMCQ) {
+// //     maxTotal += 1; // display only
+// //   } 
+// //   else if (q.section === "Coding") {
+// //     maxTotal += 10;
+// //     total += marks[q.questionId] || 0;
+// //   } 
+// //   else {
+// //     maxTotal += 5;
+// //     total += marks[q.questionId] || 0;
+// //   }
+// // });
+
+
+
+// questions.forEach((q) => {
+//   const isMCQ = q.sectionType === "MCQ";
+//   const isCoding = q.sectionType === "CODING";
+
+//   const isCorrect =
+//     q.selectedAnswer?.trim()?.toLowerCase() ===
+//     q.correctAnswer?.trim()?.toLowerCase();
+
+//   if (isMCQ) {
+//     maxTotal += 1;
+
+//     if (isCorrect) {
+//       total += 1; // ✅ MCQ marks add
+//     }
+//   } 
+//   else if (isCoding) {
+//     maxTotal += 10;
+//     total += marks[q.questionId] || 0;
+//   } 
+//   else {
+//     maxTotal += 5;
+//     total += marks[q.questionId] || 0;
+//   }
+// });
+
+
+//   // const handleSubmit = () => {
+//   //   const payload = {
+//   //     attemptId,
+//   //     totalMarks: total,
+//   //     codingMarks: marks,
+//   //     review
+//   //   };
+
+//   //   console.log("FINAL SUBMIT:", payload);
+//   //   alert("Evaluation Submitted Successfully!");
+//   // };
+
+// // const handleSubmit = async () => {
+// //   const payload = {
+// //     marks, 
+// //      review,
+   
+// //   };
+
+// //   try {
+// //     const res = await fetch(`http://localhost:8080/api/assessmenttestcheck/submit-evaluation/${attemptId}`,
+// //       {
+      
+// //       method: "POST",
+// //       headers: { "Content-Type": "application/json" },
+// //       body: JSON.stringify(payload),
+// //     });
+
+// //     console.log("Sending Payload:", payload);
+// //   console.log("Marks Object:", marks);
+// //   console.log("Marks Keys (questionIds):", Object.keys(marks));
+
+// //     console.log("resposnse",res);
+// //     if (res.ok) {
+// //       alert("Evaluation Submitted Successfully!");
+// //       navigate("/previous-page"); // Success ke baad redirect karein
+// //     } else {
+// //       const errorData = await res.json();
+// //       console.error("Backend Error:", errorData);
+// //     }
+// //   } catch (err) {
+// //     console.error("Network Error:", err);
+// //   }
+// // };
+
+
+// const handleSubmit = async () => {
+
+//   // 🔥 ensure all non-MCQ questions have marks
+//   const finalMarks = {};
+
+//   questions.forEach((q) => {
+//    // const isMCQ = q.options && q.options.length > 0;
+// const isMCQ = q.sectionType === "MCQ";
+//     if (!isMCQ) {
+//       finalMarks[q.questionId] = marks[q.questionId] || 0;
+//     }
+//   });
+
+//   const payload = {
+//     marks: finalMarks,
+//     review,
+//   };
+
+//   try {
+//     const res = await fetch(
+//       `http://localhost:8080/api/assessmenttestcheck/submit-evaluation/${attemptId}`,
+//       {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(payload),
+//       }
+//     );
+
+//     if (res.ok) {
+//       alert("Evaluation Submitted Successfully!");
+//       navigate(-1);
+//     } else {
+//       const errorData = await res.json();
+//       console.error("Backend Error:", errorData);
+//     }
+//   } catch (err) {
+//     console.error("Network Error:", err);
+//   }
+// };
+//   return (
+//     <div className="min-h-screen bg-blue-50">
+//       <Header userName="Trainer" userRole="Evaluator" />
+
+//       <div className="pt-24 px-4">
+//         <div className="max-w-7xl mx-auto">
+
+//           {/* 🔥 BACK BUTTON */}
+//           <button
+//             onClick={() => navigate(-1)}
+//             className="mb-4 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+//           >
+//             ← Back
+//           </button>
+
+//           <div className="flex gap-6">
+
+//             {/* LEFT */}
+//             <div className="w-1/4 bg-white rounded-xl shadow p-4 h-fit">
+//               <h2 className="font-bold text-blue-700 mb-4">Sections</h2>
+
+//               {sections.map((sec, i) => (
+//                 <div
+//                   key={i}
+//                   onClick={() => setActiveSection(sec)}
+//                   className={`p-3 mb-2 rounded-lg cursor-pointer ${
+//                     activeSection === sec
+//                       ? "bg-blue-600 text-white"
+//                       : "bg-gray-100 hover:bg-blue-100"
+//                   }`}
+//                 >
+//                   {sec}
+//                 </div>
+//               ))}
+//             </div>
+
+//             {/* RIGHT */}
+//             <div className="w-3/4">
+//               <h1 className="text-2xl font-bold text-blue-700 mb-4">
+//                 {data.assessmentTitle}
+//               </h1>
+
+//               <div className="bg-white rounded-2xl shadow-lg p-6">
+//                 <h2 className="text-lg font-semibold text-purple-700 mb-4">
+//                   {activeSection}
+//                 </h2>
+
+//               {grouped[activeSection]?.map((q) => {
+//   //const isMCQ = q.options && q.options.length > 0;
+//   const isMCQ =
+//   q.correctAnswer &&
+//   q.options &&
+//   q.options.length > 0;
+//   //const isCoding = activeSection === "Coding";
+//   //const isMCQ = q.sectionType === "MCQ";
+// const isCoding = q.sectionType === "CODING";
+
+//   const isCorrect =
+//     q.selectedAnswer?.trim()?.toLowerCase() ===
+//     q.correctAnswer?.trim()?.toLowerCase();
+
+//   return (
+//     <div key={q.index} className="border-b pb-4 mb-4">
+//       <p className="font-medium">
+//         Q{q.index + 1}: {q.question}
+//       </p>
+
+//       <p className="text-sm">Your: {q.selectedAnswer || "NA"}</p>
+//       <p className="text-sm">Correct: {q.correctAnswer || "NA"}</p>
+
+//       {/* MCQ */}
+//       {isMCQ && (
+//         <p className={isCorrect ? "text-green-600" : "text-red-600"}>
+//         {isCorrect ? "Correct ✔" : "Wrong ❌"}
+//         </p>
+//       )}
+
+//       {/* Text/Descriptive Questions */}
+//      {/* Text/Descriptive Questions */}
+// {!isMCQ && !isCoding && (
+//   <div className="flex items-center gap-2 mt-2">
+//     <label className="text-sm font-medium">Marks (0-5):</label>
+//     <input
+//       type="number"
+//       min="0"
+//       max="5"
+//       // value={marks[q.index] || ""}
+//       // onChange={(e) => handleMarksChange(q.index, e.target.value)}
+//       value={marks[q.questionId] || ""}
+// onChange={(e) => handleMarksChange(q.questionId, e.target.value)}
+//       className="border px-2 py-1 w-20"
+//     />
+//     <span className="text-sm text-gray-500">/5</span>
+//   </div>
+// )}
+
+// {/* Coding Questions */}
+// {isCoding && (
+//   <div className="flex items-center gap-2 mt-2">
+//     <label className="text-sm font-medium">Marks (0-10):</label>
+//     <input
+//       type="number"
+//       min="0"
+//       max="10"
+//       // value={marks[q.index] || ""}
+//       // onChange={(e) => handleMarksChange(q.index, e.target.value)}
+//       value={marks[q.questionId] || ""}
+// onChange={(e) => handleMarksChange(q.questionId, e.target.value)}
+//       className="border px-2 py-1 w-20"
+//     />
+//     <span className="text-sm text-gray-500">/10</span>
+//   </div>
+// )}
+//     </div>
+//   );
+// })}
+//               </div>
+
+//               <div className="bg-white p-5 rounded-xl shadow mt-6">
+//                 <p>
+//                   Total: <b>{total} / {maxTotal}</b>
+//                 </p>
+
+//                 <textarea
+//                   value={review}
+//                   onChange={(e) => setReview(e.target.value)}
+//                   className="w-full border mt-2 p-2"
+//                 />
+//               </div>
+
+//               <button
+//                 onClick={handleSubmit}
+//                 className="mt-4 px-6 py-2 bg-green-600 text-white rounded"
+//               >
+//                 Submit
+//               </button>
+
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+//
+//package whitestone.trainee_management.service;
+//
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.mail.SimpleMailMessage;
+//import org.springframework.mail.javamail.JavaMailSender;
+//import org.springframework.scheduling.annotation.Scheduled;
+//import org.springframework.stereotype.Service;
+//import org.springframework.transaction.annotation.Transactional;
+//import whitestone.trainee_management.models.*;
+//import whitestone.trainee_management.repository.*;
+//
+//import java.time.LocalDate;
+//import java.time.LocalDateTime;
+//import java.time.temporal.ChronoUnit;
+//import java.util.List;
+//import java.util.Optional;
+//
+//@Service
+//public class DeadlineService {
+//
+//    @Autowired
+//    private UserRepository userRepository;
+//
+//    @Autowired
+//    private SyllabusRepository syllabusRepository;
+//
+//    @Autowired
+//    private SyllabusDeadlineStatusRepository deadlineRepository;
+//
+//    @Autowired
+//    private StepProgressRepository stepProgressRepository;
+//
+//    @Autowired
+//    private JavaMailSender mailSender;
+//
+//    //  Runs every 1 minute
+//    //@Scheduled(fixedRate = 60000)
+//   // @Transactional
+////    public void checkSyllabusDeadlines() {
+////
+////        System.out.println("Scheduler Running at: " + LocalDateTime.now());
+////
+////        List<User> trainees = userRepository.findByRole_IsManagerFalse();
+////
+////        for (User trainee : trainees) {
+////
+////            if (trainee.getCreatedAt() == null) continue;
+////
+////            LocalDate traineeStartDate =
+////                    trainee.getCreatedAt().toLocalDate();
+////
+////            List<Syllabus> syllabusList =
+////                    syllabusRepository.findSyllabusByTraineeDepartmentsNative(
+////                            trainee.getTrngid()
+////                    );
+////
+////            LocalDate currentStartDate = traineeStartDate;
+////
+////            for (Syllabus syllabus : syllabusList) {
+////
+////                long incompleteCount =
+////                        stepProgressRepository.countIncompleteSubtopics(
+////                                trainee.getTrngid(),
+////                                syllabus.getId()
+////                        );
+////
+////                boolean completed = incompleteCount == 0;
+////
+////                if (completed) {
+////                    currentStartDate = currentStartDate
+////                            .plusDays(syllabus.getDurationInDays())
+////                            .plusDays(1);
+////                    continue;
+////                }
+////
+////                //  Calculate deadline correctly
+////                LocalDate deadlineDate =
+////                        currentStartDate.plusDays(syllabus.getDurationInDays());
+////
+////                long delay =
+////                        ChronoUnit.DAYS.between(deadlineDate, LocalDate.now());
+////
+////                if (delay < 0) delay = 0;
+////
+////                System.out.println("Trainee: " + trainee.getTrngid());
+////                System.out.println("Syllabus: " + syllabus.getTitle());
+////                System.out.println("Deadline: " + deadlineDate);
+////                System.out.println("Today: " + LocalDate.now());
+////                System.out.println("Delay Days: " + delay);
+////
+////                Optional<SyllabusDeadlineStatus> existing =
+////                        deadlineRepository.findByTraineeIdAndSyllabusId(
+////                                trainee.getTrngid(),
+////                                syllabus.getId()
+////                        );
+////
+////                SyllabusDeadlineStatus status =
+////                        existing.orElseGet(() -> {
+////                            SyllabusDeadlineStatus s =
+////                                    new SyllabusDeadlineStatus();
+////                            s.setTraineeId(trainee.getTrngid());
+////                            s.setSyllabusId(syllabus.getId());
+////                            s.setMailSent(false);
+////                            return s;
+////                        });
+////
+////                status.setDeadlineDate(deadlineDate.atStartOfDay());
+////                status.setDelayDays(delay);
+////
+////                User trainer = syllabus.getManager();
+////                if (trainer != null) {
+////                    status.setManagerId(trainer.getUserid());
+////                }
+////
+////                //  Send mail only if delayed
+//////                if (delay > 0) {
+//////
+//////                    boolean shouldSendMail = false;
+//////
+//////                    if (!status.isMailSent()) {
+//////                        shouldSendMail = true;
+//////                    } else if (status.getLastMailSentAt() != null &&
+//////                            status.getLastMailSentAt()
+//////                                    .isBefore(LocalDateTime.now().minusDays(1))) {
+//////                        shouldSendMail = true;
+//////                    }
+//////
+//////                    if (shouldSendMail) {
+//////
+//////                        sendDeadlineMail(
+//////                                trainee,
+//////                                trainer,
+//////                                syllabus,
+//////                                delay
+//////                        );
+//////
+//////                        status.setMailSent(true);
+//////                        status.setLastMailSentAt(LocalDateTime.now());
+//////
+//////                        System.out.println("Mail Sent Successfully!");
+//////                    }
+//////                }
+////             //  Send mail only once when delayed
+////                if (delay > 0 && !status.isMailSent()) {
+////
+////                    sendDeadlineMail(
+////                            trainee,
+////                            trainer,
+////                            syllabus,
+////                            delay
+////                    );
+////
+////                    status.setMailSent(true);
+////                    status.setLastMailSentAt(LocalDateTime.now());
+////
+////                    System.out.println("Mail Sent Successfully!");
+////                }
+////                deadlineRepository.save(status);
+////
+////                //  Stop after first incomplete syllabus
+////                break;
+////            }
+////        }
+////    }
+//    
+//   
+//
+//    private void sendDeadlineMail(User trainee,
+//                                  User trainer,
+//                                  Syllabus syllabus,
+//                                  long delayDays) {
+//
+//        try {
+//
+//            String subject =
+//                    "Deadline Missed - " + syllabus.getTitle();
+//
+//            if (trainer != null && trainer.getEmailid() != null) {
+//
+//                String trainerMessage =
+//                        "Hello Trainer,\n\n" +
+//                        "Your trainee has missed a syllabus deadline.\n\n" +
+//                        "Trainee Name: " + trainee.getFirstname() + " " +
+//                        trainee.getLastname() + "\n" +
+//                        "Trainee ID: " + trainee.getTrngid() + "\n" +
+//                        "Syllabus: " + syllabus.getTitle() + "\n" +
+//                        "Delayed By: " + delayDays + " days\n\n" +
+//                        "Please take necessary action.\n\n" +
+//                        "Regards,\nWhitestone TMS System";
+//
+//                sendMail(trainer.getEmailid(), subject, trainerMessage);
+//            }
+//
+//            if (trainee.getEmailid() != null) {
+//
+//                String traineeMessage =
+//                        "Hello " + trainee.getFirstname() + ",\n\n" +
+//                        "You have missed the deadline for the following syllabus.\n\n" +
+//                        "Syllabus: " + syllabus.getTitle() + "\n" +
+//                        "Delayed By: " + delayDays + " days\n\n" +
+//                        "Please complete it as soon as possible.\n\n" +
+//                        "Regards,\nWhitestone TMS System";
+//
+//                sendMail(trainee.getEmailid(), subject, traineeMessage);
+//            }
+//
+//        } catch (Exception e) {
+//            System.out.println("Mail Error: " + e.getMessage());
+//        }
+//    }
+//
+//    private void sendMail(String to, String subject, String text) {
+//
+//        SimpleMailMessage mail = new SimpleMailMessage();
+//        mail.setFrom("career@whitestones.co.in");
+//        mail.setTo(to);
+//        mail.setSubject(subject);
+//        mail.setText(text);
+//
+//        mailSender.send(mail);
+//    }
+//}
+
+//    
+//    public Map<String, Object> getTraineeReport(String traineeId) {
+//
+//        Map<String, Object> response = new HashMap<>();
+//        Optional<User> traineeOpt = userRepository.findByTrngid(traineeId);
+//
+//        if (traineeOpt.isEmpty()) {
+//            return response;
+//        }
+//
+//        User trainee = traineeOpt.get();
+//
+//        //  SYLLABUS + STEP PROGRESS
+//        List<Syllabus> syllabusList = syllabusRepo.findAll();
+//
+//        List<Map<String, Object>> syllabusData = new ArrayList<>();
+//
+//        for (Syllabus s : syllabusList) {
+//
+//            Map<String, Object> sMap = new LinkedHashMap<>();
+//
+//            sMap.put("id", s.getId());
+//            sMap.put("title", s.getTitle());
+//            sMap.put("topic", s.getTopic());
+//            sMap.put("duration", s.getDurationInDays());
+//
+//            //  SUBTOPICS + STEP PROGRESS (FILTER BY TRAINEE)
+//            List<Map<String, Object>> subTopicsList = new ArrayList<>();
+//
+//            for (SubTopic st : s.getSubTopics()) {
+//
+//                Map<String, Object> stMap = new LinkedHashMap<>();
+//
+//                stMap.put("subTopicId", st.getId());
+//                stMap.put("name", st.getName());
+//                stMap.put("stepNumber", st.getStepNumber());
+//                stMap.put("description", st.getDescription());
+//
+//                //  STEP PROGRESS FOR THIS TRAINEE ONLY
+//                List<StepProgress> progressList =
+//                        stepProgressRepository.findByUser_UseridAndSubTopic_Id(
+//                                trainee.getUserid(), st.getId()
+//                        );
+//
+//                List<Map<String, Object>> progressResponse = new ArrayList<>();
+//
+//                for (StepProgress sp : progressList) {
+//
+//                    Map<String, Object> pMap = new LinkedHashMap<>();
+//
+//                    pMap.put("stepProgressId", sp.getId());
+//                    pMap.put("complete", sp.isComplete());
+//                    pMap.put("checker", sp.isChecker());
+//                    pMap.put("review", sp.getReview());
+//                    pMap.put("startDateTime", sp.getStartDateTime());
+//                    pMap.put("endDateTime", sp.getEndDateTime());
+//
+//                    progressResponse.add(pMap);
+//                }
+//
+//                stMap.put("stepProgress", progressResponse);
+//
+//                subTopicsList.add(stMap);
+//            }
+//
+//            sMap.put("subTopics", subTopicsList);
+//
+//            syllabusData.add(sMap);
+//        }
+//
+//        //  ASSESSMENT DATA
+////        List<TraineeAssessmentAttempt> attempts =
+////                attemptRepo.findByTraineeId(traineeId);
+////
+////        List<Map<String, Object>> assessments = new ArrayList<>();
+////
+////        for (TraineeAssessmentAttempt a : attempts) {
+////
+////            Map<String, Object> aMap = new LinkedHashMap<>();
+////
+////            Integer marks = a.getTotalMarks();
+////
+////            aMap.put("assessmentId", a.getAssessmentId());
+////            aMap.put("marks", marks != null ? marks : 0);
+////           
+////
+////            //  PASS / FAIL
+////         
+////            aMap.put("remarks", a.getRemarks());
+////
+////            //  DATE
+////            aMap.put("submittedAt", a.getSubmittedAt());
+////            Optional<Assessment> assessmentOpt =
+////                    assessmentRepo.findById(a.getAssessmentId());
+////
+////            if (assessmentOpt.isPresent()) {
+////
+////                Assessment assessment = assessmentOpt.get();
+////
+////                //  ONLY SECTION TYPES
+////                List<String> sectionTypes = assessment.getSections()
+////                        .stream()
+////                        .map(Section::getType)
+////                        .distinct() // duplicate remove karega
+////                        .toList();
+////
+////                aMap.put("sectionTypes", sectionTypes);
+////            }
+////
+////            //  QUESTIONS + ANSWERS
+////            aMap.put("answers", a.getAnswers());
+////
+////            assessments.add(aMap);
+////        }
+////
+////        //  COUNT
+////        int totalAssigned = attempts.size();
+////
+////        // 🔥 FINAL RESPONSE
+////        response.put("traineeId", traineeId);
+////        response.put("syllabus", syllabusData);
+////        response.put("assessments", assessments);
+////        response.put("totalAssessmentsAssigned", totalAssigned);
+////
+////        return response;
+//        
+//        LocalDate today = LocalDate.now();
+//        LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
+//        LocalDate endOfWeek = today.with(DayOfWeek.SUNDAY);
+//
+//        // =========================
+//        //  ASSESSMENTS
+//        // =========================
+//
+//
+//     // =========================
+//     //  ASSESSMENT DATA (WEEKLY)
+//     // =========================
+//     List<TraineeAssessmentAttempt> attempts =
+//             attemptRepo.findByTraineeId(traineeId);
+//
+//     List<Map<String, Object>> assessments = new ArrayList<>();
+//     
+//     Map<Long, Assessment> assessmentMap = assessmentRepo.findAll()
+//    	        .stream()
+//    	        .collect(Collectors.toMap(Assessment::getId, a -> a));
+//
+//     for (TraineeAssessmentAttempt a : attempts) {
+//
+//         //  skip if no date
+//         if (a.getSubmittedAt() == null) continue;
+//
+//         LocalDate submittedDate = a.getSubmittedAt().toLocalDate();
+//
+//         //  skip if not in current week
+//         if (submittedDate.isBefore(startOfWeek) || submittedDate.isAfter(endOfWeek)) {
+//             continue;
+//         }
+//
+//         Map<String, Object> aMap = new LinkedHashMap<>();
+//
+//         Integer marks = a.getTotalMarks();
+//         Integer overallMarks=a.getOverallMarks();
+//
+//         aMap.put("assessmentId", a.getAssessmentId());
+//         
+//         aMap.put("marks", marks != null ? marks : 0);
+//         aMap.put("overallMarks", overallMarks != null ? overallMarks : 0);
+//
+//         aMap.put("remarks", a.getRemarks());
+//
+//         //  DATE
+//         aMap.put("submittedAt", a.getSubmittedAt());
+//
+//         // =========================
+//         //  SECTION TYPES (SAME AS BEFORE)
+//         // =========================
+////         Optional<Assessment> assessmentOpt =
+////        		    assessmentRepo.findById(Long.valueOf(a.getAssessmentId()));
+////
+////        		if (assessmentOpt.isPresent()) {
+////        		    Assessment assessment = assessmentOpt.get();
+////
+////        		    aMap.put("assessmentName", assessment.getTitle()); //  NOW WILL COME
+////
+////        		    List<String> sectionTypes = assessment.getSections()
+////        		            .stream()
+////        		            .map(Section::getType)
+////        		            .distinct()
+////        		            .toList();
+////
+////        		    aMap.put("sectionTypes", sectionTypes);
+//         
+//         
+////        		}
+//         
+//         
+//         
+//         Long assessId = Long.valueOf(a.getAssessmentId());
+//
+//         Assessment assessment = assessmentMap.get(assessId);
+//
+//         if (assessment != null) {
+//
+//             aMap.put("assessmentName", assessment.getTitle());
+//
+//             List<String> sectionTypes = assessment.getSections()
+//                     .stream()
+//                     .map(Section::getType)
+//                     .distinct()
+//                     .toList();
+//
+//             aMap.put("sectionTypes", sectionTypes);
+//
+//         } else {
+//             aMap.put("assessmentName", "Not Found"); // debug ke liye
+//         }
+//         //  SAME OLD ANSWERS
+//         aMap.put("answers", a.getAnswers());
+//
+//         assessments.add(aMap);
+//     }
+//
+//     // =========================
+//     //  FINAL RESPONSE
+//     // =========================
+//     response.put("traineeId", traineeId);
+//     response.put("syllabus", syllabusData);
+//     response.put("assessments", assessments);
+//     response.put("totalAssessmentsThisWeek", assessments.size());
+//
+//     return response;   
+//    
+//    }
+    

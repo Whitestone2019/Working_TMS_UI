@@ -12,7 +12,7 @@ import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
 import { fetchAssessmentsByTrainee } from '../../api_service';
 import { fetchUserByEmpId } from "../../api_service";
-import { fetchInterviewScheduleByEmpId, fetchSyllabusProgressByEmpId,fetchAllDelays, fetchTraineeDelays  } from "../../api_service"
+import { fetchInterviewScheduleByEmpId, fetchSyllabusProgressByEmpId, fetchAllDelays, fetchTraineeDelays } from "../../api_service"
 
 const TraineeDashboard = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const TraineeDashboard = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [delayNotifications, setDelayNotifications] = useState([]);
 
-const [delays, setDelays] = useState([]);
+  const [delays, setDelays] = useState([]);
 
 
   useEffect(() => {
@@ -165,39 +165,39 @@ const [delays, setDelays] = useState([]);
     loadTraineeData();
   }, [refreshKey]);
 
-useEffect(() => {
-  const empId = sessionStorage.getItem("empid");
-  if (!empId) return;
+  useEffect(() => {
+    const empId = sessionStorage.getItem("empid");
+    if (!empId) return;
 
-  const loadDelays = async () => {
-    try {
-      const response = await fetchTraineeDelays(empId);
-      const list = Array.isArray(response.data) ? response.data : [];
-      setDelays(list);
-    } catch (err) {
-      console.error("Failed to fetch delays:", err);
+    const loadDelays = async () => {
+      try {
+        const response = await fetchTraineeDelays(empId);
+        const list = Array.isArray(response.data) ? response.data : [];
+        setDelays(list);
+      } catch (err) {
+        console.error("Failed to fetch delays:", err);
+      }
+    };
+
+    loadDelays();
+
+    // Optional: auto-refresh every 1 minute
+    const interval = setInterval(loadDelays, 60000);
+    return () => clearInterval(interval);
+
+  }, []);
+
+  useEffect(() => {
+    if (!delays || delays.length === 0) {
+      setDelayNotifications([]);
+      return;
     }
-  };
 
-  loadDelays();
+    const delayedItems = delays.filter(item => item.delayDays > 0);
 
-  // Optional: auto-refresh every 1 minute
-  const interval = setInterval(loadDelays, 60000);
-  return () => clearInterval(interval);
+    setDelayNotifications(delayedItems);
 
-}, []);
-
-useEffect(() => {
-  if (!delays || delays.length === 0) {
-    setDelayNotifications([]);
-    return;
-  }
-
-  const delayedItems = delays.filter(item => item.delayDays > 0);
-
-  setDelayNotifications(delayedItems);
-
-}, [delays]);
+  }, [delays]);
 
   // Mock authentication check
   useEffect(() => {
@@ -237,81 +237,81 @@ useEffect(() => {
 
 
   const empid = sessionStorage.getItem("empid");
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         setLoading(true);
-//         const result = await fetchSyllabusProgressByEmpId(empid);
+  //   useEffect(() => {
+  //     const fetchData = async () => {
+  //       try {
+  //         setLoading(true);
+  //         const result = await fetchSyllabusProgressByEmpId(empid);
 
-//         const apiData = result?.data || result || [];
+  //         const apiData = result?.data || result || [];
 
-//         const sortedData = [...apiData].sort((a, b) => {
-//           const dateA = new Date(a?.createdDate || 0);
-//           const dateB = new Date(b?.createdDate || 0);
-//           return dateA - dateB;
-//         });
-//         setSyllabusProgress(sortedData);
-//         // ✅ Extract only departmentIds
-// const departmentIds = sortedData.flatMap(item =>
-//   (item.departments || []).map(dep => dep.departmentId)
-// );
+  //         const sortedData = [...apiData].sort((a, b) => {
+  //           const dateA = new Date(a?.createdDate || 0);
+  //           const dateB = new Date(b?.createdDate || 0);
+  //           return dateA - dateB;
+  //         });
+  //         setSyllabusProgress(sortedData);
+  //         // ✅ Extract only departmentIds
+  // const departmentIds = sortedData.flatMap(item =>
+  //   (item.departments || []).map(dep => dep.departmentId)
+  // );
 
-// // ✅ Make distinct
-// const uniqueDepartmentIds = [...new Set(departmentIds)];
+  // // ✅ Make distinct
+  // const uniqueDepartmentIds = [...new Set(departmentIds)];
 
-// // ✅ Store in sessionStorage
-// sessionStorage.setItem("departmentIds", JSON.stringify(uniqueDepartmentIds));
+  // // ✅ Store in sessionStorage
+  // sessionStorage.setItem("departmentIds", JSON.stringify(uniqueDepartmentIds));
 
-// console.log("Stored Department IDs:", uniqueDepartmentIds);
+  // console.log("Stored Department IDs:", uniqueDepartmentIds);
 
-//         const formattedSteps = sortedData.map((item, index, arr) => {
-//           //  current step completed
-//           const isCompleted = item?.subTopics?.every(sub =>
-//             sub?.stepProgress?.some(p => p.complete === true && p.checker === true)
-//           );
-
-
-//           //  previous step completed
-//           const prevCompleted =
-//             index === 0
-//               ? true
-//               : arr[index - 1]?.subTopics?.every(sub =>
-//                 sub?.stepProgress?.some(
-//                   p => p.complete === true && p.checker === true
-//                 )
-//               );
-
-//           return {
-//             stepNumber: index + 1,
-//             title: item?.title || `Step ${index + 1}`,
-//             description: item?.topic || '',
-//             completed: isCompleted,
-//             locked: !prevCompleted
-//           };
-//         });
-
-//         console.log("Formatted steps status:", formattedSteps);
+  //         const formattedSteps = sortedData.map((item, index, arr) => {
+  //           //  current step completed
+  //           const isCompleted = item?.subTopics?.every(sub =>
+  //             sub?.stepProgress?.some(p => p.complete === true && p.checker === true)
+  //           );
 
 
-//         setStepsStatus(formattedSteps);
+  //           //  previous step completed
+  //           const prevCompleted =
+  //             index === 0
+  //               ? true
+  //               : arr[index - 1]?.subTopics?.every(sub =>
+  //                 sub?.stepProgress?.some(
+  //                   p => p.complete === true && p.checker === true
+  //                 )
+  //               );
 
-//         const totalSteps = stepsStatus.length;
-//         const completedSteps = stepsStatus.filter(s => s.completed).length;
+  //           return {
+  //             stepNumber: index + 1,
+  //             title: item?.title || `Step ${index + 1}`,
+  //             description: item?.topic || '',
+  //             completed: isCompleted,
+  //             locked: !prevCompleted
+  //           };
+  //         });
 
-//         const progressPercentage =
-//           totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
-//         setOverall(progressPercentage.toFixed(0));
-//         setLoading(false);
-//       } catch (err) {
-//         console.error(err);
-//         setLoading(false);
-//       }
-//     };
+  //         console.log("Formatted steps status:", formattedSteps);
 
-//     if (empid) fetchData();
-//   }, [empid, refreshKey]);
 
- useEffect(() => {
+  //         setStepsStatus(formattedSteps);
+
+  //         const totalSteps = stepsStatus.length;
+  //         const completedSteps = stepsStatus.filter(s => s.completed).length;
+
+  //         const progressPercentage =
+  //           totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
+  //         setOverall(progressPercentage.toFixed(0));
+  //         setLoading(false);
+  //       } catch (err) {
+  //         console.error(err);
+  //         setLoading(false);
+  //       }
+  //     };
+
+  //     if (empid) fetchData();
+  //   }, [empid, refreshKey]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -325,36 +325,36 @@ useEffect(() => {
           return dateA - dateB;
         });
         setSyllabusProgress(sortedData);
-        // ✅ Extract only departmentIds
-const departmentIds = sortedData.flatMap(item =>
-  (item.departments || []).map(dep => dep.departmentId)
-);
+        //  Extract only departmentIds
+        const departmentIds = sortedData.flatMap(item =>
+          (item.departments || []).map(dep => dep.departmentId)
+        );
 
-// ✅ Make distinct
-const uniqueDepartmentIds = [...new Set(departmentIds)];
+        //  Make distinct
+        const uniqueDepartmentIds = [...new Set(departmentIds)];
 
-// ✅ Store in sessionStorage
-sessionStorage.setItem("departmentIds", JSON.stringify(uniqueDepartmentIds));
+        //  Store in sessionStorage
+        sessionStorage.setItem("departmentIds", JSON.stringify(uniqueDepartmentIds));
 
-console.log("Stored Department IDs:", uniqueDepartmentIds);
+        console.log("Stored Department IDs:", uniqueDepartmentIds);
 
-// ✅ Extract all trainers
-const allTrainers = sortedData.flatMap(item => item.trainers || []);
+        //  Extract all trainers
+        const allTrainers = sortedData.flatMap(item => item.trainers || []);
 
-// ✅ Remove duplicates based on trainerId
-const uniqueTrainers = Object.values(
-  allTrainers.reduce((acc, trainer) => {
-    if (!acc[trainer.trainerId]) {
-      acc[trainer.trainerId] = trainer; // store full object
-    }
-    return acc;
-  }, {})
-);
+        //  Remove duplicates based on trainerId
+        const uniqueTrainers = Object.values(
+          allTrainers.reduce((acc, trainer) => {
+            if (!acc[trainer.trainerId]) {
+              acc[trainer.trainerId] = trainer; // store full object
+            }
+            return acc;
+          }, {})
+        );
 
-// ✅ Store in sessionStorage
-sessionStorage.setItem("trainers", JSON.stringify(uniqueTrainers));
+        //  Store in sessionStorage
+        sessionStorage.setItem("trainers", JSON.stringify(uniqueTrainers));
 
-console.log("Stored Unique Trainers:", uniqueTrainers);
+        console.log("Stored Unique Trainers:", uniqueTrainers);
 
         const formattedSteps = sortedData.map((item, index, arr) => {
           //  current step completed
@@ -429,17 +429,17 @@ console.log("Stored Unique Trainers:", uniqueTrainers);
         userName={traineeInfo?.name}
         onLogout={handleLogout}
       />
-   
+
 
       {/* Main Content */}
       <main className="pt-16">
         {delayNotifications.length > 0 && (
-  <div className="max-w-7xl mx-auto px-6 mt-4">
-    <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-sm">
-      ⚠️ You have {delayNotifications.length} delayed syllabus pending.
-    </div>
-  </div>
-)}
+          <div className="max-w-7xl mx-auto px-6 mt-4">
+            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-sm">
+              ⚠️ You have {delayNotifications.length} delayed syllabus pending.
+            </div>
+          </div>
+        )}
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Breadcrumb Navigation */}
           <NavigationBreadcrumb
@@ -453,7 +453,7 @@ console.log("Stored Unique Trainers:", uniqueTrainers);
             <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg p-6 border border-border">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold text-foreground mb-2">
+                  <h1 className="text-2xl font-bold text-black mb-2">
                     Welcome back, {traineeInfo?.name}!
                   </h1>
                   <p className="text-muted-foreground">
@@ -516,18 +516,18 @@ console.log("Stored Unique Trainers:", uniqueTrainers);
 
               {/* Progress Summary Card */}
               <div className="bg-card rounded-lg border border-border p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+                <h3 className="text-lg font-semibold text-black mb-4 flex items-center">
                   <Icon name="Target" size={20} className="mr-2 text-primary" />
                   Progress Summary
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Steps Completed</span>
-                    <span className="font-medium text-foreground">{stepsStatus.filter(item => item.locked === false).length - 1}/{stepsStatus.length}</span>
+                    <span className="font-medium text-black">{stepsStatus.filter(item => item.locked === false).length - 1}/{stepsStatus.length}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Current Step</span>
-                    <span className="font-medium text-foreground">Step {stepsStatus.filter(item => item.completed === false)[0]?.title}</span>
+                    <span className="font-medium text-black">Step {stepsStatus.filter(item => item.completed === false)[0]?.title}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Overall Progress</span>

@@ -46,7 +46,7 @@ const TraineeMetricsPanel = ({ metrics }) => {
               <p className="text-sm font-medium text-muted-foreground mb-1">
                 {metric?.title}
               </p>
-              <p className="text-2xl font-bold text-foreground">
+              <p className="text-2xl font-bold text-card-foreground">
                 {metric?.value}
               </p>
             </div>

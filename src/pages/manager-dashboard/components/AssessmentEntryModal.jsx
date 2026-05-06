@@ -8,10 +8,10 @@ import {
   fetchAssessmentsByTrainee,
   createAssessment,
   updateAssessment,
-  fetchCompletedSubTopics,fetchFeedbackBySyllabusForManager
+  fetchCompletedSubTopics, fetchFeedbackBySyllabusForManager
 } from "../../../api_service";
 
-const AssessmentEntryModal = ({ isOpen, onClose, trainee,onSubmitAssessment   }) => {
+const AssessmentEntryModal = ({ isOpen, onClose, trainee, onSubmitAssessment }) => {
   const [assessmentList, setAssessmentList] = useState([]);
   const [existingAssessmentId, setExistingAssessmentId] = useState(null);
   const [selectedSyllabus, setSelectedSyllabus] = useState([]);
@@ -21,7 +21,7 @@ const AssessmentEntryModal = ({ isOpen, onClose, trainee,onSubmitAssessment   })
   const [completedSubTopics, setCompletedSubTopics] = useState([]);
   const [selectedSyllabusId, setSelectedSyllabusId] = useState(null);
   const [feedbackData, setFeedbackData] = useState([]);
-const [privilegeRoles] = useState(["CEO", "CTO", "HR","TM"]);
+  const [privilegeRoles] = useState(["CEO", "CTO", "HR", "TM"]);
 
   const [assessmentData, setAssessmentData] = useState({
     traineeId: '',
@@ -30,7 +30,7 @@ const [privilegeRoles] = useState(["CEO", "CTO", "HR","TM"]);
     maxMarks: '100',
     remarks: '',
     assessmentDate: new Date().toISOString().split('T')[0],
-     subTopics: [],
+    subTopics: [],
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -109,77 +109,78 @@ const [privilegeRoles] = useState(["CEO", "CTO", "HR","TM"]);
   //   console.log("Populated form with assessment data:", assessmentData);
   // };
 
-const populateForm = async (assessment) => {
-  if (!assessment?.assessmentId) return;
+  const populateForm = async (assessment) => {
+    if (!assessment?.assessmentId) return;
 
-  setSelectedSyllabus([]);
-  setSelectedSubTopics([]);
+    setSelectedSyllabus([]);
+    setSelectedSubTopics([]);
 
-  setExistingAssessmentId(assessment.assessmentId);
+    setExistingAssessmentId(assessment.assessmentId);
 
-  const parsedSubTopics =
-    typeof assessment.subTopics === "string"
-      ? assessment.subTopics.split("|").map(Number)
-      : [];
+    const parsedSubTopics =
+      typeof assessment.subTopics === "string"
+        ? assessment.subTopics.split("|").map(Number)
+        : [];
 
-  setAssessmentData({
-    traineeId: trainee.traineeId,
-    assessmentType: assessment.assessmentType?.toLowerCase() || '',
-    marks: String(assessment.marks || ''),
-    maxMarks: String(assessment.maxMarks || '100'),
-    remarks: assessment.remarks || '',
-    assessmentDate: assessment.assessmentDate
-      ? new Date(assessment.assessmentDate).toISOString().split('T')[0]
-      : new Date().toISOString().split('T')[0],
-    subTopics: parsedSubTopics,
-  });
+    setAssessmentData({
+      traineeId: trainee.traineeId,
+      assessmentType: assessment.assessmentType?.toLowerCase() || '',
+      marks: String(assessment.marks || ''),
+      maxMarks: String(assessment.maxMarks || '100'),
+      remarks: assessment.remarks || '',
+      assessmentDate: assessment.assessmentDate
+        ? new Date(assessment.assessmentDate).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0],
+      subTopics: parsedSubTopics,
+    });
 
-  setSelectedSubTopics(parsedSubTopics);
+    setSelectedSubTopics(parsedSubTopics);
 
-  // ✅ FIX: find syllabusId from subTopics
-if (syllabusData?.length && parsedSubTopics.length) {
-  const matchedSyllabus = syllabusData.find(s =>
-    s.subTopics.some(st => parsedSubTopics.includes(st.subTopicId))
-  );
+    //  FIX: find syllabusId from subTopics
+    if (syllabusData?.length && parsedSubTopics.length) {
+      const matchedSyllabus = syllabusData.find(s =>
+        s.subTopics.some(st => parsedSubTopics.includes(st.subTopicId))
+      );
 
-  if (matchedSyllabus) {
-    setSelectedSyllabusId(matchedSyllabus.syllabusId);
-  }
-}
-
-  // ✅ NEW: syllabusId + traineeId pass
-  
-};
-useEffect(() => {
-  const loadFeedback = async () => {
-    try {
-      if (trainee?.traineeId && selectedSyllabusId) {
-        const feedback = await fetchFeedbackBySyllabusForManager(
-          trainee.traineeId,
-          selectedSyllabusId
-          
-        );
-        console.log("Selected Syllabus ID:", selectedSyllabusId);
-console.log("Trainee ID:", trainee?.traineeId);
-setFeedbackData(
-  Array.isArray(feedback) ? feedback : []
-);
-console.log("Feedback API full response:", feedback);
+      if (matchedSyllabus) {
+        setSelectedSyllabusId(matchedSyllabus.syllabusId);
       }
-    } catch (err) {
-      console.error("Feedback fetch error", err);
-      setFeedbackData([]);
     }
+
+   
+    
+
   };
+  useEffect(() => {
+    const loadFeedback = async () => {
+      try {
+        if (trainee?.traineeId && selectedSyllabusId) {
+          const feedback = await fetchFeedbackBySyllabusForManager(
+            trainee.traineeId,
+            selectedSyllabusId
 
-  loadFeedback();
-}, [selectedSyllabusId, trainee?.traineeId]);
+          );
+          console.log("Selected Syllabus ID:", selectedSyllabusId);
+          console.log("Trainee ID:", trainee?.traineeId);
+          setFeedbackData(
+            Array.isArray(feedback) ? feedback : []
+          );
+          console.log("Feedback API full response:", feedback);
+        }
+      } catch (err) {
+        console.error("Feedback fetch error", err);
+        setFeedbackData([]);
+      }
+    };
 
-useEffect(() => {
-  if (assessmentList.length > 0 && syllabusData.length > 0) {
-    populateForm(assessmentList[0]);
-  }
-}, [assessmentList, syllabusData]);
+    loadFeedback();
+  }, [selectedSyllabusId, trainee?.traineeId]);
+
+  useEffect(() => {
+    if (assessmentList.length > 0 && syllabusData.length > 0) {
+      populateForm(assessmentList[0]);
+    }
+  }, [assessmentList, syllabusData]);
   useEffect(() => {
     if (!syllabusData?.length || !assessmentData.subTopics.length) return;
 
@@ -201,55 +202,55 @@ useEffect(() => {
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
   };
 
-const validateForm = () => {
-  const newErrors = {};
+  const validateForm = () => {
+    const newErrors = {};
 
-  // Assessment Type
-  if (!assessmentData.assessmentType) {
-    newErrors.assessmentType = "Assessment type is required";
-  }
+    // Assessment Type
+    if (!assessmentData.assessmentType) {
+      newErrors.assessmentType = "Assessment type is required";
+    }
 
-  //  Marks
-  if (!assessmentData.marks) {
-    newErrors.marks = "Marks obtained is required";
-  } 
+    //  Marks
+    if (!assessmentData.marks) {
+      newErrors.marks = "Marks obtained is required";
+    }
 
-  //  Max Marks
-  if (!assessmentData.maxMarks) {
-    newErrors.maxMarks = "Maximum marks is required";
-  } 
+    //  Max Marks
+    if (!assessmentData.maxMarks) {
+      newErrors.maxMarks = "Maximum marks is required";
+    }
 
-  //  Syllabus
-  if (!selectedSyllabus || selectedSyllabus.length === 0) {
-    newErrors.syllabus = "Please select at least one syllabus";
-  }
+    //  Syllabus
+    if (!selectedSyllabus || selectedSyllabus.length === 0) {
+      newErrors.syllabus = "Please select at least one syllabus";
+    }
 
-  //  Sub Topics
-  if (!assessmentData.subTopics || assessmentData.subTopics.length === 0) {
-    newErrors.subTopics = "Please select at least one sub topic";
-  }
+    //  Sub Topics
+    if (!assessmentData.subTopics || assessmentData.subTopics.length === 0) {
+      newErrors.subTopics = "Please select at least one sub topic";
+    }
 
-  //  Remarks
-  if (!assessmentData.remarks || assessmentData.remarks.trim().length < 10) {
-    newErrors.remarks = "Remarks must be at least 10 characters";
-  }
+    //  Remarks
+    if (!assessmentData.remarks || assessmentData.remarks.trim().length < 10) {
+      newErrors.remarks = "Remarks must be at least 10 characters";
+    }
 
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Submitting assessment data:", assessmentData,existingAssessmentId);
+    console.log("Submitting assessment data:", assessmentData, existingAssessmentId);
     // if (!validateForm()) return;
 
     setIsSubmitting(true);
     const payload = {
       ...assessmentData,
       subTopicIds: assessmentData.subTopicIds,
-       subTopics: selectedSubTopics.join("|"),
+      subTopics: selectedSubTopics.join("|"),
       marks: parseInt(assessmentData.marks),
       maxMarks: parseInt(assessmentData.maxMarks),
       percentage: Math.round((assessmentData.marks / assessmentData.maxMarks) * 100),
@@ -265,9 +266,9 @@ const validateForm = () => {
         await createAssessment(trainee.traineeId, payload);
       }
       if (onSubmitAssessment) {
-      await onSubmitAssessment();   //  notify parent
-    }
-    onClose();
+        await onSubmitAssessment();   //  notify parent
+      }
+      onClose();
 
     } catch (err) {
       console.error(err);
@@ -275,9 +276,9 @@ const validateForm = () => {
       setIsSubmitting(false);
     }
   };
-const restrictedRoles = ["CEO", "CTO", "HR", "PM"];
-const roleName = sessionStorage.getItem("roleName");
-const isRestricted = restrictedRoles.includes(roleName);
+  const restrictedRoles = ["CEO", "CTO", "HR", "PM"];
+  const roleName = sessionStorage.getItem("roleName");
+  const isRestricted = restrictedRoles.includes(roleName);
   useEffect(() => {
     if (!trainee?.traineeId) {
       setCompletedSubTopics([]);
@@ -372,25 +373,25 @@ const isRestricted = restrictedRoles.includes(roleName);
 
 
   const handleSyllabusChange = values => {
-  let selected = Array.isArray(values) ? values : [values];
+    let selected = Array.isArray(values) ? values : [values];
 
-  if (selected.includes("ALL")) {
-    selected = syllabusOptions
-      .filter(opt => opt.value !== "ALL")
-      .map(opt => opt.value);
-  }
+    if (selected.includes("ALL")) {
+      selected = syllabusOptions
+        .filter(opt => opt.value !== "ALL")
+        .map(opt => opt.value);
+    }
 
-  setSelectedSyllabus(selected);
+    setSelectedSyllabus(selected);
 
-  // 👉 syllabusId nikalna (first selected syllabus)
-  const selectedObj = syllabusData.find(s => s.title === selected[0]);
-  if (selectedObj) {
-    setSelectedSyllabusId(selectedObj.syllabusId); // make sure backend me ye field ho
-  }
+    //  syllabusId nikalna (first selected syllabus)
+    const selectedObj = syllabusData.find(s => s.title === selected[0]);
+    if (selectedObj) {
+      setSelectedSyllabusId(selectedObj.syllabusId);
+    }
 
-  setSelectedSubTopics([]);
-  handleInputChange("subTopicIds", []);
-};
+    setSelectedSubTopics([]);
+    handleInputChange("subTopicIds", []);
+  };
   const handleSubTopicChange = values => {
     let selected = Array.isArray(values) ? values : [values];
 
@@ -429,7 +430,7 @@ const isRestricted = restrictedRoles.includes(roleName);
       .filter(Boolean);
   };
 
-  
+
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="bg-card rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -439,7 +440,7 @@ const isRestricted = restrictedRoles.includes(roleName);
             <p className="text-sm text-muted-foreground">{trainee?.name}</p>
           </div>
 
-          <Button variant="ghost" size="icon" onClick={onClose} iconName="X" />
+          <Button variant="ghost" size="icon" onClick={onClose} iconName="X" className="text-black" />
         </div>
 
         <div className="grid grid-cols-3 gap-6 p-6">
@@ -465,7 +466,7 @@ const isRestricted = restrictedRoles.includes(roleName);
           <div className={assessmentList.length > 0 ? "col-span-2" : "col-span-3"}>
             {showUpdateAlert && (
               <div className="mb-4 bg-green-50 text-green-700 border border-green-200 p-3 rounded text-sm">
-                 Assessment updated successfully
+                Assessment updated successfully
               </div>
             )}
 
@@ -482,13 +483,13 @@ const isRestricted = restrictedRoles.includes(roleName);
                 <Input
                   label="Assessment Date"
                   type="date"
-                 disabled={isRestricted}
+                  disabled={isRestricted}
                   value={assessmentData.assessmentDate}
                   onChange={(e) => handleInputChange('assessmentDate', e.target.value)}
                 />
                 <Input
                   label="Marks Obtained"
-                  
+
                   disabled={isRestricted}
                   type="number"
                   value={assessmentData.marks}
@@ -601,49 +602,49 @@ const isRestricted = restrictedRoles.includes(roleName);
                       </div>
                     </div>
                   )}
-                  
+
                 </div>
 
-                {/* ✅ FEEDBACK BELOW SUBTOPICS */}
-{feedbackData.length > 0 && (
-  <div className="mt-4 border rounded-lg p-4 bg-muted/20">
-    <h3 className="text-sm font-semibold mb-3 text-foreground">
-      Feedback
-    </h3>
+                {/*  FEEDBACK BELOW SUBTOPICS */}
+                {feedbackData.length > 0 && (
+                  <div className="mt-4 border rounded-lg p-4 bg-muted/20">
+                    <h3 className="text-sm font-semibold mb-3 text-foreground">
+                      Feedback
+                    </h3>
 
-    {feedbackData.map((item, index) => (
-      <div key={index} className="grid grid-cols-2 gap-4">
+                    {feedbackData.map((item, index) => (
+                      <div key={index} className="grid grid-cols-2 gap-4">
 
-        {/* Trainee Feedback */}
-        <div>
-          <p className="text-xs font-medium text-gray-600 mb-1">
-            Trainee Feedback
-          </p>
-          <div className="bg-gray-50 p-2 rounded border text-sm">
-            {item?.traineeFeedbackGiven
-              ? item?.traineeFeedback
-              : "Not given"}
-          </div>
-        </div>
+                        {/* Trainee Feedback */}
+                        <div>
+                          <p className="text-xs font-medium text-gray-600 mb-1">
+                            Trainee Feedback
+                          </p>
+                          <div className="bg-gray-50 p-2 rounded border text-sm">
+                            {item?.traineeFeedbackGiven
+                              ? item?.traineeFeedback
+                              : "Not given"}
+                          </div>
+                        </div>
 
-        {/* Trainer Feedback */}
-        {privilegeRoles.includes(roleName) && (
-          <div>
-            <p className="text-xs font-medium text-gray-600 mb-1">
-              Trainer Feedback
-            </p>
-            <div className="bg-blue-50 p-2 rounded border text-sm">
-              {item?.trainerFeedbackGiven
-                ? item?.trainerFeedback
-                : "Not given"}
-            </div>
-          </div>
-        )}
+                        {/* Trainer Feedback */}
+                        {privilegeRoles.includes(roleName) && (
+                          <div>
+                            <p className="text-xs font-medium text-gray-600 mb-1">
+                              Trainer Feedback
+                            </p>
+                            <div className="bg-blue-50 p-2 rounded border text-sm">
+                              {item?.trainerFeedbackGiven
+                                ? item?.trainerFeedback
+                                : "Not given"}
+                            </div>
+                          </div>
+                        )}
 
-      </div>
-    ))}
-  </div>
-)}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
               </div>
               <textarea
@@ -659,14 +660,13 @@ const isRestricted = restrictedRoles.includes(roleName);
               <div className="flex justify-end gap-3">
                 <Button variant="outline" onClick={onClose}>Cancel</Button>
                 {!isRestricted && (
-                <Button type="submit" loading={isSubmitting}>Save Assessment</Button>
+                  <Button type="submit" loading={isSubmitting}>Save Assessment</Button>
                 )}
               </div>
-              
-            
+
+
 
             </form>
-            {/* ✅ FEEDBACK SECTION */}
 
           </div>
         </div>

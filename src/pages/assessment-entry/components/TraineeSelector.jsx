@@ -51,7 +51,7 @@ const TraineeSelector = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Select Trainee</h2>
+          <h2 className="text-lg font-semibold text-muted-foreground">Select Trainee</h2>
           <p className="text-sm text-muted-foreground">Choose a trainee to assess</p>
         </div>
         <div className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -98,7 +98,7 @@ const TraineeSelector = ({
                     </div>
 
                     <div>
-                      <h3 className="font-medium text-foreground">{trainee.name}</h3>
+                      <h3 className="font-medium text-black">{trainee.name}</h3>
                       <p className="text-sm text-muted-foreground">
                         ID: {trainee.traineeId}
                       </p>
@@ -149,7 +149,7 @@ const TraineeSelector = ({
         <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-medium text-foreground">
+              <h4 className="font-medium text-black">
                 Selected: {selectedTrainee.name}
               </h4>
               <p className="text-sm text-muted-foreground">

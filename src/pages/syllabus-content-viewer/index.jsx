@@ -221,7 +221,7 @@ useEffect(() => {
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center p-8 bg-card rounded-lg elevation-2 max-w-md">
           <Icon name="Shield" size={48} className="text-warning mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-foreground mb-2">Session Expired</h2>
+          <h2 className="text-xl font-semibold text-black mb-2">Session Expired</h2>
           <p className="text-muted-foreground mb-4"> Your secure learning session has expired. Please return to your dashboard. </p>
           <Button variant="default" onClick={() => navigate('/trainee-dashboard')} iconName="ArrowLeft" iconPosition="left">
             Back to Dashboard
@@ -237,7 +237,7 @@ useEffect(() => {
       <div className="pt-16 flex h-screen">
         <StepNavigationSidebar steps={syllabusSteps} currentStepId={currentStepId} onStepSelect={handleStepSelect} isCollapsed={isSidebarCollapsed} onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="bg-surface border-b border-border px-6 py-3">
+          <div className="bg-background border-b border-border px-6 py-3">
             <NavigationBreadcrumb userRole="trainee" />
           </div>
           <div className="flex-1 flex overflow-hidden">

@@ -47,7 +47,7 @@ const CurrentStepContent = ({
               <Icon name="BookOpen" size={24} color="white" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-foreground">{currentContent?.title}</h2>
+              <h2 className="text-xl font-semibold text-black">{currentContent?.title}</h2>
               <div className="flex items-center space-x-4 mt-1">
                 <span className="text-sm text-muted-foreground flex items-center">
                   <Icon name="Clock" size={14} className="mr-1" />
@@ -61,7 +61,7 @@ const CurrentStepContent = ({
             </div>
           </div>
           <div className="text-right">
-            <div className="px-3 py-1 bg-primary text-primary-foreground text-sm rounded-full">
+            <div className="px-3 py-1 bg-primary text-black text-sm rounded-full">
               In Progress
             </div>
           </div>
@@ -72,7 +72,7 @@ const CurrentStepContent = ({
       <div className="p-6">
         {/* Main Content */}
         <div className="prose max-w-none mb-8">
-          <div className="text-foreground leading-relaxed whitespace-pre-line">
+          <div className="text-black leading-relaxed whitespace-pre-line">
             {currentContent?.content}
           </div>
           {currentContent?.subTopics?.map((topic, index) => (
@@ -89,7 +89,7 @@ const CurrentStepContent = ({
 
         {/* Resources Section */}
         <div className="border-t border-border pt-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+          <h3 className="text-lg font-semibold text-black mb-4 flex items-center">
             <Icon name="FileText" size={20} className="mr-2" />
             Learning Resources
           </h3>
@@ -105,11 +105,11 @@ const CurrentStepContent = ({
                             resource?.type === 'Interactive' ? 'Monitor' : 'Book'
                       }
                       size={18}
-                      className="text-primary"
+                      className="text-black"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-foreground text-sm mb-1">{resource?.name}</h4>
+                    <h4 className="font-medium text-black text-sm mb-1">{resource?.name}</h4>
                     <p className="text-xs text-muted-foreground">
                       {resource?.size || resource?.duration || `${resource?.items}`}
                     </p>

@@ -56,7 +56,7 @@ const InterviewSchedule = ({ className = '', interviews = [] }) => {
       <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-foreground flex items-center">
+            <h2 className="text-xl font-semibold text-black flex items-center">
               <Icon name="Calendar" size={24} className="mr-3 text-primary" />
               Interview Schedule
             </h2>
@@ -83,7 +83,7 @@ const InterviewSchedule = ({ className = '', interviews = [] }) => {
               <div className="flex items-start space-x-4">
 
                 <div className="flex-1">
-                  <h3 className="font-semibold text-foreground mb-1">{interview?.interviewType}</h3>
+                  <h3 className="font-semibold text-black mb-1">{interview?.interviewType}</h3>
                   <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                     <span className="flex items-center">
                       <Icon name="Calendar" size={14} className="mr-1" />
@@ -103,7 +103,7 @@ const InterviewSchedule = ({ className = '', interviews = [] }) => {
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-8 h-8 rounded-full overflow-hidden"></div>
               <div>
-                <p className="text-sm font-medium text-foreground">{interview?.trainerName}</p>
+                <p className="text-sm font-medium text-black">{interview?.trainerName}</p>
                 <p className="text-xs text-muted-foreground">{interview?.trainerTitle}</p>
               </div>
             </div>
@@ -159,20 +159,20 @@ const InterviewSchedule = ({ className = '', interviews = [] }) => {
               <div className="mt-4 pt-4 border-t border-border">
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-medium text-foreground mb-2">Interview Notes:</h4>
+                    <h4 className="font-medium text-black mb-2">Interview Notes:</h4>
                     <div className="bg-muted/30 rounded-lg p-2">
-                      <p className="text-sm text-foreground whitespace-pre-line">{interview?.notes || "Prepare well"}</p>
+                      <p className="text-sm text-black whitespace-pre-line">{interview?.notes || "Prepare well"}</p>
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-medium text-foreground mb-2">Interviewer Info:</h4>
+                    <h4 className="font-medium text-black mb-2">Interviewer Info:</h4>
                     <div className="bg-muted/30 rounded-lg p-1">
                       <p className="text-sm">Name: {interview?.interviewerName}</p>
                       <p className="text-sm">Email: {interview?.interviewerEmail}</p>
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-medium text-foreground mb-2">Approval Status: {interview?.rsvpStatus}</h4>
+                    <h4 className="font-medium text-black mb-2">Approval Status: {interview?.rsvpStatus}</h4>
 
                   </div>
                 </div>

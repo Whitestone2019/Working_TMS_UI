@@ -101,7 +101,7 @@ const TraineeSelectionPanel = ({
       {/* Header */}
       <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Trainee Selection</h3>
+          <h3 className="text-lg font-semibold text-card-foreground">Trainee Selection</h3>
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
@@ -182,7 +182,7 @@ const TraineeSelectionPanel = ({
                     {/* Trainee Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2 mb-1">
-                        <h4 className="text-sm font-medium text-foreground truncate">
+                        <h4 className="text-sm font-medium text-card-foreground truncate">
                           {trainee?.name}
                         </h4>
 

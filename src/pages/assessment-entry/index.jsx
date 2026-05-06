@@ -242,7 +242,7 @@ const roleName = sessionStorage.getItem("roleName")?.toLowerCase();
           {/* Page Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Assessment Entry</h1>
+              <h1 className="text-2xl font-bold text-black">Assessment Entry</h1>
               <p className="text-muted-foreground">
                 Enter weekly evaluation marks and feedback for trainees
               </p>

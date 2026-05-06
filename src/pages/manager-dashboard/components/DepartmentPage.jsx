@@ -9,7 +9,7 @@ import {
   createDepartment,
   fetchAllDepartments,
   deleteDepartment,
-  updateDepartment, // Add this API call for update
+  updateDepartment, 
 } from "../../../api_service";
 import "../../../App.css";
 
@@ -114,10 +114,10 @@ export default function DepartmentPage() {
 
       <main className="pt-16">
         <div className="max-w-7xl mx-auto px-6 py-8">
-          <NavigationBreadcrumb className="mb-6" />
+            <NavigationBreadcrumb userRole="manager" className="mb-4" />
 
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-2xl font-bold text-black">
               Department Management
             </h1>
 
@@ -144,7 +144,7 @@ export default function DepartmentPage() {
                 placeholder="Department Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="flex-1 border rounded-lg px-4 py-2"
+                className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
               />
               {!isRestricted && (
                 <Button type="submit" iconName="Plus">
@@ -163,7 +163,7 @@ export default function DepartmentPage() {
               >
                 <div className="flex items-center gap-3 mb-4">
                   <Icon name="Building2" size={22} className="text-primary" />
-                  <h3 className="font-semibold text-foreground">{dept.name}</h3>
+                  <h3 className="font-semibold text-black">{dept.name}</h3>
                 </div>
                 {!isRestricted && (
                   <div className="flex gap-3">

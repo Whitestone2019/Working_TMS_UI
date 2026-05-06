@@ -423,7 +423,7 @@ const AssessmentForm = ({
       <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-foreground">Assessment Entry</h2>
+            <h2 className="text-lg font-semibold text-black">Assessment Entry</h2>
 
             <p className="text-sm text-muted-foreground">
               Assessing: {trainee?.username} {getSubtopicInfo(trainee)}
@@ -627,7 +627,7 @@ const AssessmentForm = ({
             General Remarks *
           </label>
           <textarea
-            className="w-full h-24 px-3 py-2 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+            className="w-full h-24 px-3 py-2 border border-border rounded-lg  bg-whiite text-black placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
             disabled={isRestricted}
             placeholder="Enter detailed remarks about the trainee's performance..."
             value={formData?.remarks}
@@ -645,7 +645,7 @@ const AssessmentForm = ({
               Strengths
             </label>
             <textarea
-              className="w-full h-20 px-3 py-2 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              className="w-full h-20 px-3 py-2 border border-border rounded-lg  bg-whiite text-black placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
               disabled={isRestricted}
               placeholder="What did the trainee do well?"
               value={formData?.strengths}
@@ -657,7 +657,7 @@ const AssessmentForm = ({
               Areas for Improvement
             </label>
             <textarea
-              className="w-full h-20 px-3 py-2 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              className="w-full h-20 px-3 py-2 border border-border rounded-lg bg-whiite text-black placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
               disabled={isRestricted}
               placeholder="What needs improvement?"
               value={formData?.improvements}
@@ -669,7 +669,7 @@ const AssessmentForm = ({
               Recommendations
             </label>
             <textarea
-              className="w-full h-20 px-3 py-2 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              className="w-full h-20 px-3 py-2 border border-border rounded-lg bg-white text-black placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
               disabled={isRestricted}
               placeholder="Specific recommendations..."
               value={formData?.recommendations}
@@ -702,7 +702,7 @@ const AssessmentForm = ({
               onClick={handleCancel}
               iconName="X"
               iconPosition="left"
-              className="flex-1 sm:flex-none"
+              className="flex-1 sm:flex-none text-black "
             >
               Cancel
             </Button>

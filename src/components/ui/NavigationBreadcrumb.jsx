@@ -34,11 +34,59 @@ const NavigationBreadcrumb = ({
       parent: '/manager-dashboard',
       roles: ['manager']
     },
+    '/upload-syllabus': {
+      label: 'Syllabus',
+      parent: '/manager-dashboard',
+      roles: ['manager']
+    },
+
+    '/trainee-steps': {
+      label: 'Approval',
+      parent: '/manager-dashboard',
+      roles: ['manager']
+    },
+    '/department': {
+      label: 'Department',
+      parent: '/manager-dashboard',
+      roles: ['manager']
+    },
+    '/assign-trainee': {
+      label: 'Assign-Trainee',
+      parent: '/manager-dashboard',
+      roles: ['manager']
+    },
+    '/create-question': {
+      label: 'Assessment Test',
+      parent: '/manager-dashboard',
+      roles: ['manager']
+    },
+    '/check-page': {
+      label: 'Test Check',
+      parent: '/manager-dashboard',
+      roles: ['manager']
+    },
+    
+    '/trainee-report': {
+      label: 'Trainee Report',
+      parent: '/manager-dashboard',
+      roles: ['manager']
+    },
+    
+    
+    
     '/syllabus-content-viewer': {
       label: 'Syllabus Content',
       parent: '/trainee-dashboard',
       roles: ['trainee']
     },
+
+       
+'/trainee-assessment-list': {
+      label: 'Test',
+      parent: '/trainee-dashboard',
+      roles: ['trainee']
+    },
+
     // '/progress-reports': {
     //   label: 'Progress Reports',
     //   parent: userRole === 'manager' ? '/manager-dashboard' : '/trainee-dashboard',
@@ -104,7 +152,7 @@ const NavigationBreadcrumb = ({
             onClick={() => handleNavigation(getHomeRoute())}
             iconName="Home"
             iconSize={16}
-            className="h-8 px-2 text-muted-foreground hover:text-foreground"
+            className="h-8 px-2 text-muted-foreground hover:text-card-foreground"
             title="Go to Dashboard"
           >
           </Button>
@@ -124,7 +172,7 @@ const NavigationBreadcrumb = ({
 
             {/* Breadcrumb Link/Text */}
             {crumb?.isActive ? (
-              <span className="font-medium text-foreground px-2 py-1">
+              <span className="font-medium text-muted-foreground px-2 py-1">
                 {crumb?.label}
               </span>
             ) : (
@@ -142,7 +190,7 @@ const NavigationBreadcrumb = ({
       </ol>
       {/* Mobile Responsive - Show only current page on small screens */}
       <div className="sm:hidden ml-auto">
-        <span className="text-sm font-medium text-foreground">
+        <span className="text-sm font-medium text-muted-foreground">
           {breadcrumbs?.[breadcrumbs?.length - 1]?.label}
         </span>
       </div>

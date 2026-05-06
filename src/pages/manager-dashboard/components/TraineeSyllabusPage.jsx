@@ -1,6 +1,3 @@
-
-
-
 import React, { useEffect, useState } from "react";
 import {
   fetchAssignedSyllabus,
@@ -12,7 +9,7 @@ const TraineeSyllabusPage = ({ traineeId,traineeName, onClose }) => {
   const [syllabusList, setSyllabusList] = useState([]);
   const [selectedSyllabus, setSelectedSyllabus] = useState(null);
   const [feedbackData, setFeedbackData] = useState([]);
-const privilegeRoles = ["CEO", "CTO", "HR"];
+const privilegeRoles = ["CEO", "CTO", "HR","PM"];
   useEffect(() => {
     const loadSyllabus = async () => {
       try {
@@ -88,7 +85,7 @@ const privilegeRoles = ["CEO", "CTO", "HR"];
           )}
         </div>
 
-        {/* RIGHT SIDE */}
+       
        {/* RIGHT SIDE */}
 <div className="w-2/3 p-8 overflow-y-auto">
   {selectedSyllabus ? (

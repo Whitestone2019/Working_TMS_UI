@@ -1,318 +1,12 @@
 
 
-// import React, { useState, useEffect } from "react";
-// import Button from "../../components/ui/Button";
-// import Input from "../../components/ui/Input";
-// import Select from "../../components/ui/Select";
-// import Header from "../../components/ui/Header";
-// import { Trash2 } from "lucide-react";
-
-// import {
-//   createAssessmentforTest,
-//   getAllAssessmentsforTest,
-//   deleteAssessmentApiforTest,
-//   getDepartmentsWithSyllabus
-// } from "../../api_service";
-
-// function CreateQuestion() {
-
-//   const [departments, setDepartments] = useState([]);
-//   const [syllabus, setSyllabus] = useState([]);
-//   const [selectedSyllabus, setSelectedSyllabus] = useState([]);
-
-//   const [title, setTitle] = useState("");
-//   const [time, setTime] = useState("");
-//   const [department, setDepartment] = useState([]);
-
-//   const [section, setSection] = useState("");
-//   const [globalType, setGlobalType] = useState("MCQ");
-
-//   const [uploadedAssessments, setUploadedAssessments] = useState([]);
-//   const [previewData, setPreviewData] = useState(null);
-
-//   const [questions, setQuestions] = useState([
-//     {
-//       question: "",
-//       type: "MCQ",
-//       options: ["", "", "", ""],
-//       correctAnswer: ""
-//     }
-//   ]);
-
-//   useEffect(() => {
-//     fetchDepartments();
-//     fetchAssessments();
-//   }, []);
-
-//   const fetchDepartments = async () => {
-//     const res = await getDepartmentsWithSyllabus();
-//     setDepartments(res);
-
-//     const all = res.flatMap(d =>
-//       d.syllabus.map(s => ({
-//         label: `${d.departmentName} - ${s.title}`,
-//         value: s.id
-//       }))
-//     );
-
-//     setSyllabus([...new Map(all.map(i => [i.value, i])).values()]);
-//   };
-
-//   const fetchAssessments = async () => {
-//     const res = await getAllAssessmentsforTest();
-//     setUploadedAssessments(res);
-//   };
-
-//   /* ---------------- QUESTION ---------------- */
-
-//   const handleQuestionChange = (value, index) => {
-//     const updated = [...questions];
-//     updated[index].question = value;
-//     setQuestions(updated);
-//   };
-
-//   const handleOptionChange = (value, qIndex, optIndex) => {
-//     const updated = [...questions];
-//     updated[qIndex].options[optIndex] = value;
-//     setQuestions(updated);
-//   };
-
-//   const handleCorrectAnswer = (value, index) => {
-//     const updated = [...questions];
-//     updated[index].correctAnswer = value;
-//     setQuestions(updated);
-//   };
-
-//   const addQuestion = () => {
-//     let newQ = {
-//       question: "",
-//       type: globalType,
-//       options: globalType === "MCQ" ? ["", "", "", ""] : [],
-//       correctAnswer: ""
-//     };
-//     setQuestions([...questions, newQ]);
-//   };
-
-//   /* ---------------- SAVE ---------------- */
-
-//   const saveQuestions = async () => {
-//     const data = {
-//       departmentIds: department,
-//       syllabusIds: selectedSyllabus,
-//       title,
-//       time,
-//       section,
-//       questions
-//     };
-
-//     await createAssessmentforTest(data);
-//     alert("Saved!");
-//     fetchAssessments();
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gray-100">
-//       <Header userName="User" userRole="manager" />
-
-//       {/* CENTER CONTAINER */}
-//       <div className="pt-24 px-10 flex justify-center">
-//         <div className="grid lg:grid-cols-2 gap-6 w-full max-w-6xl">
-
-//           {/* FORM CARD */}
-//           <div className="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 space-y-5">
-
-//             <h2 className="text-xl font-bold">Create Assessment</h2>
-
-//             {/* ROW 1 */}
-//             <div className="grid grid-cols-2 gap-4">
-//               <div>
-//                 <label className="text-sm">Title</label>
-//                 <Input placeholder="Enter title"
-//                   value={title}
-//                   onChange={(e) => setTitle(e.target.value)} />
-//               </div>
-
-//               <div>
-//                 <label className="text-sm">Time</label>
-//                 <Input type="number" placeholder="Minutes"
-//                   value={time}
-//                   onChange={(e) => setTime(e.target.value)} />
-//               </div>
-//             </div>
-
-//             {/* ROW 2 */}
-//             <div className="grid grid-cols-2 gap-4">
-//               <div>
-//                 <label className="text-sm">Department</label>
-//                 <Select multiple value={department}
-//                   onChange={setDepartment}
-//                   options={departments.map(d => ({
-//                     label: d.departmentName,
-//                     value: d.departmentId
-//                   }))} />
-//               </div>
-
-//               <div>
-//                 <label className="text-sm">Syllabus</label>
-//                 <Select multiple value={selectedSyllabus}
-//                   onChange={setSelectedSyllabus}
-//                   options={syllabus} />
-//               </div>
-//             </div>
-
-//             {/* ROW 3 */}
-//             <div className="grid grid-cols-2 gap-4">
-//               <Select label="Section" value={section}
-//                 onChange={setSection}
-//                 options={[
-//                   { label: "Quant", value: "Quant" },
-//                   { label: "Verbal", value: "Verbal" }
-//                 ]} />
-
-//               <Select label="Type" value={globalType}
-//                 onChange={setGlobalType}
-//                 options={[
-//                   { label: "MCQ", value: "MCQ" },
-//                   { label: "Text", value: "TEXT" },
-//                   { label: "Coding", value: "CODING" }
-//                 ]} />
-//             </div>
-
-//             {/* QUESTIONS */}
-//             {questions.map((q, index) => (
-//               <div key={index} className="bg-gray-50 p-4 rounded-xl">
-
-//                 <textarea
-//                   className="w-full border p-3 rounded-lg resize-none"
-//                   rows={3}
-//                   placeholder={`Question ${index + 1}`}
-//                   value={q.question}
-//                   onChange={(e) =>
-//                     handleQuestionChange(e.target.value, index)}
-//                 />
-
-//                 {/* MCQ */}
-//                 {globalType === "MCQ" && (
-//                   <div className="grid grid-cols-2 gap-3 mt-3">
-//                     {q.options.map((opt, i) => (
-//                       <div key={i} className="flex gap-2">
-//                         <input type="radio"
-//                           checked={q.correctAnswer === String(i)}
-//                           onChange={() =>
-//                             handleCorrectAnswer(String(i), index)}
-//                         />
-//                         <Input placeholder={`Option ${i + 1}`}
-//                           value={opt}
-//                           onChange={(e) =>
-//                             handleOptionChange(e.target.value, index, i)} />
-//                       </div>
-//                     ))}
-//                   </div>
-//                 )}
-
-//                 {/* TEXT / CODING */}
-//                 {globalType !== "MCQ" && (
-//                   <textarea
-//                     className="w-full border p-3 mt-3 rounded-lg"
-//                     placeholder="Answer"
-//                     value={q.correctAnswer}
-//                     onChange={(e) =>
-//                       handleCorrectAnswer(e.target.value, index)}
-//                   />
-//                 )}
-
-//               </div>
-//             ))}
-
-//             <div className="flex gap-3">
-//               <Button onClick={addQuestion}>+ Add</Button>
-//               <Button onClick={saveQuestions}>Save</Button>
-//             </div>
-
-//           </div>
-
-//           {/* RIGHT CARD */}
-//           <div className="bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
-
-//             <h2 className="font-bold mb-4">Assessments</h2>
-
-//             {uploadedAssessments.map((item, i) => (
-//               <div key={i} className="border p-4 rounded-xl mb-3">
-
-//                 <h3 className="font-semibold">{item.title}</h3>
-
-//                 <div className="flex gap-2 mt-3">
-
-//                   <Button
-//                     className="bg-blue-500 text-white hover:bg-blue-600"
-//                     onClick={() => setPreviewData(item)}
-//                   >
-//                     Preview
-//                   </Button>
-
-//                   <Button className="bg-green-500 text-white hover:bg-green-600">
-//                     Edit
-//                   </Button>
-
-//                   <Button
-//                     className="bg-red-500 text-white hover:bg-red-600 flex items-center gap-1"
-//                     onClick={() => deleteAssessmentApiforTest(item.id)}
-//                   >
-//                     <Trash2 size={16} />
-//                     Delete
-//                   </Button>
-
-//                 </div>
-
-//               </div>
-//             ))}
-
-//           </div>
-
-//         </div>
-//       </div>
-
-//       {/* PREVIEW MODAL */}
-//       {previewData && (
-//         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
-
-//           <div className="bg-white p-6 rounded-2xl w-[520px] max-h-[80vh] overflow-y-auto shadow-2xl">
-
-//             <h2 className="text-xl font-bold mb-4 text-blue-600">
-//               {previewData.title}
-//             </h2>
-
-//             {previewData.questions?.map((q, i) => (
-//               <div key={i} className="mb-4 p-3 bg-gray-50 rounded-lg">
-//                 <p className="font-medium">{q.question}</p>
-//               </div>
-//             ))}
-
-//             <Button
-//               className="mt-4 bg-gray-800 text-white"
-//               onClick={() => setPreviewData(null)}
-//             >
-//               Close
-//             </Button>
-
-//           </div>
-
-//         </div>
-//       )}
-
-//     </div>
-//   );
-// }
-
-// export default CreateQuestion;
-// Working
-
 import React, { useState, useEffect } from "react";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Header from "../../components/ui/Header";
+import NavigationBreadcrumb from "../../components/ui/NavigationBreadcrumb";
 import { Trash2 } from "lucide-react";
 
 
@@ -337,11 +31,11 @@ function CreateQuestion() {
 
   const [uploadedAssessments, setUploadedAssessments] = useState([]);
   const [previewData, setPreviewData] = useState(null);
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const [editingId, setEditingId] = useState(null);
-const restrictedRoles = ["HR", "TM", "CEO", "CTO"];
-const roleName = sessionStorage.getItem("roleName");
-const isRestricted = restrictedRoles.includes(roleName);
+  const restrictedRoles = ["HR", "TM", "CEO", "CTO"];
+  const roleName = sessionStorage.getItem("roleName");
+  const isRestricted = restrictedRoles.includes(roleName);
   const [sections, setSections] = useState([
     {
       sectionName: "",
@@ -368,22 +62,22 @@ const isRestricted = restrictedRoles.includes(roleName);
   };
 
 
-const removeQuestion = (sIndex, qIndex) => {
-  const updated = [...sections];
+  const removeQuestion = (sIndex, qIndex) => {
+    const updated = [...sections];
 
-  // agar sirf 1 question hai to remove mat hone do (optional safety)
-  if (updated[sIndex].questions.length === 1) return;
+    // agar sirf 1 question hai to remove mat hone do (optional safety)
+    if (updated[sIndex].questions.length === 1) return;
 
-  updated[sIndex].questions.splice(qIndex, 1);
-  setSections(updated);
-};
+    updated[sIndex].questions.splice(qIndex, 1);
+    setSections(updated);
+  };
 
-const removeSection = (sIndex) => {
-  if (sections.length === 1) return; // optional safety
+  const removeSection = (sIndex) => {
+    if (sections.length === 1) return; // optional safety
 
-  const updated = sections.filter((_, i) => i !== sIndex);
-  setSections(updated);
-};
+    const updated = sections.filter((_, i) => i !== sIndex);
+    setSections(updated);
+  };
 
 
   const fetchAssessments = async () => {
@@ -452,17 +146,17 @@ const removeSection = (sIndex) => {
 
   /* ---------------- SECTION ---------------- */
 
-const handleDelete = async (id) => {
-  const confirmDelete = window.confirm("Are you sure you want to delete?");
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete?");
 
-  if (!confirmDelete) return;
+    if (!confirmDelete) return;
 
-  await deleteAssessmentApiforTest(id);
+    await deleteAssessmentApiforTest(id);
 
-  setUploadedAssessments(prev =>
-    prev.filter(a => a.id !== id)
-  );
-};
+    setUploadedAssessments(prev =>
+      prev.filter(a => a.id !== id)
+    );
+  };
 
   const addSection = () => {
     setSections([
@@ -518,10 +212,10 @@ const handleDelete = async (id) => {
     setSections(updated);
   };
 
-  
-    const handleLogout = () => {
-        navigate('/');
-    };
+
+  const handleLogout = () => {
+    navigate('/');
+  };
 
 
 
@@ -529,98 +223,103 @@ const handleDelete = async (id) => {
   /* ---------------- SAVE ---------------- */
 
   const saveQuestions = async () => {
-  if (!validateForm()) return;
+    if (!validateForm()) return;
 
-  const data = {
-    departmentIds: department,
-    syllabusIds: selectedSyllabus,
-    title,
-    sections
+    const data = {
+      departmentIds: department,
+      syllabusIds: selectedSyllabus,
+      title,
+      sections
+    };
+
+    if (editingId) {
+      await updateAssessmentApiforTest(editingId, data); //  UPDATE
+      alert("Updated Successfully!");
+    } else {
+      await createAssessmentforTest(data); // CREATE
+      alert("Created Successfully!");
+    }
+
+    fetchAssessments();
+    setEditingId(null);
+
+    // reset form (optional but good)
+    setTitle("");
+    setDepartment([]);
+    setSelectedSyllabus([]);
+    setSections([
+      {
+        sectionName: "",
+        time: "",
+        type: "MCQ",
+        questions: [
+          {
+            question: "",
+            options: ["", "", "", ""],
+            correctAnswer: ""
+          }
+        ]
+      }
+    ]);
   };
 
-  if (editingId) {
-    await updateAssessmentApiforTest(editingId, data); // 🔥 UPDATE
-    alert("Updated Successfully!");
-  } else {
-    await createAssessmentforTest(data); // CREATE
-    alert("Created Successfully!");
-  }
 
-  fetchAssessments();
-  setEditingId(null);
+  //   const saveQuestions = async () => {
+  //     if (!validateForm()) return;
 
-  // reset form (optional but good)
-  setTitle("");
-  setDepartment([]);
-  setSelectedSyllabus([]);
-  setSections([
-    {
-      sectionName: "",
-      time: "",
-      type: "MCQ",
-      questions: [
-        {
-          question: "",
-          options: ["", "", "", ""],
-          correctAnswer: ""
-        }
-      ]
-    }
-  ]);
-};
+  //     const data = {
+  //       departmentIds: department,
+  //       syllabusIds: selectedSyllabus,
+  //       title,
+  //       sections
+  //     };
+
+  //     await createAssessmentforTest(data);
+  //     alert("Saved Successfully!");
+  //     fetchAssessments();
+  //   };
 
 
-//   const saveQuestions = async () => {
-//     if (!validateForm()) return;
+  //   const saveQuestions = async () => {
+  //   if (!validateForm()) return;
 
-//     const data = {
-//       departmentIds: department,
-//       syllabusIds: selectedSyllabus,
-//       title,
-//       sections
-//     };
+  //   const data = {
+  //     departmentIds: department,
+  //     syllabusIds: selectedSyllabus,
+  //     title,
+  //     sections
+  //   };
 
-//     await createAssessmentforTest(data);
-//     alert("Saved Successfully!");
-//     fetchAssessments();
-//   };
+  //   console.log("FINAL DATA ", data);
 
+  //   // local preview ke liye add karo
+  //   setUploadedAssessments(prev => [...prev, data]);
 
-//   const saveQuestions = async () => {
-//   if (!validateForm()) return;
-
-//   const data = {
-//     departmentIds: department,
-//     syllabusIds: selectedSyllabus,
-//     title,
-//     sections
-//   };
-
-//   console.log("FINAL DATA 👉", data);
-
-//   // local preview ke liye add karo
-//   setUploadedAssessments(prev => [...prev, data]);
-
-//   alert("Saved Locally ✅");
-// };
+  //   alert("Saved Locally ");
+  // };
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background">
       <Header
 
-                userName={sessionStorage.getItem("userName") || "User"}
-                userRole="manager"
-                onLogout={handleLogout}
-            />
+        userName={sessionStorage.getItem("userName") || "User"}
+        userRole="manager"
+        onLogout={handleLogout}
+      />
+      <div className="pt-20 px-10 max-w-7xl mx-auto">
+        <NavigationBreadcrumb userRole="manager" className="mb-4" />
+      </div>
 
-      <div className="pt-24 px-10 flex justify-center">
+      <div className=" px-10 flex justify-center">
+
         <div className="grid lg:grid-cols-2 gap-6 w-full max-w-6xl">
+
 
           {/* LEFT CARD */}
           <div className="bg-white p-6 rounded-3xl shadow-xl space-y-6 h-[80vh] overflow-y-auto">
 
-           <h2 className="text-xl font-bold">
-  {editingId ? "Edit Assessment" : "Create Assessment"}
-</h2>
+            <h2 className="text-xl font-bold">
+              {editingId ? "Edit Assessment" : "Create Assessment"}
+            </h2>
 
             {/* TITLE */}
             <div>
@@ -651,17 +350,17 @@ const handleDelete = async (id) => {
             {/* SECTIONS */}
             {sections.map((sec, sIndex) => (
               //<div key={sIndex} className="border p-4 rounded-xl space-y-3">
-<div key={sIndex} className="border p-4 rounded-xl space-y-3 relative">
+              <div key={sIndex} className="border p-4 rounded-xl space-y-3 relative">
 
 
-  {/* ❌ DELETE SECTION */}
-  {!isRestricted && (
-  <Trash2
-    className="absolute top-2 right-2 text-red-600 cursor-pointer"
-    size={20}
-    onClick={() => removeSection(sIndex)}
-  />
-  )}
+                {/* DELETE SECTION */}
+                {!isRestricted && (
+                  <Trash2
+                    className="absolute top-2 right-2 text-red-600 cursor-pointer"
+                    size={20}
+                    onClick={() => removeSection(sIndex)}
+                  />
+                )}
                 <div className="grid grid-cols-3 gap-3">
 
                   <div>
@@ -712,14 +411,14 @@ const handleDelete = async (id) => {
                   //<div key={qIndex} className="bg-gray-50 p-3 rounded space-y-2">
                   <div key={qIndex} className="bg-gray-50 p-3 rounded space-y-2 relative">
 
-  {/* ❌ DELETE QUESTION */}
-  {!isRestricted && (
-  <Trash2
-    className="absolute top-2 right-2 text-red-500 cursor-pointer"
-    size={18}
-    onClick={() => removeQuestion(sIndex, qIndex)}
-  />
-  )}
+                    {/*  DELETE QUESTION */}
+                    {!isRestricted && (
+                      <Trash2
+                        className="absolute top-2 right-2 text-red-500 cursor-pointer"
+                        size={18}
+                        onClick={() => removeQuestion(sIndex, qIndex)}
+                      />
+                    )}
 
                     <label className="font-semibold">Question</label>
                     {/* <textarea
@@ -730,106 +429,110 @@ const handleDelete = async (id) => {
                       }
                     /> */}
                     <textarea
-  className="w-full border p-2 rounded resize-none overflow-hidden"
-  rows={1}
-  value={q.question}
-  onChange={(e) => {
-    handleQuestionChange(e.target.value, sIndex, qIndex);
+                      className="w-full border p-2 rounded resize-none overflow-hidden
+ focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      rows={1}
+                      value={q.question}
+                      onChange={(e) => {
+                        handleQuestionChange(e.target.value, sIndex, qIndex);
 
-    e.target.style.height = "auto";
-    e.target.style.height = e.target.scrollHeight + "px";
-  }}
-/>  
+                        e.target.style.height = "auto";
+                        e.target.style.height = e.target.scrollHeight + "px";
+                      }}
+                    />
                     {/* OPTIONS */}
-                      {sec.type === "MCQ" && (
+                    {sec.type === "MCQ" && (
                       <>
                         <label className="font-semibold text-sm">Options</label>
-                       <div className="grid grid-cols-2 gap-3">
-  {q.options.map((opt, i) => (   
-    <div key={i} className="flex gap-2 items-center">
-                            <input
-                              type="radio"
-                              checked={q.correctAnswer === String(i)}
-                              onChange={() =>
-                                handleCorrectAnswer(String(i), sIndex, qIndex)
-                              }
-                            />
-                            {/* <Input
+                        <div className="grid grid-cols-2 gap-3">
+                          {q.options.map((opt, i) => (
+                            <div key={i} className="flex gap-2 items-center">
+                              <input
+                                type="radio"
+                                className="w-3.5 h-3.5 text-purple-600"
+                                checked={q.correctAnswer === String(i)}
+                                onChange={() =>
+                                  handleCorrectAnswer(String(i), sIndex, qIndex)
+                                }
+                              />
+                              {/* <Input
                               placeholder={`Option ${i + 1}`}
                               value={opt}
                               onChange={(e) =>
                                 handleOptionChange(e.target.value, sIndex, qIndex, i)
                               }
                             /> */}
-                            <textarea
-  className="w-full border p-2 rounded resize-none overflow-hidden"
-  rows={1}
-  placeholder={`Option ${i + 1}`}
-  value={opt}
-  onChange={(e) => {
-    handleOptionChange(e.target.value, sIndex, qIndex, i);
+                              <textarea
+                                className="w-full border p-2 rounded resize-none overflow-hidden
+  focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                rows={1}
+                                placeholder={`Option ${i + 1}`}
+                                value={opt}
+                                onChange={(e) => {
+                                  handleOptionChange(e.target.value, sIndex, qIndex, i);
 
-    // auto height grow
-    e.target.style.height = "auto";
-    e.target.style.height = e.target.scrollHeight + "px";
-  }}
-/>
-                          </div>
-                        ))}
+                                  // auto height grow
+                                  e.target.style.height = "auto";
+                                  e.target.style.height = e.target.scrollHeight + "px";
+                                }}
+                              />
+                            </div>
+                          ))}
                         </div>
                       </>
                     )}
 
                     {/* TEXT */}
-{sec.type === "TEXT" && (
-  <>
-    <label className="font-semibold text-sm">Answer</label>
-    <textarea
-      className="w-full border p-2 rounded resize-none overflow-hidden"
-      rows={2}
-      value={q.correctAnswer}
-      onChange={(e) => {
-        handleCorrectAnswer(e.target.value, sIndex, qIndex);
+                    {sec.type === "TEXT" && (
+                      <>
+                        <label className="font-semibold text-sm">Answer</label>
+                        <textarea
+                          className="w-full border p-2 rounded resize-none overflow-hidden
+      focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                          rows={2}
+                          value={q.correctAnswer}
+                          onChange={(e) => {
+                            handleCorrectAnswer(e.target.value, sIndex, qIndex);
 
-        e.target.style.height = "auto";
-        e.target.style.height = e.target.scrollHeight + "px";
-      }}
-    />
-  </>
-)}
+                            e.target.style.height = "auto";
+                            e.target.style.height = e.target.scrollHeight + "px";
+                          }}
+                        />
+                      </>
+                    )}
 
-{/* CODING */}
-{sec.type === "CODING" && (
-  <>
-    <label className="font-semibold text-sm">Code Answer</label>
-    <textarea
-      className="w-full p-3 rounded bg-black text-green-400 font-mono text-sm resize-none overflow-auto"
-      rows={6}
-      value={q.correctAnswer}
-      onChange={(e) =>
-        handleCorrectAnswer(e.target.value, sIndex, qIndex)
-      }
-      placeholder="// Write your code here..."
-    />
-  </>
-)}
+                    {/* CODING */}
+                    {sec.type === "CODING" && (
+                      <>
+                        <label className="font-semibold text-sm">Code Answer</label>
+                        <textarea
+                          className="w-full p-3 rounded bg-black text-green-400 font-mono text-sm resize-none overflow-auto"
+                          rows={6}
+                          value={q.correctAnswer}
+                          onChange={(e) =>
+                            handleCorrectAnswer(e.target.value, sIndex, qIndex)
+                          }
+                          placeholder="// Write your code here..."
+                        />
+                      </>
+                    )}
 
                   </div>
                 ))}
-{!isRestricted && (
-                <Button onClick={() => addQuestion(sIndex)}>+ Add Question</Button>
-)}
+                {!isRestricted && (
+                  <Button onClick={() => addQuestion(sIndex)}>+ Add Question</Button>
+                )}
               </div>
             ))}
 
             <div className="flex gap-3">
               {!isRestricted && (
-              <Button onClick={addSection}>+ Add Section</Button>
+                <Button onClick={addSection}>+ Add Section</Button>
               )}
               {!isRestricted && (
-             <Button onClick={saveQuestions}>
-  {editingId ? "Update" : "Save"}
-</Button>
+                <Button onClick={saveQuestions}>
+                  {editingId ? "Update" : "Save"}
+                </Button>
               )}
             </div>
 
@@ -846,15 +549,16 @@ const handleDelete = async (id) => {
                 <div className="flex justify-between">
                   <h3>{item.title}</h3>
                   {!isRestricted && (
-                <Trash2
-  className="text-red-500 cursor-pointer"
-  onClick={() => handleDelete(item.id)}
-/>
+                    <Trash2
+                      className="text-red-500 cursor-pointer"
+                      onClick={() => handleDelete(item.id)}
+                    />
                   )}
                 </div>
 
                 <div className="flex gap-3 mt-3">
-                  <Button className="bg-blue-500 text-white"
+                  <Button
+                    variant="default"
                     onClick={() => setPreviewData(item)}>
                     Preview
                   </Button>
@@ -863,18 +567,18 @@ const handleDelete = async (id) => {
                     Edit
                   </Button> */}
                   {!isRestricted && (
-                  <Button
-  className="bg-green-500 text-white"
-  onClick={() => {
-    setEditingId(item.id);
-    setTitle(item.title);
-    setDepartment(item.departmentIds);
-    setSelectedSyllabus(item.syllabusIds);
-    setSections(item.sections);
-  }}
->
-  Edit
-</Button>
+                    <Button
+                      className="bg-green-500 text-white"
+                      onClick={() => {
+                        setEditingId(item.id);
+                        setTitle(item.title);
+                        setDepartment(item.departmentIds);
+                        setSelectedSyllabus(item.syllabusIds);
+                        setSections(item.sections);
+                      }}
+                    >
+                      Edit
+                    </Button>
                   )}
                 </div>
 
@@ -886,7 +590,7 @@ const handleDelete = async (id) => {
         </div>
       </div>
 
-      {/* ✅ PREVIEW MODAL FIX */}
+      {/*  PREVIEW MODAL FIX */}
       {previewData && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
 

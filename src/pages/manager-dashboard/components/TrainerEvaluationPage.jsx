@@ -1,152 +1,14 @@
-// import React, { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { fetchAllTraineeSummaryAdmin, fetchTraineeSummaryByManager } from "../../../api_service";
-// import Header from "../../../components/ui/Header";
-
-// export default function TrainerEvaluationPage() {
-//   const [trainees, setTrainees] = useState([]);
-//   const [assessments, setAssessments] = useState([]);
-//   const [selectedTrainee, setSelectedTrainee] = useState(null);
-//   const [selectedAssessment, setSelectedAssessment] = useState(null);
-
-//   const navigate=useNavigate();
-
-//   const privilegedRoles = ["ADMIN", "SUPER_ADMIN"];
-
-  
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       const roleName = sessionStorage.getItem("roleName");
-//       const userId = sessionStorage.getItem("userId");
-
-//       let res;
-//       if (privilegedRoles.includes(roleName)) {
-//         res = await fetchAllTraineeSummaryAdmin();
-//       } else {
-//         res = await fetchTraineeSummaryByManager(userId);
-//       }
-
-//       const normalized = (res?.data || []).map((t) => ({
-//         trngid: t.traineeId,
-//         name: t.name
-//       }));
-
-//       setTrainees(normalized);
-//     };
-
-//     fetchData();
-//   }, []);
-
-//   const handleTraineeClick = async (trainee) => {
-//     setSelectedTrainee(trainee);
-//     setSelectedAssessment(null);
-
-
-
-//     try {
-//       const res = await fetch(
-//         `http://localhost:8080/api/assessmenttest/trainee/${trainee.trngid}/assessments`
-//       );
-//       const data = await res.json();
-//       setAssessments(data);
-//     } catch (err) {
-//       console.error("API Error:", err);
-//       alert("Failed to fetch assessments");
-//     }
-//   };
-
-//   const handleAssessmentClick = (attemptId) => {
-//   navigate(`/evaluation/${attemptId}`);
-// };
-
-//   return (
-//     <div className="min-h-screen bg-blue-50">
-//       <Header userName="User" userRole="manager" />
-
-//       <div className="pt-20 flex">
-
-//         {/* TRAINEES */}
-//         <div className="w-1/3 p-6">
-//           <h2 className="text-xl font-bold text-blue-700 mb-4">Trainees</h2>
-
-//           {trainees.map((t) => (
-//             <div
-//               key={t.trngid}
-//               onClick={() => handleTraineeClick(t)}
-//               className={`p-4 mb-2 rounded-xl cursor-pointer ${
-//                 selectedTrainee?.trngid === t.trngid
-//                   ? "bg-blue-600 text-white"
-//                   : "bg-white hover:bg-blue-100"
-//               }`}
-//             >
-//               {t.name}
-//             </div>
-//           ))}
-//         </div>
-
-//         {/* RIGHT SIDE */}
-//         <div className="w-2/3 p-6">
-
-//           {/* ASSESSMENT CARDS */}
-//           {!selectedAssessment && (
-//             <div className="grid grid-cols-2 gap-4">
-//               {assessments.map((a, index) => (
-//                 <div
-//                   key={index}
-//                   className="p-5 bg-white rounded-2xl shadow-lg"
-//                 >
-//                   <h3 className="text-lg font-bold text-blue-700">
-//                     {a.assessmentTitle}
-//                   </h3>
-
-//                   <p className="text-sm text-gray-500">
-//                     ID: {a.assessmentId}
-//                   </p>
-
-//                   <p className="text-sm mt-2">
-//                     Questions: {a.questions.length}
-//                   </p>
-
-//                 <button
-//   onClick={() => {
-//     console.log("Clicked attemptId:", a?.attemptId);
-//     if (!a?.attemptId) {
-//       alert("Attempt ID missing!");
-//       return;
-//     }
-//     handleAssessmentClick(a.attemptId);
-//   }}
-//   className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-// >
-//   Evaluate
-// </button>
-//                 </div>
-//               ))}
-//             </div>
-//           )}
-
-//           {/* DETAILS VIEW */}
-         
-
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
 import React, { useEffect, useState } from "react";
-import { useNavigate,useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   fetchAllTraineeSummaryAdmin,
-  fetchTraineeSummaryByManager,getAssessmentsByTrainee,
+  fetchTraineeSummaryByManager, getAssessmentsByTrainee,
   getResultByTraineeAndAssessment
 } from "../../../api_service";
-
+import Icon from "../../../components/AppIcon";
 import Header from "../../../components/ui/Header";
 import { Search } from "lucide-react";
+import NavigationBreadcrumb from "../../../components/ui/NavigationBreadcrumb";
 
 export default function TrainerEvaluationPage() {
 
@@ -158,18 +20,18 @@ export default function TrainerEvaluationPage() {
   const [search, setSearch] = useState("");
 
   const navigate = useNavigate();
-  const privilegedRoles = ["CEO", "HR","CTO","TM"];
+  const privilegedRoles = ["CEO", "HR", "CTO", "TM"];
 
   const roleName = sessionStorage.getItem("roleName");
 
-const restrictedRoles = ["CEO", "HR", "CTO", "TM"];
+  const restrictedRoles = ["CEO", "HR", "CTO", "TM"];
 
-const isRestricted = restrictedRoles.includes(roleName);
+  const isRestricted = restrictedRoles.includes(roleName);
 
   const location = useLocation();
-const traineeName = location.state?.firstName || "Trainee";
+  const traineeName = location.state?.firstName || "Trainee";
 
-  // ✅ TOTAL MARKS CALCULATION
+  //  TOTAL MARKS CALCULATION
   const calculateTotalMarks = (questions) => {
     let total = 0;
 
@@ -182,7 +44,7 @@ const traineeName = location.state?.firstName || "Trainee";
     return total;
   };
 
-  // 🔥 FETCH TRAINEES + THEIR MARKS
+  //  FETCH TRAINEES + THEIR MARKS
   useEffect(() => {
     const fetchData = async () => {
       const roleName = sessionStorage.getItem("roleName");
@@ -213,7 +75,7 @@ const traineeName = location.state?.firstName || "Trainee";
           // );
           // const data = await res.json();
           const res = await getAssessmentsByTrainee(t.trngid);
-const data = res.data;
+          const data = res.data;
 
           let totalMarks = 0;
           let totalMaxMarks = 0;
@@ -226,10 +88,10 @@ const data = res.data;
               // );
               // const result = await resultRes.json();
               const resultRes = await getResultByTraineeAndAssessment(
-  t.trngid,
-  a.assessmentId
-);
-const result = resultRes.data;
+                t.trngid,
+                a.assessmentId
+              );
+              const result = resultRes.data;
 
               const allEvaluated = result.questions.every(q => q.evaluated);
 
@@ -242,7 +104,7 @@ const result = resultRes.data;
                 evaluatedCount++;
               }
 
-            } catch {}
+            } catch { }
           }
 
           t.totalMarks = totalMarks;
@@ -253,7 +115,7 @@ const result = resultRes.data;
             ? ((totalMarks / totalMaxMarks) * 100).toFixed(1)
             : 0;
 
-        } catch {}
+        } catch { }
       }
 
       setTrainees(baseTrainees);
@@ -263,7 +125,7 @@ const result = resultRes.data;
     fetchData();
   }, []);
 
-  // 🔍 SEARCH
+  //  SEARCH
   useEffect(() => {
     const filtered = trainees.filter(t =>
       t.name.toLowerCase().includes(search.toLowerCase())
@@ -271,33 +133,24 @@ const result = resultRes.data;
     setFilteredTrainees(filtered);
   }, [search, trainees]);
 
-  // 🔥 TRAINEE CLICK
+  //  TRAINEE CLICK
   const handleTraineeClick = async (trainee) => {
     setSelectedTrainee(trainee);
 
-    // const res = await fetch(
-    //   `http://localhost:8080/api/assessmenttest/trainee/${trainee.trngid}/assessments`
-    // );
-    // const data = await res.json();
-
     const res = await getAssessmentsByTrainee(trainee.trngid);
-const data = res.data;
+    const data = res.data;
     setAssessments(data);
 
     let statusMap = {};
 
     for (let a of data) {
       try {
-        // const resultRes = await fetch(
-        //   `http://localhost:8080/api/assessmenttestcheck/result?traineeId=${trainee.trngid}&assessmentId=${a.assessmentId}`
-        // );
-
-        // const result = await resultRes.json();
+        
         const resultRes = await getResultByTraineeAndAssessment(
-  trainee.trngid,
-  a.assessmentId
-);
-const result = resultRes.data;
+          trainee.trngid,
+          a.assessmentId
+        );
+        const result = resultRes.data;
 
         const allEvaluated = result.questions.every(q => q.evaluated);
 
@@ -315,177 +168,232 @@ const result = resultRes.data;
     setAssessmentStatus(statusMap);
   };
 
-  // 🔥 NAVIGATION
+  //  NAVIGATION
   // const handleAssessmentClick = (attemptId) => {
   //   navigate(`/evaluation/${attemptId}`);
-    
+
   // };
 
   const handleAssessmentClick = (attemptId) => {
 
     if (isRestricted) {
-    alert("You are not authorized");
-    return;
-  }
+      alert("You are not authorized");
+      return;
+    }
 
-  navigate(`/evaluation/${attemptId}`, {
-    state: { traineeName: selectedTrainee?.name }
-  });
-};
+    navigate(`/evaluation/${attemptId}`, {
+      state: { traineeName: selectedTrainee?.name }
+    });
+  };
 
-    const handleLogout = () => navigate("/");
+  const handleLogout = () => navigate("/");
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-screen bg-background">
 
       <Header
-                userName={sessionStorage.getItem("userName") || "User"}
-                userRole="manager"
-                onLogout={handleLogout}
-            />
+        userName={sessionStorage.getItem("userName") || "User"}
+        userRole="manager"
+        onLogout={handleLogout}
+      />
+      <div className="pt-20 px-10 max-w-7xl mx-auto">
+        <NavigationBreadcrumb userRole="manager" className="mb-4" />
+      </div>
 
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-[1.4fr_2.6fr] gap-4 mt-4">
 
-      <div className="pt-20 flex flex-col md:flex-row">
+          {/* LEFT SIDE */}
+          <div className="bg-white border border-purple-200 rounded-2xl shadow p-5">
 
-        {/* LEFT SIDE */}
-        <div className="w-full md:w-1/3 p-4">
+            {/* HEADER */}
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-muted-foreground">
+                  Select Trainee
+                </h2>
+                <p className="text-sm text-gray-500">Choose a trainee</p>
+              </div>
+            </div>
 
-          <h2 className="text-xl font-bold text-blue-700 mb-3">
-            Trainees
-          </h2>
+            {/* SEARCH */}
+            <div className="flex items-center border rounded-lg px-3 mb-4 bg-white focus-within:ring-2 focus-within:ring-purple-400">
+              <Icon name="Search" size={16} className="text-gray-400" />
 
-          {/* SEARCH */}
-          <div className="flex items-center bg-white border rounded-lg px-2 mb-3">
-            <Search size={18} className="text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search trainee..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full p-2 outline-none"
-            />
+              <input
+                type="text"
+                placeholder="Search trainee..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full p-2 outline-none border-none focus:ring-0 focus:outline-none"
+              />
+            </div>
+
+            {/* LIST */}
+            <div className="space-y-3 max-h-[450px] overflow-y-auto">
+
+              {filteredTrainees.length === 0 ? (
+                <div className="text-center py-6 text-gray-400">
+                  No trainees found
+                </div>
+              ) : (
+                filteredTrainees.map((t) => {
+
+                  const isAllEvaluated =
+                    t.totalTests > 0 && t.evaluatedCount === t.totalTests;
+
+                  return (
+                    <div
+                      key={t.trngid}
+                      onClick={() => handleTraineeClick(t)}
+                      className={`p-4 border rounded-xl cursor-pointer transition-all
+              ${selectedTrainee?.trngid === t.trngid
+                          ? "border-purple-500 bg-purple-50 shadow-sm"
+                          : "hover:border-purple-300 hover:bg-purple-50"
+                        }`}
+                    >
+
+                      <div className="flex justify-between items-center">
+
+                        {/* LEFT */}
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                            <Icon name="User" size={18} className="text-purple-600" />
+                          </div>
+
+                          <div>
+                            <h3 className="font-medium text-black">{t.name}</h3>
+                            <p className="text-xs text-gray-500">
+                              {t.totalMarks} / {t.totalMaxMarks}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* RIGHT */}
+                        <div className="text-xs text-right">
+                          <p className="text-gray-600 font-medium">
+                            {t.percentage}%
+                          </p>
+                          <p className="text-gray-400">
+                            {t.evaluatedCount}/{t.totalTests}
+                          </p>
+                        </div>
+
+                      </div>
+
+                      {/* STATUS */}
+                      <div className="mt-2">
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full font-medium
+                  ${isAllEvaluated
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                            }`}
+                        >
+                          {isAllEvaluated ? "Completed" : "Pending"}
+                        </span>
+                      </div>
+
+                    </div>
+                  );
+                })
+              )}
+
+            </div>
           </div>
+          {/* RIGHT SIDE */}
+          <div className="p-4 w-full">
 
-          {filteredTrainees.map((t) => {
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold text-gray-700">
+                Trainee:
+                <span className="ml-2 text-muted-foreground font-bold">
+                  {selectedTrainee?.name || "Select Trainee"}
+                </span>
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
-            const isAllEvaluated =
-              t.totalTests > 0 && t.evaluatedCount === t.totalTests;
-
-            return (
-              <div
-                key={t.trngid}
-                onClick={() => handleTraineeClick(t)}
-                className={`p-3 mb-2 rounded-xl cursor-pointer flex justify-between items-center 
-                  ${isAllEvaluated ? "bg-green-100" : "bg-red-100"}`}
-              >
-                <div>
-                  <p className="font-semibold">{t.name}</p>
-
-                  <p className="text-xs text-gray-600">
-                    {t.totalMarks} / {t.totalMaxMarks}
-                  </p>
-
-                  <p className="text-xs text-gray-500">
-                    {t.percentage}% • {t.evaluatedCount}/{t.totalTests} done
+              {/*  NO ASSESSMENT MESSAGE */}
+              {assessments.length === 0 ? (
+                <div className="col-span-2 text-center py-10">
+                  <p className="text-gray-500 text-lg font-medium">
+                    Assessment is not available
                   </p>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              ) : (
+                assessments.map((a, index) => {
 
-        {/* RIGHT SIDE */}
-        <div className="w-full md:w-2/3 p-4">
+                  const status = assessmentStatus[a.assessmentId] || {};
+                  const isEvaluated = status.evaluated;
 
-        <div className="mb-4">
-  <h2 className="text-lg font-semibold text-gray-700">
-    Trainee:
-    <span className="ml-2 text-blue-700 font-bold">
-      {selectedTrainee?.name || "Select Trainee"}
-    </span>
-  </h2>
-</div>
-<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-
-  {/* ✅ NO ASSESSMENT MESSAGE */}
-  {assessments.length === 0 ? (
-    <div className="col-span-2 text-center py-10">
-      <p className="text-gray-500 text-lg font-medium">
-        Assessment is not available
-      </p>
-    </div>
-  ) : (
-    assessments.map((a, index) => {
-
-      const status = assessmentStatus[a.assessmentId] || {};
-      const isEvaluated = status.evaluated;
-
-      return (
-        <div
-          key={index}
-          className="bg-white rounded-2xl p-5 shadow-md border border-gray-100 
+                  return (
+                    <div
+                      key={index}
+                      className="bg-white rounded-2xl p-5 shadow-md border border-gray-100 
           hover:shadow-xl hover:-translate-y-1 transition duration-300"
-        >
+                    >
 
-          {/* TOP */}
-          <div className="flex justify-between items-start">
+                      {/* TOP */}
+                      <div className="flex justify-between items-start">
 
-            <div>
-              <h3 className="text-lg font-semibold text-blue-800">
-                {a.assessmentTitle}
-              </h3>
+                        <div>
+                          <h3 className="text-lg font-semibold text-black">
+                            {a.assessmentTitle}
+                          </h3>
 
-              <p className="text-sm text-gray-500 mt-1">
-                {a.questions.length} Questions
-              </p>
-            </div>
+                          <p className="text-sm text-gray-500 mt-1">
+                            {a.questions.length} Questions
+                          </p>
+                        </div>
 
-            {/* MARKS BADGE */}
-            <div
-              className={`px-3 py-1 text-xs rounded-full font-semibold
+                        {/* MARKS BADGE */}
+                        <div
+                          className={`px-3 py-1 text-xs rounded-full font-semibold
                 ${isEvaluated
-                  ? "bg-green-100 text-green-700"
-                  : "bg-gray-100 text-gray-500"}`}
-            >
-              {isEvaluated ? `${status.marks}/${status.total}` : "Pending"}
-            </div>
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-100 text-gray-500"}`}
+                        >
+                          {isEvaluated ? `${status.marks}/${status.total}` : "Pending"}
+                        </div>
 
-          </div>
+                      </div>
 
-          {/* DIVIDER */}
-          <div className="border-t my-4"></div>
+                      {/* DIVIDER */}
+                      <div className="border-t my-4"></div>
 
-          {/* BOTTOM */}
-          <div className="flex justify-between items-center">
+                      {/* BOTTOM */}
+                      <div className="flex justify-between items-center">
 
-            <p className={`text-sm font-medium
+                        <p className={`text-sm font-medium
               ${isEvaluated ? "text-green-600" : "text-blue-600"}`}>
-              {isEvaluated ? "Evaluated" : "Needs Evaluation"}
-            </p>
+                          {isEvaluated ? "Evaluated" : "Needs Evaluation"}
+                        </p>
 
-{!isRestricted && (
-            <button
-              onClick={() => handleAssessmentClick(a.attemptId)}
-              className={`px-4 py-1.5 text-xs rounded-lg text-white font-medium
+                        {!isRestricted && (
+                          <button
+                            onClick={() => handleAssessmentClick(a.attemptId)}
+                            className={`px-4 py-1.5 text-xs rounded-lg text-white font-medium
                 shadow-sm transition
                 ${isEvaluated
-                  ? "bg-green-600 hover:bg-green-700"
-                  : "bg-blue-600 hover:bg-blue-700"}`}
-            >
-              {isEvaluated ? "View" : "Evaluate"}
-            </button>
-)}
+                                ? "bg-green-600 hover:bg-green-700"
+                                : "bg-blue-600 hover:bg-blue-700"}`}
+                          >
+                            {isEvaluated ? "View" : "Evaluate"}
+                          </button>
+                        )}
 
+                      </div>
+
+                    </div>
+                  );
+                })
+              )}
+
+            </div>
           </div>
 
         </div>
-      );
-    })
-  )}
-
-</div>
-        </div>
-
       </div>
     </div>
   );

@@ -343,7 +343,7 @@ export const getAllTrainers = async () => {
       data,
       {
         params: {
-          trainerIds: idsArray   // ✅ axios automatically ?trainerIds=EMP1&trainerIds=EMP2 banayega
+          trainerIds: idsArray   //  axios automatically ?trainerIds=EMP1&trainerIds=EMP2 banayega
         }
       }
     );
@@ -657,7 +657,7 @@ const fetchSyllabusProgress = async (empId) => {
     throw new Error("Failed to fetch syllabus progress");
   }
 
-  return await res.json(); // ✅ guaranteed JSON
+  return await res.json(); //  guaranteed JSON
 };
 
 
@@ -672,7 +672,7 @@ export const fetchTraineeById = async (traineeId) => {
     throw new Error("Failed to fetch trainee details");
   }
 
-  return await res.json(); // ✅ guaranteed JSON
+  return await res.json(); //  guaranteed JSON
 };
 
 
@@ -1198,7 +1198,7 @@ export const getTraineeAssessmentsforTestTrainee = async (traineeId, departmentI
   const res = await axios.get(
     `${API_URL}/assessment/test/trainee/${traineeId}`,
     {
-      params: { departmentIds } // ✅ auto handles array
+      params: { departmentIds } //  auto handles array
     }
   );
   return res.data;
@@ -1244,7 +1244,7 @@ export const getEvaluationByAttemptId = (attemptId) => {
   );
 };
 
-// ✅ SUBMIT / UPDATE Evaluation
+//  SUBMIT / UPDATE Evaluation
 export const submitEvaluation = (attemptId, payload) => {
   return axios.post(
     `${API_URL}/assessmenttestcheck/submit-evaluation/${attemptId}`,
@@ -1258,7 +1258,7 @@ export const getAssessmentsByTrainee = (traineeId) => {
   );
 };
 
-// ✅ 2. Get result (marks + evaluated status)
+//  Get result (marks + evaluated status)
 export const getResultByTraineeAndAssessment = (traineeId, assessmentId) => {
   return axios.get(
     `${API_URL}/assessmenttestcheck/result`,
@@ -1270,6 +1270,73 @@ export const getResultByTraineeAndAssessment = (traineeId, assessmentId) => {
     }
   );
 };
+
+export const fetchTraineeReport = async (traineeId) => {
+  try {
+    const res = await axios.get(`${API_URL}/assessmenttest/report/${traineeId}`);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching trainee report:", error);
+    return null;
+  }
+};
+
+export const getAssessmentSummary = async (userId, departmentIds = []) => {
+  try {
+    const res = await axios.get(
+      `${API_URL}/assessment/test/assessment/summary/${userId}`,
+      {
+        params: {
+          departmentIds: departmentIds.length ? departmentIds : [1] 
+        }
+      }
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching assessment summary:", error);
+    throw error;
+  }
+};
+
+export const getSyllabusById = async (id) => {
+    try {
+        const response = await axios.get(`${API_URL}/syllabus/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("API Error:", error);
+        throw error;
+    }
+};
+
+export const getTraineeAttendance = async (traineeId) => {
+  try {
+    const res = await axios.get(
+      `http://192.168.0.21:8088/HRMS/trainee/attendance/${traineeId}`
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Attendance API Error:", error);
+    throw error;
+  }
+};
+
+// export const getAssessmentSummary = async (userId, departmentIds) => {
+//   try {
+//     const res = await axios.get(
+//       `${API_URL}/assessment/test/assessment/summary/${userId}`,
+//       {
+//         params: {
+//           departmentIds // array pass kar sakte ho directly
+//         }
+//       }
+//     );
+//     return res.data;
+//   } catch (error) {
+//     console.error("Error fetching assessment summary:", error);
+//     throw error;
+//   }
+// };
+
 
 // export const getEvaluationByAttemptId = async (attemptId) => {
 //   try {

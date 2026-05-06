@@ -16,7 +16,8 @@ const CalendarView = ({
   console.log("INTERVIEWS IN CALENDAR VIEW:", interviews);
   const timeSlots = [
     '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'
+    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
+    "17:00","17:30","18:00","18:30","19:00"
   ];
 
 
@@ -159,7 +160,7 @@ const isPastTime = (date, time) => {
     <div className={`bg-card rounded-lg border border-border p-6 ${className}`}>
       {/* Calendar Header */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-foreground">
+        <h3 className="text-lg font-semibold text-card-foreground">
           {monthNames?.[currentMonth?.getMonth()]} {currentMonth?.getFullYear()}
         </h3>
         <div className="flex items-center space-x-2">
@@ -233,7 +234,7 @@ const isPastTime = (date, time) => {
       {/* Time Slots for Selected Date */}
       {selectedDate && (
         <div>
-          <h4 className="text-md font-medium text-foreground mb-4">
+          <h4 className="text-md font-medium text-card-foreground mb-4">
             Available Time Slots - {isSelected(selectedDate) && selectedDate?.toLocaleDateString()}
           </h4>
           <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
@@ -260,7 +261,7 @@ const isPastTime = (date, time) => {
                     ${isPastTime(selectedDate, time) ? 'bg-muted text-muted-foreground cursor-not-allowed' : ''}
                     ${isBooked ? 'bg-muted text-muted-foreground text-primary border-border border-primary cursor-not-allowed' : ''}
                     ${hasConflictAtTime ? 'bg-error/10 text-error border-error cursor-not-allowed' : ''}
-                    ${!isBooked && !hasConflictAtTime && !isSelectedTime ? 'bg-background border-border hover:bg-muted' : ''}
+                    ${!isBooked && !hasConflictAtTime && !isSelectedTime ? 'bg-white border-border hover:bg-muted' : ''}
                   `}
                 >
                   <div className="flex flex-col items-center">
