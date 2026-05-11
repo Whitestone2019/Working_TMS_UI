@@ -230,19 +230,19 @@ export const createAssessment = async (empId, data) => {
   }
 };
 
-export const updateAssessment = async (assessmentId, data) => {
-  try {
-    const response = await axios.put(
-      `${API_URL}/assessments/update/${assessmentId}`,
-      data
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error updating assessment:", error);
-    throw error;
-  }
-};
-
+  export const updateAssessment = async (assessmentId, data) => {
+    try {
+      const response = await axios.put(
+        `${API_URL}/assessments/update/${assessmentId}`,
+        data
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error updating assessment:", error);
+      throw error;
+    }
+  };
+//testing
 export const fetchAllAssessments = async () => {
   try {
     const response = await axios.get(`${API_URL}/assessments/all`);
