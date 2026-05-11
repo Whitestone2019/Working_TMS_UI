@@ -269,7 +269,7 @@ const ContentDisplay = ({ currentStep, traineeInfo, onStepComplete, onNextStep, 
               <h2 className="text-xl font-bold">{sub.title ?? sub.name}</h2>
               <p className="text-gray-700 whitespace-pre-line mt-2">{sub.description}</p>
               {sub?.filePath && fileData && !fileData.error && (
-                <div className="bg-gray-50 mt-6 border rounded-xl shadow-lg p-4 max-h-[600px] ">
+                <div className="bg-gray-50 mt-6 border rounded-xl shadow-lg p-4 overflow-y-auto max-h-[600px]">
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="text-sm font-semibold text-gray-800">{fileData.name}</h3>
                   </div>

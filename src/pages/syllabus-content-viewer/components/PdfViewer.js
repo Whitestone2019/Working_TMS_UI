@@ -10,8 +10,10 @@ export default function PdfViewer({ url }) {
     useEffect(() => {
         if (!url) return;
 
+        // pdfjsLib.GlobalWorkerOptions.workerSrc =
+        //     "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js";
         pdfjsLib.GlobalWorkerOptions.workerSrc =
-            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js";
+    `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
         const renderPDF = async () => {
             const container = containerRef.current;
@@ -26,11 +28,20 @@ export default function PdfViewer({ url }) {
                 const canvas = document.createElement("canvas");
                 const context = canvas.getContext("2d");
 
+                // canvas.height = viewport.height;
+                // canvas.width = viewport.width;
+                // canvas.style.marginBottom = "20px";
+                // canvas.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
+                // canvas.style.borderRadius = "8px";
                 canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                canvas.style.marginBottom = "20px";
-                canvas.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
-                canvas.style.borderRadius = "8px";
+canvas.width = viewport.width;
+
+canvas.style.width = "100%";
+canvas.style.height = "auto";
+
+canvas.style.marginBottom = "20px";
+canvas.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
+canvas.style.borderRadius = "8px";
 
                 container.appendChild(canvas);
 
