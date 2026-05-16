@@ -41,7 +41,7 @@ canvas.style.height = "auto";
 
 canvas.style.marginBottom = "20px";
 canvas.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
-canvas.style.borderRadius = "8px";
+canvas.style.borderRadius = "8px";  
 
                 container.appendChild(canvas);
 

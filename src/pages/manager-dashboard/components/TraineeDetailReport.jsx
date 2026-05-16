@@ -337,7 +337,7 @@ try {
         <NavigationBreadcrumb userRole="manager" />
 
         {/* HEADER */}
-        <div className="flex justify-between items-center mt-6">
+        {/* <div className="flex justify-between items-center mt-6">
           <h1 className="text-2xl font-bold text-black-700">
             {trainee?.name} - Trainee Report
           </h1>
@@ -348,7 +348,32 @@ try {
           >
             Download Report
           </button>
-        </div>
+        </div> */}
+        <div className="flex justify-between items-center mt-6">
+  <h1 className="text-2xl font-bold text-black-700">
+    {trainee?.name} - Trainee Report
+  </h1>
+
+  <div className="flex gap-3">
+    
+    {/* Back Button */}
+    <button
+      onClick={() => navigate("/trainee-report")}
+      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-xl"
+    >
+      Back
+    </button>
+
+    {/* Download Button */}
+    <button
+      onClick={handleDownload}
+      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl"
+    >
+      Download Report
+    </button>
+
+  </div>
+</div>
 
         {/*  PDF CONTENT */}
         <div ref={pdfRef} className="bg-white p-4 mt-6">

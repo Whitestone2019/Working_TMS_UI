@@ -100,7 +100,7 @@ const ResetPassword = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4">
+        <div className="min-h-screen flex items-center justify-center bg-background from-slate-50 to-slate-100 px-4">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-5">
                 <div
@@ -119,7 +119,7 @@ const ResetPassword = () => {
                     <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-4 elevation-2">
                         <Shield className="w-8 h-8 text-primary-foreground" />
                     </div>
-                    <h1 className="text-2xl font-bold text-foreground mb-2">
+                    <h1 className="text-2xl font-bold text-black mb-2">
                         Trainee Management System
                     </h1>
                     <p className="text-muted-foreground">

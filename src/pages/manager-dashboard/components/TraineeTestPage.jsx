@@ -53,7 +53,7 @@ function TraineeTestPage() {
           return;
         }
 
-        //const res = await axios.get(`http://localhost:8080/api/assessment/test/${assessmentId}`);
+       
         const res = await getAssessmentTest(assessmentId);
         let data = res.data;
 
@@ -137,7 +137,7 @@ function TraineeTestPage() {
 
     document.addEventListener("keydown", handleKey);
     document.addEventListener("copy", (e) => { e.preventDefault(); triggerViolation("Copy Restricted!"); });
-    //document.addEventListener("paste", (e) => { e.preventDefault(); triggerViolation("Paste Restricted!"); });
+    document.addEventListener("paste", (e) => { e.preventDefault(); triggerViolation("Paste Restricted!"); });
     document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {

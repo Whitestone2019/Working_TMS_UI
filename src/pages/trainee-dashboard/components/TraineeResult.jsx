@@ -73,6 +73,15 @@ const fetchResult = async () => {
         <main className="pt-20 px-4">
           <NavigationBreadcrumb userRole="trainee" />
 
+        {/* <div className="mt-4">
+    <Button
+              onClick={() => navigate(-1)}
+              variant="default"
+            >
+              Go Back
+            </Button>
+  </div> */}
+
           <div className="bg-white mt-10 p-6 rounded-xl shadow text-center">
             <h2 className="text-xl font-bold text-red-600">
               Result Not Available

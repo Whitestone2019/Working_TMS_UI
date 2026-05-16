@@ -329,23 +329,71 @@ function CreateQuestion() {
             </div>
 
             {/* DEPARTMENT */}
-            <div>
-              <label className="font-semibold">Department</label>
-              <Select multiple value={department} onChange={setDepartment}
-                options={departments.map(d => ({
-                  label: d.departmentName,
-                  value: d.departmentId
-                }))}
-              />
-              {errors.department && <p className="text-red-500 text-xs">{errors.department}</p>}
-            </div>
+         <div>
+  <label className="font-semibold">Department</label>
+
+  <Select
+    multiple
+    value={department}
+    onChange={setDepartment}
+    options={departments.map(d => ({
+      label: d.departmentName,
+      value: d.departmentId
+    }))}
+  />
+
+  {/* CHIPS */}
+  {department.length > 0 && (
+    <div className="flex flex-wrap gap-2 mt-2">
+      {departments
+        .filter(d => department.includes(d.departmentId))
+        .map(d => (
+          <span
+            key={d.departmentId}
+            className="px-3 py-1 text-xs bg-purple-200 text-purple-800 rounded-full"
+          >
+            {d.departmentName}
+          </span>
+        ))}
+    </div>
+  )}
+
+  {errors.department && (
+    <p className="text-red-500 text-xs">{errors.department}</p>
+  )}
+</div>
 
             {/* SYLLABUS */}
-            <div>
-              <label className="font-semibold">Syllabus</label>
-              <Select multiple value={selectedSyllabus} onChange={setSelectedSyllabus} options={syllabus} />
-              {errors.syllabus && <p className="text-red-500 text-xs">{errors.syllabus}</p>}
-            </div>
+           <div>
+  <label className="font-semibold">Syllabus</label>
+
+  <Select
+    multiple
+    value={selectedSyllabus}
+    onChange={setSelectedSyllabus}
+    options={syllabus}
+  />
+
+  {/* CHIPS */}
+  {selectedSyllabus.length > 0 && (
+    <div className="flex flex-wrap gap-2 mt-2">
+      {syllabus
+        .filter(s => selectedSyllabus.includes(s.value))
+        .map(s => (
+          <span
+            key={s.value}
+            className="px-3 py-1 text-xs bg-purple-200 text-purple-800 rounded-full"
+          >
+            {s.label}
+          </span>
+        ))}
+    </div>
+  )}
+
+  {errors.syllabus && (
+    <p className="text-red-500 text-xs">{errors.syllabus}</p>
+  )}
+</div>
 
             {/* SECTIONS */}
             {sections.map((sec, sIndex) => (
@@ -371,10 +419,9 @@ function CreateQuestion() {
                         updateSectionField(sIndex, "sectionName", val)
                       }
                       options={[
-                        { label: "Maths", value: "Maths" },
-                        { label: "English", value: "English" },
-                        { label: "Reasoning", value: "Reasoning" },
-                        { label: "Coding", value: "Coding" }
+                        { label: "Objective", value: "Objective" },
+                        { label: "Subjective", value: "Subjective" },
+                        { label: "Practical", value: "Practical" }
                       ]}
                     />
                   </div>
@@ -506,7 +553,9 @@ function CreateQuestion() {
                       <>
                         <label className="font-semibold text-sm">Code Answer</label>
                         <textarea
-                          className="w-full p-3 rounded bg-black text-green-400 font-mono text-sm resize-none overflow-auto"
+                           className="w-full p-3 rounded bg-black text-green-400 font-mono text-sm resize-none overflow-auto
+  border border-gray-700
+  focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                           rows={6}
                           value={q.correctAnswer}
                           onChange={(e) =>
@@ -572,8 +621,13 @@ function CreateQuestion() {
                       onClick={() => {
                         setEditingId(item.id);
                         setTitle(item.title);
-                        setDepartment(item.departmentIds);
-                        setSelectedSyllabus(item.syllabusIds);
+                        // setDepartment(item.departmentIds);
+                        // setSelectedSyllabus(item.syllabusIds);
+                        setDepartment(item.departmentIds.map(id => Number(id)));
+
+setSelectedSyllabus(
+  item.syllabusIds.map(id => Number(id))
+);
                         setSections(item.sections);
                       }}
                     >
@@ -600,7 +654,7 @@ function CreateQuestion() {
 
             {previewData.sections?.map((sec, i) => (
               <div key={i} className="mb-4">
-                <h3 className="font-semibold text-blue-600">
+                <h3 className="font-semibold text-purple-600">
                   {sec.sectionName} (Time: {sec.time} min)
                 </h3>
 

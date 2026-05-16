@@ -1,8 +1,8 @@
 import axios from "axios";
 
 // const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080/api";
- const API_URL = "http://192.168.0.21:8085/TMS/api";
-//const API_URL = "http://localhost:8080/api";
+ //const API_URL = "http://192.168.0.21:8085/TMS/api";
+ const API_URL = "http://localhost:8080/api";
 
 console.log("API URL:", API_URL);
 
@@ -88,13 +88,13 @@ export const storeUserDetails = async () => {
     {
       "userid": "2019WS1122",
       "trngid": "WS1122",
-      "password": "$2a$10$VVz9JDazDVsGjfj3L5AzYeWPs1LCvU/HT6kcqUr55TRHVGJguIzGa",
+      "password": "demo@123",
       "username": "Arunmaran",
       "firstname": "Arunmaran",
       "lastname": "Murugasen",
-      "emailid": "arunmaran.murugesan@whitestones.co.in",
+      "emailid": "laxmi.shukla@whitestones.co.in",
       "phonenumber": "9345287327",
-      "roleId": "R001",
+      "roleId": "R005",
     },
     {
       "userid": "2019WS10018",

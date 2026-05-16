@@ -413,6 +413,21 @@ if (!formData.interviewer || formData.interviewer.length === 0) {
           multiple 
         />
 
+{/* Selected Interviewer Chips */}
+{formData.interviewer?.length > 0 && (
+  <div className="flex flex-wrap gap-2 mt-2">
+    {trainerList
+      .filter(t => formData.interviewer.includes(t.userid))
+      .map(t => (
+        <span
+          key={t.userid}
+          className="px-3 py-1 text-xs bg-purple-200 text-purple-800 rounded-full"
+        >
+          {t.firstname} {t.lastname}
+        </span>
+      ))}
+  </div>
+)}
         {/* Type + Duration */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Select

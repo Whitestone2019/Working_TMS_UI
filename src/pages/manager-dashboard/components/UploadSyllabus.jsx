@@ -63,7 +63,7 @@ const UploadSyllabus = ({ onCancel }) => {
     };
 
     const trainerOptions = trainerList.map(t => ({
-        value: t.trngid,
+        value: String(t.trngid),
         label: `${t.firstname} ${t.lastname}`
     }));
 
@@ -403,7 +403,7 @@ const UploadSyllabus = ({ onCancel }) => {
                 : [],
 
             trainerIds: item.managers
-                ? item.managers.map(t => t.trngid)
+                ? item.managers.map(t => String(t.trngid))
                 : [],
 
             subTopics: item.subTopics?.length
@@ -567,20 +567,34 @@ const UploadSyllabus = ({ onCancel }) => {
 
                                 </div>
 
+<div className="col-span-1 md:col-span-2 flex flex-col">
+    <Select
+        label="Select Trainers"
+        disabled={isRestricted}
+        options={trainerOptions}
+        value={formData.trainerIds}
+        onChange={(value) => handleChange("trainerIds", value)}
+        multiple
+        searchable
+    />
 
-                                <div className="col-span-1 md:col-span-2 flex flex-col">
-                                    <Select
-                                        label="Select Trainers"
-                                        disabled={isRestricted}
-                                        options={trainerOptions}
-                                        value={formData.trainerIds}
-                                        onChange={(value) => handleChange("trainerIds", value)}
-                                        multiple
-                                        searchable
-                                    />
-
-                                </div>
-
+    {formData.trainerIds.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-2">
+            {trainerList
+                .filter(t =>
+                    formData.trainerIds.includes(String(t.trngid))
+                )
+                .map(t => (
+                    <span
+                        key={t.trngid}
+                        className="px-3 py-1 text-xs bg-purple-200 text-purple-800 rounded-full"
+                    >
+                        {t.firstname} {t.lastname}
+                    </span>
+                ))}
+        </div>
+    )}
+</div>
 
                             </div>
 
@@ -676,7 +690,14 @@ const UploadSyllabus = ({ onCancel }) => {
                                             </label>
 
                                             <textarea
-                                                className="w-full h-24 px-4 py-3 rounded-xl border border-purple-300 bg-white shadow-sm"
+                                                className="
+        w-full h-24 px-4 py-3 rounded-xl
+        border border-purple-300 bg-white shadow-sm
+        focus:outline-none
+        focus:ring-2 focus:ring-purple-500
+        focus:border-purple-500
+        resize-none
+    "
                                                 placeholder="Enter subtopic description..."
                                                 disabled={isRestricted}
                                                 value={sub.description}
