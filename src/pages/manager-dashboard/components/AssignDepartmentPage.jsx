@@ -239,6 +239,8 @@ const [searchTerm, setSearchTerm] = useState("");
     const res = await getTraineeById(trainee.traineeId);
     const data = res.data;
 
+setSelectedTrainee(data);
+
     setNewTrainee({
       trngid: data.trngid || "",
       firstname: data.firstname || "",
@@ -253,11 +255,25 @@ const [searchTerm, setSearchTerm] = useState("");
     });
   };
 
+// const isDuplicateTraineeId = () => {
+//   return trainees.some((t) => {
+
+//     const traineeId = t.trngid || t.traineeId;
+
+//     // Edit mode → ignore current editing trainee
+//     if (isEditMode && traineeId === selectedTrainee?.traineeId) {
+//       return false;
+//     }
+
+//     return traineeId === newTrainee.trngid;
+//   });
+// };
 const isDuplicateTraineeId = () => {
   return trainees.some(
     (t) =>
-      t.trngid === newTrainee.trngid &&
-      (!isEditMode || t.traineeId !== selectedTrainee?.traineeId)
+      (t.trngid || t.traineeId) === newTrainee.trngid &&
+      (!isEditMode ||
+        (t.trngid || t.traineeId) !== selectedTrainee?.trngid)
   );
 };
 
